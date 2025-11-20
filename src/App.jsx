@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
 import Home from "./Pages/Home";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import Test from "./Pages/test";
 
-// asldk
+
+
 function App() {
   const [count, setCount] = useState(0);
 
@@ -13,6 +13,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/Test" element={<Test />} />
         </Routes>
       </BrowserRouter>
     </>
