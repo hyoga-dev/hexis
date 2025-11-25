@@ -9,7 +9,6 @@ export default function PasswordInput() {
         placeholder="Password"
         className="input"
       />
-      <button className="toggle-show" onClick={()=> setVisible(!visible)}>{visible ? "👁️" : "🫣"}</button>
     </>
   );
 }
