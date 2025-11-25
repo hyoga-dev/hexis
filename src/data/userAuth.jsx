@@ -26,7 +26,7 @@ export const useAuthLogic = (isRegister = false) => {
       }
       console.log("Registering new user:", formData);
       alert("Account Created Successfully!");
-    } else {
+    } else  {
       if (
         formData.email !== MockUser.email ||
         formData.password !== MockUser.password
