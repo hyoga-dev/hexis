@@ -5,13 +5,21 @@ import "../assets/Styles/login.css";
 import Logo from "../assets/Images/logo.png";
 import AltLogin from "./Components/AltLogin";
 import FormBox from "./Components/FormBox";
+import { useAuthLogic } from "../data/userAuth";
 
 export default function Register() {
+  const { formData, handleChange, handleSubmit } = useAuthLogic(true);
   return (
     <>
       <div className="container">
         <img src={Logo} alt="Logo" className="logo" />
-        <FormBox title="Register your account" isRegister={true} />
+        <FormBox
+          title="Register your account"
+          isRegister={true}
+          formData={formData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+        />
         <p>-Or sign up with-</p>
         <AltLogin />
         <p>
