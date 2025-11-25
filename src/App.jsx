@@ -2,10 +2,10 @@ import { useState } from "react";
 import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
+import NotFound from "./Pages/NotFound";
 
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <>
@@ -13,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/Register" element={<Register />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </>

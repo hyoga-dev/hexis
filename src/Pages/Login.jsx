@@ -1,36 +1,14 @@
-import React, { useState } from "react";
+// import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../assets/Styles/global.css";
 import "../assets/Styles/login.css";
 import Logo from "../assets/Images/logo.png";
 import Icon from "../assets/Images/icon.png";
+import LoginBox from "./Components/LoginBox";
 
-function PasswordInput() {
-  const [visible, setVisible] = useState(false);
-  return (
-    <>
-      <input
-        type={visible ? "text" : "password"}
-        placeholder="Password"
-        className="input"
-      />
-      <button className="toggle-show" onClick={()=> setVisible(!visible)}>{visible ? "👁️" : "🫣"}</button>
-    </>
-  );
-}
 
-function LoginBox() {
-  return (
-    <>
-      <div className="login-box">
-        <h3>Login to your account</h3>
-        <input type="text" placeholder="Email" className="input" />
-        <PasswordInput />
-        <button className="btn-primary">Sign In</button>
-      </div>
-    </>
-  );
-}
+
+
 
 function AltLogin() {
   return (
@@ -49,7 +27,7 @@ export default function Login() {
     <>
       <div className="container">
         <img src={Logo} alt="Logo" className="logo" />
-        <LoginBox />
+        <LoginBox /> 
         <p>-Or sign in with-</p>
         <AltLogin />
         <p>
