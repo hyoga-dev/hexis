@@ -9,7 +9,6 @@ export default function ConfirmPassword() {
         placeholder="Confirm Password"
         className="input"
       />
-      <button className="toggle-show" onClick={()=> setVisible(!visible)}>{visible ? "👁️" : "🫣"}</button>
     </>
   );
 }
