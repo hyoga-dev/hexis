@@ -19,9 +19,16 @@ export default function FormBox({
     <div className="form-box">
       <h3>{title}</h3>
 
+      {isNewPassword && (
+        <p className="description-text">
+          Your new password must be different from previous used password.
+        </p>
+      )}
+
       <form onSubmit={handleSubmit}>
         {!isNewPassword && (
           <Input
+            id="email"
             type="text"
             placeholder="Email"
             name="email"
@@ -30,22 +37,39 @@ export default function FormBox({
           />
         )}
 
+        {isNewPassword && <label htmlFor="password">Password</label>}
         <Input
+          id="password"
           type="password"
-          placeholder={isNewPassword ? "New Password" : "Password"}
+          placeholder={isNewPassword ? "***************" : "Password"}
           name="password"
           value={formData.password || ""}
           onChange={handleChange}
         />
 
+        {isNewPassword && (
+          <p className="help-text">Must be at least 8 characters.</p>
+        )}
+
         {(isRegister || isNewPassword) && (
-          <Input
-            type="password"
-            placeholder="Confirm Password"
-            name="confirmPassword"
-            value={formData.confirmPassword || ""}
-            onChange={handleChange}
-          />
+          <>
+            {isNewPassword && (
+              <label htmlFor="confirmPassword">Confirm Password</label>
+            )}
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder={
+                isNewPassword ? "***************" : "Confirm Password"
+              }
+              name="confirmPassword"
+              value={formData.confirmPassword || ""}
+              onChange={handleChange}
+            />
+            {isNewPassword && (
+              <p className="help-text">Both passwords must match.</p>
+            )}
+          </>
         )}
 
         <button className="btn-primary" type="submit">
