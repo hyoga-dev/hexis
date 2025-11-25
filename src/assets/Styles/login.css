@@ -89,6 +89,13 @@ p {
   text-decoration: none;
 }
 
+.resetLink{
+  color: var(--primary-color);
+  text-decoration: none;;
+  display: flex;
+  text-align: end;
+}
+
 .toggle-show {
   width: 50px;
   height: 50px;

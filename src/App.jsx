@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import NotFound from "./Pages/NotFound";
+import ResetPassword from "./Pages/ResetPassword"
 
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/Register" element={<Register />} />
+          <Route path="/Reset" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
