@@ -6,6 +6,17 @@
   flex-direction: column;
 }
 
+@media (min-width: 768px) {
+  .container {
+    width: 800px;
+  }
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+}
+
 .login-box {
   width: 100%;
   margin-top: 5rem;
