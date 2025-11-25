@@ -2,8 +2,7 @@
 import { Link } from "react-router-dom";
 import "../assets/Styles/global.css";
 import "../assets/Styles/checkemail.css";
-import Logo from "../assets/Images/logo.png"; 
-import LoginBox from "./Components/LoginBox";
+
 
 export default function CheckEmail(){
   return (

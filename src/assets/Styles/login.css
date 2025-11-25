@@ -50,6 +50,7 @@ input:hover {
 
 input:focus {
   border: 2px solid var(--primary-color);
+  outline: none;
 }
 
 input:active {
@@ -57,14 +58,14 @@ input:active {
 }
 
 .input-wrapper {
-  position: relative; 
-  width: 100%;      
-  display: flex;     
+  position: relative;
+  width: 100%;
+  display: flex;
 }
-.peek{
-position: absolute;
+.peek {
+  position: absolute;
   right: 2rem;
-  top: 60%;  
+  top: 60%;
   transform: translateY(-50%);
   background: none;
   border: none;
