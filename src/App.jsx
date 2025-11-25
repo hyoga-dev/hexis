@@ -4,6 +4,7 @@ import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import NotFound from "./Pages/NotFound";
 import ResetPassword from "./Pages/ResetPassword"
+import CheckEmail from "./Pages/CheckEmail"
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="/Register" element={<Register />} />
           <Route path="/Reset" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/CheckEmail" element={<CheckEmail />} />
         </Routes>
       </BrowserRouter>
     </>

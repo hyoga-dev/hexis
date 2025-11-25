@@ -1,0 +1,91 @@
+.check-email-box {
+  width: 100%;
+  margin: 1rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.container-check-email {
+  margin: 12rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  width: 80%;
+}
+
+.container-check-email p{
+  margin-top: 20px;
+}
+
+.input {
+  background-color: var(--background-color);
+  color: var(--font-color);
+  margin-top: 1rem;
+  padding: 1.2rem;
+  border-radius: 0.5rem;
+  border: none;
+  box-shadow: 0px 1px 4px #0c0c0d17;
+  border: 2px solid transparent;
+  transition: all 0.4s ease-in-out;
+}
+
+input::placeholder {
+  color: var(--secondary-font-color);
+}
+
+input:hover {
+  border: 2px solid var(--primary-color);
+}
+
+input:focus {
+  border: 2px solid var(--primary-color);
+}
+
+input:active {
+  border: 2px solid var(--primary-color);
+}
+
+.btn-primary-check {
+  margin-top: 1.5rem;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1.2rem;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  width: 65%;
+}
+
+@media (min-width: 768px) {
+  .container-rese {
+    width: 800px;
+  }
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.img-check img {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  width: 60px;
+}
+
+.link-check {
+  color: var(--secondary-color);
+  text-decoration: none;
+  margin-top: 20px;
+}
