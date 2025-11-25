@@ -90,6 +90,13 @@ p {
   text-decoration: none;
 }
 
+
+.reset-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
 .resetLink{
   color: var(--primary-color);
   text-decoration: none;;
