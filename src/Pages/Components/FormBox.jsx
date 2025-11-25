@@ -1,14 +1,14 @@
 import { useState } from "react";
 import ConfirmPassword from "./ConfirmPassword";
-import PasswordInput from "./PasswordInput";
+import Input from "./Input";
 
 export default function FormBox({ title, isRegister }) {
-  const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    ConfirmPassword: "",
+    confirmPassword: "",
   });
+
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = (e) => {
@@ -20,30 +20,28 @@ export default function FormBox({ title, isRegister }) {
     <>
       <div className="form-box">
         <h3>{title}</h3>
-        <form onSubmit={handleSubmit}>
-          <input
+        <form>
+          <Input
             type="text"
             placeholder="Email"
             name="email"
-            className="input"
             onChange={handleChange}
           />
-          <input
-            type={visible ? "text" : "password"}
+          <Input
+            type="password"
             placeholder="Password"
             name="password"
-            className="input"
             onChange={handleChange}
           />
-          <button
-            onClick={() => {
-              setVisible(!visible);
-            }}
-          >
-            {visible ? "show" : "Hide"}
-          </button>
-          {isRegister === true && <ConfirmPassword />}
-          <button className="btn-primary" type="submit">
+          {isRegister === true && (
+            <Input
+              type="password"
+              placeholder="Confirm Password"
+              name="confirmPassword"
+              onChange={handleChange}
+            />
+          )}
+          <button className="btn-primary" type="submit" onClick={handleSubmit}>
             Sign In
           </button>
         </form>
