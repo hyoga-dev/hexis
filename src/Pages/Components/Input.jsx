@@ -5,14 +5,23 @@ export default function PasswordInput({ type, placeholder, name, onChange }) {
 
   return (
     <>
+    <div className="input-wrapper">
       <input
-        type={type}
+        type={type === "password" ? (visible ? "text" : "password") : "text"}
         placeholder={placeholder}
         name={name}
         className="input"
         onChange={onChange}
         required
       />
+      {type === "password" ? (
+        <button type="button" className="peek" onClick={()=>{setVisible(!visible)}}>
+          {visible ? "hide" : "show"}
+        </button>
+      ) : (
+        " "
+      )}
+      </div>
     </>
   );
 }

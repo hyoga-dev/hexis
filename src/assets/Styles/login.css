@@ -56,6 +56,28 @@ input:active {
   border: 2px solid var(--primary-color);
 }
 
+.input-wrapper {
+  position: relative; 
+  width: 100%;      
+  display: flex;     
+}
+.peek{
+position: absolute;
+  right: 2rem;
+  top: 60%;  
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
 .btn-primary {
   margin-top: 1.5rem;
   background-color: var(--primary-color);
