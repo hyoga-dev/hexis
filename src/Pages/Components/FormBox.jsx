@@ -4,27 +4,49 @@ import PasswordInput from "./PasswordInput";
 
 export default function FormBox({ title, isRegister }) {
   const [visible, setVisible] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    ConfirmPassword: "",
+  });
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Logging in with", formData);
+  };
+
   return (
     <>
       <div className="form-box">
         <h3>{title}</h3>
-        <input type="text" placeholder="Email" name="email" className="input" />
-        <input
-          type={visible ? "text" : "password"}
-          placeholder="Password"
-          name="password"
-          className="input"
-        />
-        <button
-          onClick={() => {
-            setVisible(!visible);
-          }}
-        >
-          {visible ? "show" : "Hide"}
-        </button>
-        <PasswordInput />
-        {isRegister === true && <ConfirmPassword />}
-        <button className="btn-primary">Sign In</button>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Email"
+            name="email"
+            className="input"
+            onChange={handleChange}
+          />
+          <input
+            type={visible ? "text" : "password"}
+            placeholder="Password"
+            name="password"
+            className="input"
+            onChange={handleChange}
+          />
+          <button
+            onClick={() => {
+              setVisible(!visible);
+            }}
+          >
+            {visible ? "show" : "Hide"}
+          </button>
+          {isRegister === true && <ConfirmPassword />}
+          <button className="btn-primary" type="submit">
+            Sign In
+          </button>
+        </form>
       </div>
     </>
   );

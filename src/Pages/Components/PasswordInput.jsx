@@ -7,8 +7,16 @@ export default function PasswordInput() {
       <input
         type={visible ? "text" : "password"}
         placeholder="Password"
+        name="password"
         className="input"
       />
+      <button
+        onClick={() => {
+          setVisible(!visible);
+        }}
+      >
+        {visible ? "show" : "Hide"}
+      </button>
     </>
   );
 }

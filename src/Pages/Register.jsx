@@ -11,7 +11,7 @@ export default function Register() {
     <>
       <div className="container">
         <img src={Logo} alt="Logo" className="logo" />
-        <LoginBox title="Register your account" isregister={true} />
+        <LoginBox title="Register your account" isRegister={true} />
         <p>-Or sign up with-</p>
         <AltLogin />
         <p>
