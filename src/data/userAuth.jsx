@@ -19,6 +19,7 @@ export const useAuthLogic = (isRegister = false) => {
     e.preventDefault();
 
     if (isRegister) {
+      console.log("ada");
       if (formData.password !== formData.confirmPassword) {
         alert("Passwords do not match!");
         return;

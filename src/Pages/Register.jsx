@@ -8,7 +8,7 @@ import FormBox from "./Components/FormBox";
 import { useAuthLogic } from "../data/userAuth";
 
 export default function Register() {
-  const { formData, handleChange, handleSubmit } = useAuthLogic(false);
+  const { formData, handleChange, handleSubmit } = useAuthLogic(true);
   return (
     <>
       <div className="container">
