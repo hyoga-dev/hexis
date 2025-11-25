@@ -15,7 +15,13 @@ export default function Reset(){
       <p>Enter the email associated with your account and we’ll send an email with instruction to reset your password.</p>
     <input type="text" placeholder="Email" className="input" />
     </div>
-    <button className="btn-primary">Sign In</button>
+    <button className="btn-primary">Confirm</button>
+    <p>
+          Don't have an account?{" "}
+          <Link to="/register" className="link">
+            Sign Up
+          </Link>
+        </p>
     </div>
     </>
   )
