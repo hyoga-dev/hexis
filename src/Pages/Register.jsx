@@ -4,14 +4,14 @@ import "../assets/Styles/global.css";
 import "../assets/Styles/login.css";
 import Logo from "../assets/Images/logo.png";
 import AltLogin from "./Components/AltLogin";
-import LoginBox from "./Components/LoginBox";
+import FormBox from "./Components/FormBox";
 
-export default function Login() {
+export default function Register() {
   return (
     <>
       <div className="container">
         <img src={Logo} alt="Logo" className="logo" />
-        <LoginBox title="Register your account" isregister={true} />
+        <FormBox title="Register your account" isRegister={true} />
         <p>-Or sign up with-</p>
         <AltLogin />
         <p>

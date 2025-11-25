@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "../assets/Styles/global.css";
 import "../assets/Styles/login.css";
 import Logo from "../assets/Images/logo.png";
-import LoginBox from "./Components/LoginBox";
+import FormBox from "./Components/FormBox";
 import AltLogin from "./Components/AltLogin";
 
 export default function Login() {
@@ -11,11 +11,11 @@ export default function Login() {
     <>
       <div className="container">
         <img src={Logo} alt="Logo" className="logo" />
-        <LoginBox title="Login to your account" /> 
+        <FormBox title="Login to your account" />
         <div className="reset-container">
-        <Link to="/reset" className="reset-link">
+          <Link to="/reset" className="reset-link">
             Forgot Password
-        </Link>
+          </Link>
         </div>
         <p>-Or sign in with-</p>
         <AltLogin />
