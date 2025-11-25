@@ -20,10 +20,11 @@
 
 .login-box {
   width: 100%;
-  margin-top: 5rem;
+  margin: 1rem 2rem;
   display: flex;
+  justify-content: left;
+  align-items: left;
   flex-direction: column;
-  align-self: flex-start;
 }
 
 .input {
@@ -91,13 +92,7 @@ p {
 }
 
 
-.reset-container {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 0.5rem;
-}
-.resetLink{
+.reset-link{
   color: var(--primary-color);
   text-decoration: none;;
   display: flex;
@@ -111,4 +106,11 @@ p {
   position: relative;
   bottom: 3.4rem;
   left: 19rem;
+}
+
+.reset-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
 }

@@ -13,7 +13,7 @@ export default function Login() {
         <img src={Logo} alt="Logo" className="logo" />
         <LoginBox title="Login to your account" /> 
         <div className="reset-container">
-        <Link to="/reset" className="resetLink">
+        <Link to="/reset" className="reset-link">
             Reset Password
         </Link>
         </div>
