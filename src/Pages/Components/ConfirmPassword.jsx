@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-export default function PasswordInput() {
+export default function ConfirmPassword() {
   const [visible, setVisible] = useState(false);
   return (
     <>
       <input
         type={visible ? "text" : "password"}
-        placeholder="Password"
+        placeholder="Confirm Password"
         className="input"
       />
       <button className="toggle-show" onClick={()=> setVisible(!visible)}>{visible ? "👁️" : "🫣"}</button>
