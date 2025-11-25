@@ -14,7 +14,7 @@ export default function Login() {
         <LoginBox title="Login to your account" /> 
         <div className="reset-container">
         <Link to="/reset" className="reset-link">
-            Reset Password
+            Forgot Password
         </Link>
         </div>
         <p>-Or sign in with-</p>
