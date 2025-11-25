@@ -9,7 +9,7 @@ export default function CheckEmail(){
     <>
       <div className="container-check-email">
       <div className="img-check">
-      <img src="src/assets/Images/icon.png" alt=""/>
+      <img src="src/assets/Images/mail.png" alt=""/>
       </div>
       <div className="email-email-box">
       <h3>Check your email</h3>
