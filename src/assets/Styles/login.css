@@ -18,7 +18,7 @@
   align-items: center;
 }
 
-.login-box {
+.form-box {
   width: 100%;
   margin: 1rem 2rem;
   display: flex;
@@ -91,10 +91,9 @@ p {
   text-decoration: none;
 }
 
-
-.reset-link{
+.reset-link {
   color: var(--primary-color);
-  text-decoration: none;;
+  text-decoration: none;
   display: flex;
   text-align: end;
 }

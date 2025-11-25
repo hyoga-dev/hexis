@@ -4,9 +4,9 @@ import "../assets/Styles/global.css";
 import "../assets/Styles/login.css";
 import Logo from "../assets/Images/logo.png";
 import AltLogin from "./Components/AltLogin";
-import LoginBox from "./Components/LoginBox";
+import LoginBox from "./Components/FormBox";
 
-export default function Login() {
+export default function Register() {
   return (
     <>
       <div className="container">
