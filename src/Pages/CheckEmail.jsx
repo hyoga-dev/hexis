@@ -8,6 +8,11 @@ export default function CheckEmail(){
   return (
     <>
       <div className="container-check-email">
+      <div className="btn-back">
+        <Link to="/" className="link-check">
+          <img src="src/assets/Images/btn-back.png" alt="" />
+          </Link>
+      </div>
       <div className="img-check">
       <img src="src/assets/Images/mail.png" alt=""/>
       </div>

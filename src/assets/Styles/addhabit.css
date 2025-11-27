@@ -1,35 +1,48 @@
-
-.reset-box {
+.add-habit-section-1 {
   width: 100%;
-  margin: 1rem 2rem;
-  display: flex;
-  justify-content: left;
-  align-items: left;
-  flex-direction: column;
-}
-
-.container-reset {
-  margin: 12rem 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
+  gap: 10px;
+}
+.add-habit-section-2 {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  
+}
+.add-habit-section-3 {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
-.reset-box p {
+.container-add-habit {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  width: 100%;
+  padding: 15px;
+}
+
+.container-add-habit p{
   margin-top: 20px;
 }
 
 .input {
   background-color: var(--background-color);
   color: var(--font-color);
-  margin-top: 1rem;
   padding: 1.2rem;
   border-radius: 0.5rem;
   border: none;
   box-shadow: 0px 1px 4px #0c0c0d17;
   border: 2px solid transparent;
   transition: all 0.4s ease-in-out;
+  margin-top: 0px;
 }
 
 input::placeholder {
@@ -48,7 +61,7 @@ input:active {
   border: 2px solid var(--primary-color);
 }
 
-.btn-primary {
+.btn-primary-check {
   margin-top: 1.5rem;
   background-color: var(--primary-color);
   border: none;
@@ -57,7 +70,7 @@ input:active {
   color: white;
   font-weight: bold;
   cursor: pointer;
-  width: 100%;
+  width: 65%;
 }
 
 @media (min-width: 768px) {
@@ -72,13 +85,30 @@ input:active {
   align-items: center;
 }
 
-.btn-back {
-  position: fixed;
-  top: 20px; 
-  left: 20px;  
-  transition: 0.8s;
+.link-check {
+  color: var(--secondary-color);
+  text-decoration: none;
 }
 
-.btn-back img {
-  width: 45px;
+.header {
+  font-weight: bold;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+.header img {
+  margin-bottom: 18px;
+}
+
+img {
+  width: 35px;
+  justify-content: center;
+  display: flex;
+}
+
+.link-roadmap {
+  text-decoration: none;
+  color: #3983E4;
 }

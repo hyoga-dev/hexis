@@ -8,7 +8,13 @@ export default function Reset() {
   const { formData, handleChange, handleSubmit } = useAuthLogic(true);
   return (
     <>
+
       <div className="container-reset">
+        <div className="btn-back">
+        <Link to="/" className="link-check">
+          <img src="src/assets/Images/btn-back.png" alt="" />
+          </Link>
+      </div>
         <div className="reset-box">
           <form onSubmit={handleSubmit}>
             <h3>Reset password</h3>
@@ -23,7 +29,7 @@ export default function Reset() {
         <p>
           Don't have an account?
           <Link to="/register" className="link">
-            Sign Up
+             Sign Up
           </Link>
         </p>
 

@@ -89,3 +89,13 @@ input:active {
   text-decoration: none;
   margin-top: 20px;
 }
+
+.btn-back {
+  position: fixed;
+  top: 20px; 
+  left: 20px;  
+}
+
+.btn-back img {
+  width: 45px;
+}

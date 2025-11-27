@@ -6,6 +6,7 @@ import NotFound from "./Pages/NotFound";
 import ResetPassword from "./Pages/ResetPassword"
 import CheckEmail from "./Pages/CheckEmail"
 import FormResetPassword from "./Pages/FormResetPassword"
+import AddHabit from "./Pages/AddHabit"
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
           <Route path="/CheckEmail" element={<CheckEmail />} />
           <Route path="/FormResetPassword" element={<FormResetPassword />} />
+          <Route path="/AddHabit" element={<AddHabit />} />
         </Routes>
       </BrowserRouter>
     </>
