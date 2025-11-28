@@ -15,6 +15,7 @@ export default function AddHabit() {
             <img src="src/assets/Images/btn-back.png" alt="" />
           </div>
           </Link>Add Habit</div>
+        <div className="container-section">
         <div className="add-habit-section-1">
           <div className="btn-help">
             <img className="btn-help" src="src/assets/Images/help.png" alt="" />
@@ -55,6 +56,7 @@ export default function AddHabit() {
           <option value="Per-day">Per day</option>
           <option value="Per-week">Per week</option>
           </select>
+        </div>
         </div>
       </div>
     </>
