@@ -23,7 +23,9 @@ export default function Reset() {
               email with instruction to reset your password.
             </p>
             <input type="text" placeholder="Email" className="input" name="email" onChange={handleChange} formdata={formData} />
+            <Link to="/checkemail">
             <button className="btn-primary">Confirm</button>
+            </Link>
           </form>
         </div>
         <p>
