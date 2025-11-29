@@ -62,7 +62,7 @@
 
 .link:hover {
   background-color: var(--primary-color);
-  }
+}
 
 .link:hover span {
   color: var(--background-color);
@@ -70,17 +70,17 @@
 
 .link span {
   background-color: transparent;
-   transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
-.activeLink{
+.activeLink {
   background-color: var(--primary-color);
   color: var(--background-color);
   font-weight: bold;
 }
 
 .activeLink span {
-    color: var(--background-color);
+  color: var(--background-color);
 }
 
 .overlay {

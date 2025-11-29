@@ -3,14 +3,18 @@ import { NavLink } from "react-router-dom";
 import "../../assets/Styles/global.css";
 import Styles from "../../assets/Styles/sidebar.module.css";
 import Logo from "../../assets/Images/logo.png";
-import BurgerIcon from "../../assets/Icon/BurgerIcon";
-import Icon from "../../assets/Images/icon.png"
+import BurgerIcon from "../../assets/Icon/SideBar/BurgerIcon";
+import Icon from "../../assets/Images/icon.png";
+import RoadMapIcon from "../../assets/Icon/SideBar/RoadMapIcon";
+import HabitIcon from "../../assets/Icon/SideBar/HabitIcon";
+import SettingIcon from "../../assets/Icon/SideBar/SettingIcon";
+import AnalyticsIcon from "../../assets/Icon/SideBar/AnalyticsIcon";
 
 const navLinks = [
-  { name: "Habit", path: "/habit" },
-  { name: "RoadMap", path: "/habits" },
-  { name: "Analytics", path: "/analytics" },
-  { name: "Settings", path: "/settings" },
+  { name: "Habit", path: "/habit", icon: HabitIcon },
+  { name: "RoadMap", path: "/habits", icon: RoadMapIcon },
+  { name: "Analytics", path: "/analytics", icon: AnalyticsIcon },
+  { name: "Settings", path: "/settings", icon: SettingIcon },
 ];
 
 const SideBar = ({ isOpen, onClose }) => {
@@ -33,8 +37,8 @@ const SideBar = ({ isOpen, onClose }) => {
                 isActive ? `${Styles.link} ${Styles.activeLink}` : Styles.link
               }
             >
-              <img src={Icon} alt="" />
-             <span>{link.name}</span>
+              <link.icon width="2rem" height="2rem" />
+              <span>{link.name}</span>
             </NavLink>
           ))}
         </nav>
