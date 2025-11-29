@@ -34,6 +34,7 @@ export const useAuthLogic = (isRegister = false) => {
         alert("Wrong Credentials (Git Gut)");
       } else {
         alert("Login Success (GoodJob)");
+        
       }
     }
   };

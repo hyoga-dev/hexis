@@ -93,6 +93,7 @@ input::-ms-clear {
   color: white;
   font-weight: bold;
   cursor: pointer;
+  width: 100%;
 }
 
 p {

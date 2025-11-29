@@ -1,0 +1,20 @@
+.container{
+    width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: pink;
+  width: 100%;
+}
+
+.streak {
+  display: flex;
+  align-items: center;
+}
+
+.streak span {
+  font-size: 2.5rem;
+}

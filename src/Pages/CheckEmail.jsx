@@ -1,27 +1,27 @@
 // import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../assets/Styles/global.css";
-import "../assets/Styles/checkemail.css";
+import Styles from "../assets/Styles/checkemail.module.css";
 
 export default function CheckEmail() {
   return (
     <>
-      <div className="container-check-email">
-        <div className="btn-back">
-          <Link to="/reset" className="link-check">
+      <div className={Styles["container-check-email"]}>
+        <div className={Styles["btn-back"]}>
+          <Link to="/reset" className={Styles["link-check"]}>
             <img src="src/assets/Images/btn-back.png" alt="" />
           </Link>
         </div>
-        <div className="img-check">
+        <div className={Styles["img-check"]}>
           <img src="src/assets/Images/mail.png" alt="" />
         </div>
-        <div className="email-email-box">
+        <div className={Styles["email-email-box"]}>
           <h3>Check your email</h3>
           <p>We have sent a password recover. Instruction to your email</p>
         </div>
-        <button className="btn-primary-check">Open email app</button>
-        <Link to="/" className="link-check">
-          Skip, i’ll confirm later
+        <button className={Styles["btn-primary-check"]}>Open email app</button>
+        <Link to="/" className={Styles["link-check"]}>
+          Skip, i'll confirm later
         </Link>
       </div>
     </>

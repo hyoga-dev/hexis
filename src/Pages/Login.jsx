@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../assets/Styles/global.css";
-import "../assets/Styles/login.css";
+import Styles from "../assets/Styles/login.module.css";
 import Logo from "../assets/Images/logo.png";
 import FormBox from "./Components/FormBox";
 import AltLogin from "./Components/AltLogin";
@@ -12,8 +12,8 @@ export default function Login() {
 
   return (
     <>
-      <div className="container">
-        <img src={Logo} alt="Logo" className="logo" />
+      <div className={Styles.container}>
+        <img src={Logo} alt="Logo" className={Styles.logo} />
         <FormBox
           title="Login to your account"
           isRegister={false}
@@ -21,8 +21,8 @@ export default function Login() {
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
-        <div className="reset-container">
-          <Link to="/reset" className="reset-link">
+        <div className={Styles["reset-container"]}>
+          <Link to="/reset" className={Styles["reset-link"]}>
             Forgot Password
           </Link>
         </div>
@@ -30,7 +30,7 @@ export default function Login() {
         <AltLogin />
         <p>
           Don't have an account?{" "}
-          <Link to="/register" className="link">
+          <Link to="/register" className={Styles.link}>
             Sign Up
           </Link>
         </p>

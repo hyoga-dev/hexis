@@ -1,7 +1,7 @@
 // import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../assets/Styles/global.css";
-import "../assets/Styles/login.css";
+import Styles from "../assets/Styles/login.module.css";
 import Logo from "../assets/Images/logo.png";
 import AltLogin from "./Components/AltLogin";
 import FormBox from "./Components/FormBox";
@@ -11,8 +11,8 @@ export default function Register() {
   const { formData, handleChange, handleSubmit } = useAuthLogic(true);
   return (
     <>
-      <div className="container">
-        <img src={Logo} alt="Logo" className="logo" />
+      <div className={Styles.container}>
+        <img src={Logo} alt="Logo" className={Styles.logo} />
         <FormBox
           title="Register your account"
           isRegister={true}
@@ -24,7 +24,7 @@ export default function Register() {
         <AltLogin />
         <p>
           Already have an account?{" "}
-          <Link to="/" className="link">
+          <Link to="/" className={Styles.link}>
             Sign In
           </Link>
         </p>

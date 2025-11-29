@@ -1,4 +1,5 @@
 import Input from "./Input";
+import Styles from "../../assets/Styles/login.module.css";
 
 export default function FormBox({
   title,
@@ -16,11 +17,11 @@ export default function FormBox({
   };
 
   return (
-    <div className="form-box">
+    <div className={Styles["form-box"]}>
       <h3>{title}</h3>
 
       {isNewPassword && (
-        <p className="description-text">
+        <p className={Styles["description-text"]}>
           Your new password must be different from previous used password.
         </p>
       )}
@@ -48,7 +49,7 @@ export default function FormBox({
         />
 
         {isNewPassword && (
-          <p className="help-text">Must be at least 8 characters.</p>
+          <p className={Styles["help-text"]}>Must be at least 8 characters.</p>
         )}
 
         {(isRegister || isNewPassword) && (
@@ -67,12 +68,12 @@ export default function FormBox({
               onChange={handleChange}
             />
             {isNewPassword && (
-              <p className="help-text">Both passwords must match.</p>
+              <p className={Styles["help-text"]}>Both passwords must match.</p>
             )}
           </>
         )}
 
-        <button className="btn-primary" type="submit">
+        <button className={Styles["btn-primary"]} type="submit">
           {getButtonText()}
         </button>
       </form>
