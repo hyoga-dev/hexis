@@ -1,13 +1,17 @@
 .container{
     width: 100%;
+    display: flex;
+    padding: 1rem;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: pink;
   width: 100%;
+  height: 50px;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .streak {
@@ -16,5 +20,15 @@
 }
 
 .streak span {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
+}
+
+.menuBtn {
+  background: none;
+  border: none;
+  padding: 0;     
+  display: flex;  
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
 }
