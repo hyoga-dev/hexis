@@ -25,7 +25,7 @@ export default function PasswordInput({ type, placeholder, name, onChange }) {
               setVisible(!visible);
             }}
           >
-            {visible ? <img src={Show} /> : <img src={Hide} />}
+            {visible ? <img src={Show} /> : <img src={Hide} className={Styles.hide} />}
           </button>
         ) : (
           " "

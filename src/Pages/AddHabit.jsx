@@ -1,139 +1,136 @@
-// import { useState } from "react";
 import { Link } from "react-router-dom";
-import "../assets/Styles/global.css";
 import Styles from "../assets/Styles/addhabit.module.css";
-import { useAuthLogic } from "../data/userAuth";
+import Back from "./Components/Back";
+
 
 export default function AddHabit() {
-  const { formData, handleChange, handleSubmit } = useAuthLogic(true);
+
   return (
-    <>
-      <div className={Styles["container-add-habit"]}>
-        <div className={Styles.header}>
-          <Link to="/" className={Styles["link-check"]}>
-            <div>
-              <img src="src/assets/Images/btn-back.png" alt="" />
-            </div>
-          </Link>
-          Add Habit
+      <div className={Styles["container"]}>
+        <Back title="Add Habit" />
+        <div className={Styles["nama-habit"]}>
+          <img src="src/assets/Images/help.png" alt="help icon"/>   
+          <input type="text" placeholder="Masukkan nama habit" />
+          <img src="src/assets/Images/maps.png" alt="maps icon" />
+          <Link to="/roadmap" className={Styles["link-roadmap"]}>Roadmap</Link>
         </div>
-        <div className={Styles["container-section"]}>
-          <div className={Styles["add-habit-section-1"]}>
-            <div className={Styles["btn-help"]}>
-              <img
-                className={Styles["btn-help"]}
-                src="src/assets/Images/help.png"
-                alt=""
-              />
+
+        <div className={Styles["section"]}>
+
+            <div>
+              <div>
+                <img src="src/assets/Images/repeat.png" alt="" />
+                <h3>Ulangi</h3>
+              </div>
+
+              <div >
+                <select name="ulangi">
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+
+                <select name="ulangi">
+                  <option value="day">Every day</option>
+                  <option value="day">Sunday</option>
+                  <option value="day">Monday</option>
+                  <option value="day">Tuesday</option>
+                  <option value="day">Wednesday</option>
+                  <option value="day">Thursday</option>
+                  <option value="day">Friday</option>
+                  <option value="day">Saturday</option>
+                </select>
+              </div>
             </div>
-            <input
-              className={Styles.input}
-              type="text"
-              placeholder="Masukkan nama habit"
-            ></input>
-            <div className={Styles["btn-maps"]}>
-              <img src="src/assets/Images/maps.png" alt="" />
+
+            <div>
+              <div>
+                <img src="src/assets/Images/goal.png" alt="" />
+                <h3>Goals</h3>
+              </div>
+
+              <div>
+                <input type="number" placeholder="0"/>
+                <select name="goal" >
+                  <option value="daily">Times</option>
+                  <option value="daily">Timed</option>
+                </select>
+                <select name="goal" >
+                  <option value="Per-day">Per day</option>
+                  <option value="Per-week">Per week</option>
+                </select>
+              </div>
             </div>
-            <Link to="/roadmap" className={Styles["link-roadmap"]}>
-              Roadmap
-            </Link>
-          </div>
-          <div className={Styles["add-habit-section-2"]}>
-            <img src="src/assets/Images/repeat.png" alt="" />
-            <h3>Ulangi</h3>
-            <select name="ulangi" className={Styles.input}>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="yearly">Yearly</option>
-            </select>
-            <select name="ulangi" className={Styles.input}>
-              <option value="day">Every day</option>
-              <option value="day">Sunday</option>
-              <option value="day">Monday</option>
-              <option value="day">Tuesday</option>
-              <option value="day">Wednesday</option>
-              <option value="day">Thursday</option>
-              <option value="day">Friday</option>
-              <option value="day">Saturday</option>
-            </select>
-          </div>
-          <div className={Styles["add-habit-section-3"]}>
-            <img src="src/assets/Images/goal.png" alt="" />
-            <input
-              type="number"
-              className={Styles.input}
-              placeholder="1"
-            ></input>
-            <select name="goal" className={Styles.input}>
-              <option value="daily">Times</option>
-              <option value="daily">Timed</option>
-            </select>
-            <select name="goal" className={Styles.input}>
-              <option value="Per-day">Per day</option>
-              <option value="Per-week">Per week</option>
-            </select>
-          </div>
-          <div className={Styles["add-habit-section-4"]}>
-            <img src="src/assets/Images/sun.png" alt="" />
-            <h3>Times of the day</h3>
-            <input
-              type="checkbox"
-              className={Styles["custom-mark"]}
-              id="mark-morning"
-            />
-            <p>Morning</p>
-            <input
-              type="checkbox"
-              className={Styles["custom-mark"]}
-              id="mark-afternoon"
-            />
-            <p>Afternoon</p>
-            <input
-              type="checkbox"
-              className={Styles["custom-mark"]}
-              id="mark-evening"
-            />
-            <p>Evening</p>
-          </div>
-          <div className={Styles["add-habit-section-5"]}>
-            <img src="src/assets/Images/flag.png" alt="" />
-            <h3>Start Date</h3>
-            <input type="date" className={Styles.date} />
-          </div>
-          <div className={Styles["add-habit-section-6"]}>
-            <img src="src/assets/Images/slash.png" alt="" />
-            <h3>End conditon</h3>
-            <select name="end-condition" className={Styles.input}>
-              <option value="daily">Never</option>
-              <option value="weekly"></option>
-              <option value="yearly"></option>
-            </select>
-          </div>
-          <div className={Styles["add-habit-section-7"]}>
-            <img src="src/assets/Images/reminder.png" alt="" />
-            <h3>Reminder</h3>
-            <input type="time" className={Styles.input} />
-          </div>
-          <div className={Styles["add-habit-section-8"]}>
-            <img src="src/assets/Images/areas.png" alt="" />
-            <h3>Areas</h3>
-            <input
-              type="text"
-              className={Styles.input}
-              placeholder="select areas"
-            />
-          </div>
-          <div className={Styles["add-habit-section-8"]}>
-            <img src="src/assets/Images/checklist.png" alt="" />
-            <h3>Checklist</h3>
-            <input
-              type="text"
-              placeholder="Add new checklist"
-              className={Styles.input}
-            />
-          </div>
+
+            <div className={Styles.times}>
+                <div >
+                  <img src="src/assets/Images/sun.png" alt="" />
+                  <h3>Times</h3>
+                </div>
+
+                <div>
+                  <div>
+                    <input type="checkbox" id="mark-morning"/>
+                    <div>Morning</div>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="mark-afternoon"/>
+                    <div>Afternoon</div>
+                  </div>
+                  <div>
+                    <input type="checkbox" id="mark-evening"/>
+                    <div>Evening</div>
+                  </div>
+                </div>
+            </div>
+
+            <div>
+              <div>
+                <img src="src/assets/Images/flag.png" alt="" />
+                <h3>Start Date</h3>
+              </div>
+              <input type="date" className={Styles.date} />
+            </div>
+
+            <div>
+              <div>
+                <img src="src/assets/Images/reminder.png" alt="" />
+                <h3>Reminder</h3>
+              </div>
+              <input type="time" />
+            </div>
+
+            <div>
+              <div>
+                <img src="src/assets/Images/slash.png" alt=""/>
+                <h3>End conditon</h3>
+              </div>
+              <select name="end-condition" >
+                <option value="daily">Never</option>
+                <option value="weekly"></option>
+                <option value="yearly"></option>
+              </select>
+              
+            </div>
+            
+            <div>
+              <div>
+                <img src="src/assets/Images/areas.png" alt="" />
+                <h3>Areas</h3>
+              </div>
+              <input type="text" placeholder="select areas"/>
+            </div>
+
+            <div>
+              <div>
+                <img src="src/assets/Images/checklist.png" alt="" />
+                <h3>Checklist</h3>
+              </div>
+              <input type="text" placeholder="Add new checklist"/>
+
+            </div>
+
         </div>
       </div>
-    </>
   );
 }

@@ -30,12 +30,10 @@ body,
 #root {
   height: 100%;
   width: 100%;
+  font-size: 12px;
 }
 
 #root {
   display: flex;
-  
   justify-content: center;
-  /* align-items: center; */ /* This was causing the issue */
-  /* justify-content: center; */
 }
