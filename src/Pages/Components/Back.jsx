@@ -4,7 +4,7 @@ import Styles from "../../assets/Styles/addhabit.module.css";
 export default function Back(props) {
   return (
     <div className={Styles.header}>
-      <Link to="/habit" className={Styles["link-check"]}>
+      <Link to={props.link} className={Styles["link-check"]}>
         <div>
           <img src="src/assets/Images/btn-back.png" alt="" />
         </div>
