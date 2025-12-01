@@ -1,12 +1,23 @@
 import Navbar from "./Components/Navbar";
+import style from "../assets/Styles/habit.module.css";
+import HabitItem from "./Components/HabitItem";
+
 
 const Habit = () => {
-  // const [isOpen, setIsOpen] = useState(false);
-
+  
   return (
-      <div >
+      <div className={style.outerContainer}>
+
         <Navbar />
-        <p>p</p>
+
+        <div className={style.container}>
+          <div>
+            <h2>Morning</h2>
+            <p>Filter</p>
+          </div>
+          <HabitItem />
+        </div>
+        
       </div>
   );
 };

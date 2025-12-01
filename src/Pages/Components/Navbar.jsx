@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../assets/Styles/global.css";
+// import "../../assets/Styles/global.css";
 import Styles from "../../assets/Styles/navbar.module.css";
 import BurgerIcon from "../../assets/Icon/SideBar/BurgerIcon";
 import BasilFireOutline from "../../assets/Icon/BasilFireOutline";
@@ -23,5 +23,5 @@ export default function Navbar() {
                 </div>
             </div>
         </div>
-)
+    )
 }
