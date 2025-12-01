@@ -42,7 +42,7 @@ export default function Reset() {
           </form>
         </div>
         <p>
-          Don't have an account?
+          Don't have an account? 
           <Link to="/register" className={Styles.link}>
             Sign Up
           </Link>

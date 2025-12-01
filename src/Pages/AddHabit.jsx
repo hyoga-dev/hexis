@@ -9,6 +9,7 @@ export default function AddHabit() {
       <div className={Styles["container"]}>
         <Back title="Add Habit" link="/habit" />
         <br />
+        
         <div className={Styles["nama-habit"]}>
           <img src="src/assets/Images/help.png" alt="help icon"/>   
           <input type="text" placeholder="Masukkan nama habit" />

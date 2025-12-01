@@ -1,6 +1,7 @@
 .container{
-    width: 100%;
+    width: 100vw;
     display: flex;
+    flex: 1;
     padding: 1rem;
 }
 

@@ -1,31 +1,13 @@
-import { useState } from "react";
-
-import Styles from "../assets/Styles/habit.module.css";
-import "../assets/Styles/global.css";
-import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
-import BasilFireOutline from "../assets/Icon/BasilFireOutline";
-
-import SideBar from "../Pages/Components/SideBar";
+import Navbar from "./Components/Navbar";
 
 const Habit = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <>
-      <div className={Styles.container}>
-        <div className={Styles.header}>
-          <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
-          <button onClick={() => setIsOpen(true)} className={Styles.menuBtn}>
-            <BurgerIcon width="2rem" height="2rem" />
-          </button>
-
-          <div className={Styles.streak}>
-            <BasilFireOutline width="2rem" height="2rem" />
-            <span>4</span>
-          </div>
-        </div>
+      <div >
+        <Navbar />
+        <p>p</p>
       </div>
-    </>
   );
 };
 

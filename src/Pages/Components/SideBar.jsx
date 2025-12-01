@@ -1,10 +1,8 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
 import "../../assets/Styles/global.css";
 import Styles from "../../assets/Styles/sidebar.module.css";
 import Logo from "../../assets/Images/logo.png";
 import BurgerIcon from "../../assets/Icon/SideBar/BurgerIcon";
-import Icon from "../../assets/Images/icon.png";
 import RoadMapIcon from "../../assets/Icon/SideBar/RoadMapIcon";
 import HabitIcon from "../../assets/Icon/SideBar/HabitIcon";
 import SettingIcon from "../../assets/Icon/SideBar/SettingIcon";
