@@ -4,6 +4,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  width: 100%;
 }
 
 @media (min-width: 768px) {
@@ -12,11 +13,11 @@
   }
 }
 
-#root {
+/* #root {
   display: flex;
   justify-content: center;
   align-items: center;
-}
+} */
 
 .form-box {
   width: 100%;
@@ -62,9 +63,15 @@ input:active {
   width: 100%;
   display: flex;
 }
+
 .input-wrapper img {
-  width: 25px;
+  width: 1.5rem;
   height: auto;
+  /* opacity: 50%; */
+}
+
+.hide {
+  opacity: 30%;
 }
 
 .peek {
@@ -78,6 +85,7 @@ input:active {
   font-size: 0.8rem;
   color: #666;
 }
+
 
 input::-ms-reveal,
 input::-ms-clear {
@@ -111,6 +119,11 @@ p {
   align-items: center;
 }
 
+.alt-login img {
+  width: 4rem;
+  height: auto;
+}
+
 .icon {
   width: 4.5rem;
   height: 4.5rem;
@@ -124,8 +137,6 @@ p {
 .reset-link {
   color: var(--primary-color);
   text-decoration: none;
-  display: flex;
-  text-align: end;
 }
 
 .toggle-show {

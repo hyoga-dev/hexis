@@ -1,0 +1,110 @@
+:root {
+  --background-color: #f4f4f4;
+  --primary-color: #3983e4;
+  --secondary-color: #474747;
+  --font-color: #333333;
+  --secondary-font-color: #66666679;
+}
+
+.container {
+  background-color: var(--background-color);
+  width: 50%;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: all 0.5s ease-in-out;
+  z-index: 100;
+}
+
+.active {
+  transform: translateX(0);
+}
+
+.header {
+  padding: 1rem;
+  gap: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.header img {
+  width: 8rem;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .container {
+    width: 15%;
+  }
+}
+
+.nav {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.link {
+  display: flex;
+  margin-top: 10px;
+  text-decoration: none;
+  align-items: center;
+  border-radius: 3px;
+  padding: 7px;
+  gap: 5px;
+  color: var(--font-color);
+  transition: all 0.3s ease-in-out;
+}
+
+.link:hover {
+  background-color: var(--primary-color);
+}
+
+.link:hover span {
+  color: var(--background-color);
+}
+
+.link span {
+  background-color: transparent;
+  transition: all 0.3s ease-in-out;
+}
+
+.activeLink {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+  font-weight: bold;
+}
+
+.activeLink span {
+  color: var(--background-color);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s linear, visibility 0.3s linear;
+}
+.overlayActive {
+  opacity: 1;
+  visibility: visible;
+}
+
+.BurgerIcon {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  cursor: pointer;
+  z-index: 100;
+}
