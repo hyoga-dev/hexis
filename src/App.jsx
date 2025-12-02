@@ -8,6 +8,7 @@ import CheckEmail from "./Pages/CheckEmail"
 import FormResetPassword from "./Pages/FormResetPassword"
 import AddHabit from "./Pages/AddHabit"
 import Habit from "./Pages/Habit"
+import UserData from "./data/DataDisplayTest"
 
 
 function App() {
@@ -24,6 +25,8 @@ function App() {
           <Route path="/FormResetPassword" element={<FormResetPassword />} />
           <Route path="/AddHabit" element={<AddHabit />} />
           <Route path="/Habit" element={<Habit />} />
+          <Route path="/Data" element={<UserData />} />
+          
         </Routes>
       </BrowserRouter>
     </>
