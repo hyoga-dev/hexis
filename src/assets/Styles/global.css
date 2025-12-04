@@ -3,22 +3,24 @@
 /* LIGHT MODE (Default) */
 :root {
   /* BACKGROUNDS */
-  --background-color: #F2F5F7; /* Slightly grey so cards pop */
+  --background-color: #f2f5f7; /* Slightly grey so cards pop */
   --surface-color: #ffffff; /* Cards, Headers, Inputs */
+  /* Layout */
+  --sidebar-width: 15%;
 
   /* MAIN COLORS */
-  --primary-color: #38ACFF;
+  --primary-color: #38acff;
   --primary-hover: #2c6bb0; /* Darker version for hover */
   --secondary-color: #474747;
 
   /* TEXT */
-  --font-color: #1A2126;
+  --font-color: #1a2126;
   --secondary-font-color: #66666679;
-  --on-primary: #F7F7F7; /* Text color inside primary buttons */
+  --on-primary: #f7f7f7; /* Text color inside primary buttons */
 
   /* UTILITIES */
   --border-color: #e0e0e0; /* Subtle lines */
-  --shadow-color: #E3E6E8;
+  --shadow-color: #e3e6e8;
   --error-color: #e74c3c; /* For form validation */
 }
 
@@ -33,7 +35,7 @@
 * {
   margin: 0;
   padding: 0;
-  
+
   font-family: "Montserrat";
   box-sizing: border-box;
 }

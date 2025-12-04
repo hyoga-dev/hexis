@@ -9,7 +9,7 @@ const Roadmap = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className={Styles.outerContainer}>
+    <div className={Styles.wrapper}>
       <div className={NavbarStyles.container}>
         <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
         <div className={NavbarStyles.header}>
