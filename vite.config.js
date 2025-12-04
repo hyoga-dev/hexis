@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt'],
       manifest: {
-        name: 'My React Vite App',
-        short_name: 'ReactVite',
+        name: 'hexis-app',
+        short_name: 'hexis-app',
         description: 'React Vite PWA App',
         theme_color: '#ffffff',
         icons: [
@@ -31,6 +31,11 @@ export default defineConfig({
             purpose: 'any maskable'
           }
         ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        cleanupOutdatedCaches: true,
+        sourcemap: true
       }
     })
   ]
