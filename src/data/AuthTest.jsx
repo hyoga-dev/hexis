@@ -1,8 +1,10 @@
-// src/AuthTest.jsx
 import { useAuthLogin } from './useAuthLogin.jsx';
+import { auth } from '../firebase.js'; 
+
 import Login from '../Login';
 
 function AuthTest() {
+  // console.log(auth.currentUser);
   const { currentUser, loading } = useAuthLogin();
 
   if (loading) {

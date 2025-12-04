@@ -10,7 +10,7 @@ let habitData = [
 
 const HabitItem = () => {
     const {habit, setHabit, value} = useHabitProvider()
-    console.log(habit)
+    // console.log(habit)
 
     return (
         <div className={style.cardContainer}>

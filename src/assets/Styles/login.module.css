@@ -32,12 +32,6 @@
   }
 }
 
-/* #root {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-} */
-
 .form-box {
   width: 100%;
   margin: 1rem 2rem;
@@ -151,6 +145,12 @@ p {
 .icon {
   width: 4.5rem;
   height: 4.5rem;
+}
+
+.icon:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+  transition: transform 0.2s;
 }
 
 .link {

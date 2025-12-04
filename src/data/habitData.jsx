@@ -1,5 +1,7 @@
 import { useState, createContext, useContext, useEffect } from "react";
+import { auth } from '../firebase.js'; 
 import useLocalStorage from "./useLocalStorage";
+import { useAuthLogin } from "./useAuthLogin";
 
 const habitContext = createContext()
 
@@ -9,6 +11,7 @@ export const useHabitProvider = () => {
 
 const dataHabit = [
     {
+        uid: auth.currentUser ? auth.currentUser.uid : "guest",
         title: "judul",
         ulangi: {frekuensi: "daily",ulangiSetiap: "everyday"}, 
         goals: {count: 0, satuan: "time", ulangi: "perday"},
@@ -22,7 +25,11 @@ const dataHabit = [
 ]
 
 export function HabitProvider({children}) {
-    
+    const { currentUser, loading } = useAuthLogin();
+    dataHabit[0].uid = currentUser ? currentUser.uid : "guest";
+    console.log(currentUser);
+
+    // console.log("Current User in HabitProvider:", auth.currentUser);
     const [value, setValue] = useLocalStorage("habitDetail", dataHabit)
     const [habit, sethabit] = useState(value);
 

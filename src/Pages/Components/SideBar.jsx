@@ -7,6 +7,8 @@ import RoadMapIcon from "../../assets/Icon/SideBar/RoadMapIcon";
 import HabitIcon from "../../assets/Icon/SideBar/HabitIcon";
 import SettingIcon from "../../assets/Icon/SideBar/SettingIcon";
 import AnalyticsIcon from "../../assets/Icon/SideBar/AnalyticsIcon";
+import { signInWithPopup, signOut, getAuth } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase.js'; 
 
 const navLinks = [
   { name: "Habit", path: "/habit", icon: HabitIcon },
@@ -16,6 +18,19 @@ const navLinks = [
 ];
 
 const SideBar = ({ isOpen, onClose }) => {
+  const user = auth.currentUser; 
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      window.location.href = '/';
+
+      console.log('Signed out successfully!');
+    } catch (error) {
+      console.error('Sign-Out Error:', error.message);
+    }
+  };
+
   return (
     <>
       <div className={`${Styles.container} ${isOpen ? Styles.active : ""}`}>
@@ -42,7 +57,7 @@ const SideBar = ({ isOpen, onClose }) => {
         </nav>
 
         <div className={Styles.footer}>
-          <NavLink to="/login" className={Styles.logout}>
+          <NavLink onClick={handleSignOut} to="/login" className={Styles.logout}>
             Logout
           </NavLink>
         </div>

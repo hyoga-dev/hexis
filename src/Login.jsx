@@ -1,14 +1,11 @@
-import React from 'react';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleProvider } from './firebase.js'; // Import from your setup file
+import { auth, googleProvider } from './firebase.js'; 
 
 function Login() {
-  // Check the current user state on component render
   const user = auth.currentUser; 
 
   const handleGoogleSignIn = async () => {
     try {
-      // 1. Call the sign-in function
       const result = await signInWithPopup(auth, googleProvider);
       
       // The user info is available in result.user
