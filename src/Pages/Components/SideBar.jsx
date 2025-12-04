@@ -10,7 +10,7 @@ import AnalyticsIcon from "../../assets/Icon/SideBar/AnalyticsIcon";
 
 const navLinks = [
   { name: "Habit", path: "/habit", icon: HabitIcon },
-  { name: "RoadMap", path: "/habits", icon: RoadMapIcon },
+  { name: "Roadmap", path: "/roadmap", icon: RoadMapIcon },
   { name: "Analytics", path: "/analytics", icon: AnalyticsIcon },
   { name: "Settings", path: "/settings", icon: SettingIcon },
 ];

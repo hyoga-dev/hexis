@@ -1,25 +1,25 @@
 import Navbar from "./Components/Navbar";
 import style from "../assets/Styles/habit.module.css";
 import HabitItem from "./Components/HabitItem";
-import { useUserProvider } from "../data/DataDisplayTest";
+import { Link } from "react-router-dom";
 
 
 const Habit = () => {
-  const {user, setUser} = useUserProvider()
 
   return (
       <div className={style.outerContainer}>
-
         <Navbar />
 
         <div className={style.container}>
           <div>
-            <h2>Morning {`${user}`}</h2>
+            <h2>Morning</h2>
             <p>Filter</p>
           </div>
+          
           <HabitItem />
         </div>
         
+        <Link to="/addhabit" className={style.addHabitBtn}>add habit</Link>
       </div>
   );
 };

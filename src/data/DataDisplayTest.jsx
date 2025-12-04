@@ -2,11 +2,11 @@ import { useState, createContext, useContext, useEffect } from "react";
 
 const test = createContext()
 
-export const useUserProvider = () => {
+const useUserProvider = () => {
     return useContext(test);
 }
 
-export function UserProvider({children}) {
+function UserProvider({children}) {
     const [user, setUser] = useState("linus");
 
     const contextValue = {

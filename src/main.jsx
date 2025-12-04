@@ -1,9 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
-import { UserProvider } from "./data/DataDisplayTest.jsx";
+import { UserProvider } from "./data/userData.jsx";
 import App from "./App.jsx";
 import "./assets/Styles/global.css";
+import { HabitProvider } from "./data/habitData.jsx";
 
 registerSW({
   immediate: true,
@@ -11,8 +12,10 @@ registerSW({
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <UserProvider>
-      <App />
-    </UserProvider>
+    <HabitProvider>
+      <UserProvider>
+        <App />
+      </UserProvider>
+    </HabitProvider>
   </StrictMode>
 );

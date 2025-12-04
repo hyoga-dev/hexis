@@ -1,0 +1,26 @@
+.container {
+    margin: 0 20px;
+}
+
+.container p {
+    color: gray;
+    margin: 20px 0 ;
+    text-align: justify;
+    font-size: medium;
+}
+
+.outerContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.card {
+    margin-top: 1rem;
+    padding: 24px 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.star {
+    display: flex;
+    gap: 8px;
+    flex-direction: row;
+}

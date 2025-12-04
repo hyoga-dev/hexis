@@ -1,5 +1,30 @@
-import React, {createContext} from "react";
+import { useState, createContext, useContext, useEffect } from "react";
+import useLocalStorage from "./useLocalStorage";
 
-const test = createContext("heloo from useData")
+const userData = createContext()
 
-export default test;
+export const useUserProvider = () => {
+    return useContext(userData);
+}
+
+export function UserProvider({children}) {
+    const [value, setValue] = useLocalStorage("test1", "")
+    const [user, setUser] = useState(value);
+    
+    useEffect(() => {
+        // setUser(value)
+        setValue(user)
+    }, [user])
+
+    const contextValue = {
+        user,
+        setUser,
+        value
+    }
+
+    return (
+        <userData.Provider value={contextValue}>
+            {children}
+        </userData.Provider>
+    )
+}
