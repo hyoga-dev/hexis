@@ -9,14 +9,15 @@ const Settings = () => {
 
   return (
     <div className={Styles.wrapper}>
-      <div className={NavbarStyles.container}>
+   
         <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
         <div className={NavbarStyles.header}>
           <button onClick={() => setIsOpen(true)} className={NavbarStyles.menuBtn}>
             <BurgerIcon width="2rem" height="2rem" />
           </button>
         </div>
-      </div>
+   
+   {/* content */}
       Setting
     </div>
   );

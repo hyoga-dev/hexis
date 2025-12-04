@@ -12,8 +12,11 @@ const Habit = () => {
 
   return (
     <div className={style.wrapper}>
+
+      {/* header */}
       <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
       <div className={Styles.header}>
+
         <button onClick={() => setIsOpen(true)} className={Styles.menuBtn}>
           <BurgerIcon width="2rem" height="2rem" />
         </button>
@@ -22,8 +25,10 @@ const Habit = () => {
           <BasilFireOutline width="2rem" height="2rem" />
           <span>4</span>
         </div>
+
       </div>
 
+      {/* content */}
       <div className={style.container}>
         <div>
           <h2>Morning</h2>

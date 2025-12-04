@@ -9,14 +9,17 @@ const Analytics = () => {
 
   return (
     <div className={Styles.wrapper}>
-      <div className={NavbarStyle.container}>
+
+      {/* header */}
         <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
+
         <div className={NavbarStyle.header}>
           <button onClick={() => setIsOpen(true)} className={NavbarStyle.menuBtn}>
             <BurgerIcon width="2rem" height="2rem" />
           </button>
         </div>
-      </div>
+      
+      {/* content */}
       Analytics
     </div>
   );
