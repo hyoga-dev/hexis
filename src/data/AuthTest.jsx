@@ -1,9 +1,9 @@
 // src/AuthTest.jsx
-import { useAuth } from './hooks/useAuth';
-import Login from './Login';
+import { useAuthLogin } from './useAuthLogin.jsx';
+import Login from '../Login';
 
 function AuthTest() {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, loading } = useAuthLogin();
 
   if (loading) {
     return <h1>Loading Authentication...</h1>;
@@ -13,7 +13,10 @@ function AuthTest() {
     <div>
       {currentUser ? (
         // Display protected content for logged-in users
-        <h1>Hello, {currentUser.displayName}! You are authenticated.</h1>
+        <div>
+            <h1>Hello, {currentUser.displayName}! You are authenticated.</h1>
+            <Login />
+        </div>
       ) : (
         // Show the login component
         <Login />

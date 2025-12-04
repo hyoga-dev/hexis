@@ -14,6 +14,7 @@ import RoadmapDetail from "./Pages/RoadmapDetail";
 import Settings from "./Pages/Settings";
 import Profil from "./Pages/profil";
 import Analytics from "./Pages/Analytics";
+import AuthTest from "./data/authTest";
 
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <Route path="/Settings" element={<Settings />} />
           <Route path="/Profil" element={<Profil />} />
           <Route path="/Analytics" element={<Analytics />} />
+          <Route path="/AuthTest" element={<AuthTest />} />
         </Routes>
       </BrowserRouter>
     </>

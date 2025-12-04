@@ -1,13 +1,11 @@
-// src/hooks/useAuth.js
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '../firebase'; // Import auth
-
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase.js'; // Import auth
 /**
  * Custom Hook to track and return the current Firebase User object.
  */
 export function useAuthLogin() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

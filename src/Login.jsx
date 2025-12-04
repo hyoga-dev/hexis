@@ -1,6 +1,6 @@
 import React from 'react';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleProvider } from './firebase'; // Import from your setup file
+import { auth, googleProvider } from './firebase.js'; // Import from your setup file
 
 function Login() {
   // Check the current user state on component render
@@ -33,15 +33,15 @@ function Login() {
 
   return (
     <div>
+        {console.log(user)}
+        
       {user ? (
-        // UI when user is logged in
         <div>
           <h3>Welcome, **{user.displayName}**!</h3>
           <p>Email: {user.email}</p>
           <button onClick={handleSignOut}>Sign Out</button>
         </div>
       ) : (
-        // UI when user is logged out
         <button onClick={handleGoogleSignIn}>
           Sign in with Google
         </button>
