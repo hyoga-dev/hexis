@@ -11,12 +11,12 @@ div, img, p {
     flex-direction: column;
 }
 
-@media (min-width: 768px) {
+/* @media (min-width: 768px) {
     .outerContainer {
         position: static;
         flex-direction: row;
     }
-}
+} */
 
 .container {
     margin: 0 20px;

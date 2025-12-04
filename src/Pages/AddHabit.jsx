@@ -14,7 +14,7 @@ export default function AddHabit() {
           <img src="src/assets/Images/help.png" alt="help icon"/>   
           <input type="text" placeholder="Masukkan nama habit" />
           <img src="src/assets/Images/maps.png" alt="maps icon" />
-          <Link to="/chooseroadmap" className={Styles["link-roadmap"]}>Roadmap</Link>
+          <Link to="/roadmap" className={Styles["link-roadmap"]}>Roadmap</Link>
         </div>
 
         <div className={Styles["section"]}>

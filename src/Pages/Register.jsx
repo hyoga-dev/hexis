@@ -20,7 +20,7 @@ export default function Register() {
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
-        <p>-Or sign up with-</p>
+        <p className={Styles.orSign}>-Or sign up with-</p>
         <AltLogin />
         <p>
           Already have an account?{" "}

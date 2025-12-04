@@ -7,6 +7,10 @@
   width: 100%;
 }
 
+.orSign {
+  margin-top: 8rem;
+}
+
 @media (min-width: 768px) {
   .container {
     width: 800px;
