@@ -1,12 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
+/* LIGHT MODE (Default) */
 :root {
-  /* --background-color: #f4f4f4; */
-  --background-color: #ffffff;
-  --primary-color: #3983e4;
+  /* BACKGROUNDS */
+  --background-color: #F2F5F7; /* Slightly grey so cards pop */
+  --surface-color: #ffffff; /* Cards, Headers, Inputs */
+
+  /* MAIN COLORS */
+  --primary-color: #38ACFF;
+  --primary-hover: #2c6bb0; /* Darker version for hover */
   --secondary-color: #474747;
-  --font-color: #333333;
+
+  /* TEXT */
+  --font-color: #1A2126;
   --secondary-font-color: #66666679;
+  --on-primary: #F7F7F7; /* Text color inside primary buttons */
+
+  /* UTILITIES */
+  --border-color: #e0e0e0; /* Subtle lines */
+  --shadow-color: #E3E6E8;
+  --error-color: #e74c3c; /* For form validation */
 }
 
 /* :root {
@@ -20,8 +33,7 @@
 * {
   margin: 0;
   padding: 0;
-  background-color: var(--background-color);
-  color: var(--font-color);
+  
   font-family: "Montserrat";
   box-sizing: border-box;
 }
@@ -29,6 +41,8 @@
 html,
 body,
 #root {
+  background-color: var(--background-color);
+  color: var(--font-color);
   height: 100%;
   width: 100%;
   font-size: 12px;

@@ -1,10 +1,4 @@
-:root {
-  --background-color: #f4f4f4;
-  --primary-color: #3983e4;
-  --secondary-color: #474747;
-  --font-color: #333333;
-  --secondary-font-color: #66666679;
-}
+
 
 .container {
   background-color: var(--background-color);

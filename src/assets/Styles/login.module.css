@@ -1,15 +1,30 @@
+.pageWrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+   background-color: var(--background-color); 
+}
+
 .container {
+  background-color: var(--surface-color);
+  border-radius: 1rem;
   margin: 4rem 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 3rem;
   flex-direction: column;
-  width: 100%;
+  width: 500px;
+  height: 500px;
+  box-shadow: 0px 1px 4px var(--shadow-color);
 }
 
 @media (min-width: 768px) {
   .container {
-    width: 800px;
+    width: 500px;
+    height: 500px;
   }
 }
 
@@ -36,7 +51,7 @@
   width: 100%;
   border-radius: 0.5rem;
   border: none;
-  box-shadow: 0px 1px 4px #0c0c0d17;
+  box-shadow: 0px 1px 4px var(--shadow-color);
   border: 2px solid transparent;
   transition: all 0.4s ease-in-out;
 }
@@ -86,7 +101,6 @@ input:active {
   color: #666;
 }
 
-
 input::-ms-reveal,
 input::-ms-clear {
   display: none;
@@ -94,14 +108,19 @@ input::-ms-clear {
 
 .btn-primary {
   margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
   background-color: var(--primary-color);
   border: none;
   border-radius: 0.5rem;
   padding: 1.2rem;
-  color: white;
+  color: var(--on-primary);
   font-weight: bold;
   cursor: pointer;
   width: 100%;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
 }
 
 p {
@@ -111,6 +130,7 @@ p {
 
 .alt-login {
   margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: row;
   column-gap: 3.6rem;
@@ -132,6 +152,7 @@ p {
 .link {
   color: var(--primary-color);
   text-decoration: none;
+  margin-left: 0.5rem;
 }
 
 .reset-link {
@@ -152,5 +173,5 @@ p {
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  margin-top: 0.5rem;
+    margin-bottom: 2.5rem;
 }
