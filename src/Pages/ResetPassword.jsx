@@ -17,14 +17,13 @@ export default function Reset() {
         </div>
 
         {/* <Back title="Reset Password" link="/habit" /> */}
-        
 
         <div className={Styles["reset-box"]}>
           <form onSubmit={handleSubmit}>
             <h3>Reset password</h3>
             <p>
-              Enter the email associated with your account and we\u2019ll send an
-              email with instruction to reset your password.
+              Enter the email associated with your account and we\u2019ll send
+              an email with instruction to reset your password.
             </p>
 
             <input
@@ -40,13 +39,13 @@ export default function Reset() {
               <button className={Styles["btn-primary"]}>Confirm</button>
             </Link>
           </form>
+          <p>
+            Don't have an account?
+            <Link to="/register" className={Styles.link}>
+              Sign Up
+            </Link>
+          </p>
         </div>
-        <p>
-          Don't have an account? 
-          <Link to="/register" className={Styles.link}>
-            Sign Up
-          </Link>
-        </p>
       </div>
     </>
   );

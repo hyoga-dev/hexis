@@ -11,7 +11,7 @@ export default function Login() {
   const { formData, handleChange, handleSubmit } = useAuthLogic(false);
 
   return (
-    <>
+    <div className={Styles.pageWrapper}>
       <div className={Styles.container}>
         <img src={Logo} alt="Logo" className={Styles.logo} />
         <FormBox
@@ -29,12 +29,12 @@ export default function Login() {
         <p className={Styles.orSign}>-Or sign in with-</p>
           <AltLogin />
         <p>
-          Don't have an account?{" "}
+          Don't have an account?
           <Link to="/register" className={Styles.link}>
             Sign Up
           </Link>
         </p>
       </div>
-    </>
+    </div>
   );
 }

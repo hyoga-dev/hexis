@@ -10,7 +10,7 @@ import { useAuthLogic } from "../data/userAuth";
 export default function Register() {
   const { formData, handleChange, handleSubmit } = useAuthLogic(true);
   return (
-    <>
+    <div className={Styles.pageWrapper}>
       <div className={Styles.container}>
         <img src={Logo} alt="Logo" className={Styles.logo} />
         <FormBox
@@ -29,6 +29,6 @@ export default function Register() {
           </Link>
         </p>
       </div>
-    </>
+    </div>
   );
 }

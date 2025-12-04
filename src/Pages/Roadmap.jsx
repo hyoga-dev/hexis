@@ -1,28 +1,51 @@
-import Navbar from "./Components/Navbar";
 import Styles from "../assets/Styles/Roadmap.module.css";
 import Icon from "../assets/Images/goal.png";
+import { useState } from "react";
+import NavbarStyles from "../assets/Styles/navbar.module.css";
+import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
+import SideBar from "./Components/SideBar";
 
 const Roadmap = () => {
-    return (
-        <div className={Styles.outerContainer}>
-            <Navbar />
-            <div className={Styles.container}>
+  const [isOpen, setIsOpen] = useState(false);
 
-                <div className={Styles.card}>
-                    <h2>Alamak lorem ipsum dolor sit ammet met met jamet.</h2>
-                    <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                    <div className={Styles.star}>
-                        <img src={Icon} alt="" />
-                        <img src={Icon} alt="" />
-                    </div>
-                </div>
+  return (
+    <div className={Styles.wrapper}>
 
-            </div> 
+      {/* header */}
+      <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
+
+      <div className={NavbarStyles.header}>
+        <button
+          onClick={() => setIsOpen(true)}
+          className={NavbarStyles.menuBtn}
+        >
+
+          <BurgerIcon width="2rem" height="2rem" />
+
+        </button>
+      </div>
+
+      {/* content */}
+      <div className={Styles.container}>
+
+        <div className={Styles.card}>
+          <h2>Alamak lorem ipsum dolor sit ammet met met jamet.</h2>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          </p>
+          
+          <div className={Styles.star}>
+            <img src={Icon} alt="" />
+            <img src={Icon} alt="" />
+          </div>
+          
         </div>
-    )
-}
+
+      </div>
+
+    </div>
+  );
+};
 
 export default Roadmap;
