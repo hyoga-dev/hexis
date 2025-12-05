@@ -26,8 +26,8 @@ export default function Login() {
             Forgot Password
           </Link>
         </div>
-        <p className={Styles.orSign}>-Or sign in with-</p>
-          <AltLogin />
+        <p>-Or sign in with-</p>
+        <AltLogin />
         <p>
           Don't have an account?
           <Link to="/register" className={Styles.link}>
