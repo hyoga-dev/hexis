@@ -6,22 +6,13 @@ p {
 
 .wrapper {
   width: 100%;
-  
 }
 
-<<<<<<< HEAD
-/* @media (min-width: 768px) {
-    .outerContainer {
-        position: static;
-        flex-direction: row;
-=======
-@media (min-width:768px){
-    .wrapper {
-        padding-left: var(--sidebar-width);
->>>>>>> 70f01818cd8b4e607a404f8f97ed74f9f7d47033
-    }
-} */
-
+@media (min-width: 768px) {
+  .wrapper {
+    padding-left: var(--sidebar-width);
+  }
+}
 
 .container {
   margin: 0 20px;
