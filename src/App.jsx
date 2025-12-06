@@ -15,6 +15,7 @@ import Settings from "./Pages/Settings";
 import Profil from "./Pages/profil";
 import Analytics from "./Pages/Analytics";
 import AuthTest from "./data/authTest";
+import LoadingScreen from "./Pages/LoadingScreen";
 
 
 function App() {
@@ -23,7 +24,9 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
+
+          <Route path="/" element={<LoadingScreen />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/Register" element={<Register />} />
           <Route path="/Reset" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
