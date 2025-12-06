@@ -5,6 +5,7 @@
   /* BACKGROUNDS */
   --background-color: #f2f5f7; /* Slightly grey so cards pop */
   --surface-color: #ffffff; /* Cards, Headers, Inputs */
+
   /* Layout */
   --sidebar-width: 15%;
 
@@ -22,6 +23,32 @@
   --border-color: #e0e0e0; /* Subtle lines */
   --shadow-color: #e3e6e8;
   --error-color: #e74c3c; /* For form validation */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* BACKGROUNDS */
+    --background-color: #121416;
+    --surface-color: #1e2329;
+
+    /* LAYOUT */
+    --sidebar-width: 15%;
+
+    /* MAIN COLORS */
+    --primary-color: #38acff;
+    --primary-hover: #62baff;
+    --secondary-color: #cfd8dc;
+
+    /* TEXT */
+    --font-color: #eef1f5;
+    --secondary-font-color: #94a3b8;
+    --on-primary: #f7f7f7;
+
+    /* UTILITIES */
+    --border-color: #2f3640;
+    --shadow-color: #000000;
+    --error-color: #ff6b6b;
+  }
 }
 
 /* :root {

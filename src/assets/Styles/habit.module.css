@@ -19,7 +19,7 @@ p {
 }
 
 .container > div p {
-  color: gray;
+  color: var(--font-color);
   margin-right: 20px;
   font-size: medium;
 }
@@ -31,6 +31,7 @@ p {
 
 /* habit item */
 .cardContainer {
+  height: fit-content;
   display: flex;
   flex-direction: column;
   margin-top: 1rem;
@@ -40,9 +41,9 @@ p {
   border-radius: 8px;
   /* background-color: red; */
   padding: 16px 0 16px 16px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px var(--shadows-color);
   margin-bottom: 1rem;
-  background-color: white;
+  background-color: var(--surface-color);
   flex-direction: column;
   gap: 20px;
   justify-content: space-between;
@@ -76,8 +77,8 @@ p {
 
 .addHabitBtn {
   border-radius: 4px;
-  color: white;
-
+  color: var(--background-color);
+  font-weight: bold;
   width: fit-content;
   position: absolute;
   bottom: 20%;
@@ -92,8 +93,8 @@ p {
   border-radius: 8px;
   width: 100%;
   padding: 16px 0 16px 16px;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-  background-color: white;
+  box-shadow: 0 2px 2px var(--shadows-color);
+  background-color: var(--background-color);
   justify-content: space-between;
   margin: 0 20px 1rem 0;
 }
