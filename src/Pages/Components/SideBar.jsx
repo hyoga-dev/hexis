@@ -59,9 +59,9 @@ const SideBar = ({ isOpen, onClose }) => {
         </nav>
 
         <div className={Styles.footer}>
-          <div className={Styles.profile}>
+          <div className={Styles.profile} onClick={() => window.location.href = '/profil'}>
             <AccountIcon width="2rem" height="2rem" />
-            <span>Dontol Mania</span>
+            <span>{`${user ? user.displayName : "Guest"}`}</span>
           </div>
 
 

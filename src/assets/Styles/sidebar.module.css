@@ -112,6 +112,11 @@
   justify-content: center;
   text-align: center;
 }
+
+.profile:hover {
+  cursor: pointer;
+}
+
 .profile span {
   margin-left: 0.5rem;
   font-weight: bold;
