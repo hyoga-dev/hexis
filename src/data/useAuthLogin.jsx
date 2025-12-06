@@ -6,11 +6,8 @@ export function useAuthLogin() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
-
-  useEffect(() => {
+  useEffect(() => { 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      // console.log(user);
-      
       setCurrentUser(user);
       setLoading(false);
     });

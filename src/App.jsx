@@ -16,6 +16,7 @@ import Profil from "./Pages/profil";
 import Analytics from "./Pages/Analytics";
 import AuthTest from "./data/authTest";
 import LoadingScreen from "./Pages/LoadingScreen";
+import HabitLogic from "./Pages/Components/habitLogic";
 
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/Profil" element={<Profil />} />
           <Route path="/Analytics" element={<Analytics />} />
           <Route path="/AuthTest" element={<AuthTest />} />
+          <Route path="/habitLogic" element={<HabitLogic />} />
         </Routes>
       </BrowserRouter>
     </>
