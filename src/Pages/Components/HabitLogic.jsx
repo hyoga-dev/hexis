@@ -10,13 +10,14 @@ const getDayName = () => {
 
 
 
+
 export default function HabitLogic() {
     const {habit, setHabit} = useHabitProvider();
 
     const daySet = ["senin", "rabu", "jumat", "sabtu"];
     const isToday = daySet.includes(getDayName());
 
-
+    
     // console.log(isToday);
     // console.log("Hari ini adalah hari: " + getDayName());   
 }
