@@ -11,7 +11,7 @@ export const useHabitProvider = () => {
 
 const dataHabit = [
     {
-        uid: auth.currentUser ? auth.currentUser.uid : "guest",
+        // uid: auth.currentUser ? auth.currentUser.uid : "guest",
         title: "judul",
         ulangi: {frekuensi: "daily",ulangiSetiap: "everyday"}, 
         goals: {count: 0, satuan: "time", ulangi: "perday"},
@@ -26,18 +26,16 @@ const dataHabit = [
 
 export function HabitProvider({children}) {
     const { currentUser, loading } = useAuthLogin();
-    dataHabit[0].uid = currentUser ? currentUser.uid : "guest";
-    console.log(currentUser);
+    // dataHabit[0].uid = currentUser ? currentUser.uid : "guest";
+    // console.log(currentUser);
 
-    // console.log("Current User in HabitProvider:", auth.currentUser);
     const [value, setValue] = useLocalStorage("habitDetail", dataHabit)
     const [habit, sethabit] = useState(value);
 
     
-    useEffect(() => {
-        // console.log(habit);
-        setValue(habit)
-    }, [habit])
+    // useEffect(() => {
+    //     setValue(habit)
+    // }, [habit])
 
     const contextValue = {
         habit,

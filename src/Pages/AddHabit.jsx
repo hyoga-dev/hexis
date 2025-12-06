@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Styles from "../assets/Styles/addhabit.module.css";
 import Back from "./Components/Back";
+import help from "../assets/Images//help.png";
 
 
 export default function AddHabit() {
@@ -11,9 +12,9 @@ export default function AddHabit() {
         <br />
         
         <div className={Styles["nama-habit"]}>
-          <img src="src/assets/Images/help.png" alt="help icon"/>   
+          <img src={help} alt="help icon"/>   
           <input type="text" placeholder="Masukkan nama habit" />
-          <img src="src/assets/Images/maps.png" alt="maps icon" />
+          <img src="../assets/Images/maps.png" alt="maps icon" />
           <Link to="/roadmap" className={Styles["link-roadmap"]}>Roadmap</Link>
         </div>
 

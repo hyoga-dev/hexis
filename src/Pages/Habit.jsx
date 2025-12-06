@@ -1,14 +1,22 @@
 import style from "../assets/Styles/habit.module.css";
 import HabitItem from "./Components/HabitItem";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Styles from "../assets/Styles/navbar.module.css";
 import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
 import BasilFireOutline from "../assets/Icon/BasilFireOutline";
 import SideBar from "./Components/SideBar";
+import { useAuthLogin } from "../data/useAuthLogin";
 
 const Habit = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const {currentUser, loading} = useAuthLogin();
+
+  useEffect(() => {
+    if (currentUser) {
+        window.location.href = '/habit';
+    }
+  }, []);
 
   return (
     <div className={style.wrapper}>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../assets/Styles/global.css";
 import Styles from "../assets/Styles/login.module.css";
@@ -6,9 +6,14 @@ import Logo from "../assets/Images/logo.png";
 import FormBox from "./Components/FormBox";
 import AltLogin from "./Components/AltLogin";
 import { useAuthLogic } from "../data/userAuth";
+import { useAuthLogin } from "../data/useAuthLogin";
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase.js';
 
 export default function Login() {
   const { formData, handleChange, handleSubmit } = useAuthLogic(false);
+  // const {currentUser, loading} = useAuthLogin();
+
 
   return (
     <div className={Styles.pageWrapper}>
