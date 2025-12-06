@@ -265,4 +265,10 @@
     flex: 1; /* Buttons take equal width */
     text-align: center;
   }
+
+  .btnSaveDisabled {
+    composes: btnSave;
+    background-color: gray;
+    color: white;
+  }
 }

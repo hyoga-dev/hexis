@@ -31,11 +31,11 @@ export function HabitProvider({children}) {
 
     dataHabit[0].uid = currentUser ? currentUser.uid : "guest";
 
-    const [habit, sethabit] = useLocalStorage("habitDetail", dataHabit);
+    const [habit, setHabit] = useLocalStorage("habitDetail", dataHabit);
 
     const contextValue = {
         habit,
-        sethabit
+        setHabit
     }
 
     return (

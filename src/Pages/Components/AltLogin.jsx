@@ -9,7 +9,7 @@ import { auth, googleProvider } from '../../firebase.js';
 
 export default function AltLogin() {
 
-  const user = auth.currentUser; 
+  // const user = auth.currentUser; 
     
   const handleGoogleSignIn = async () => {
     try {

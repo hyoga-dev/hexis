@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import Styles from "../assets/Styles/addhabit.module.css";
-// import Back from "./Components/Back"; // Optional based on image
 import helpIcon from "../assets/Images/help.png";
 import repeatIcon from "../assets/Images/repeat.png";
 import goalIcon from "../assets/Images/goal.png";
@@ -15,21 +14,56 @@ import { useEffect, useState } from "react";
 
 export default function AddHabit() {
   const { habit, setHabit } = useHabitProvider();
+  
   const [dataHabit, setDataHabit] = useState({
     title: "",
-    daySet: [],
-    goals: { count: 0, satuan: "", ulangi: "" },
-    waktu: "",
-    waktuMulai: "",
-    pengingat: "",
-    kondisihabis: "",
-    checkList: "",
+    repeatType: "daily", 
+    daySet: "everyday",  
+    goals: { 
+      count: 1, 
+      satuan: "times", 
+      ulangi: "per_day"  
+    },
+    waktu: ["Morning", "Afternoon", "Evening"], 
+    waktuMulai: "",      
+    pengingat: "09:00",  
+    kondisihabis: "Never", 
+    area: "",            
+    checkList: "",       
     isGrouped: true,
   });
 
   useEffect(() => {
-    console.log(dataHabit);
+    console.log(dataHabit.title);
   }, [dataHabit]);
+
+  const handleCheckbox = (e) => {
+    const { value, checked } = e.target;
+    let updatedWaktu = [...dataHabit.waktu];
+
+    if (checked) {
+      updatedWaktu.push(value);
+    } else {
+      updatedWaktu = updatedWaktu.filter((item) => item !== value);
+    }
+
+    setDataHabit({ ...dataHabit, waktu: updatedWaktu });
+  };
+  
+  // Variabel untuk menentukan apakah tombol Save harus dinonaktifkan
+  const isSaveDisabled = dataHabit.title.trim() === "";
+
+  const handleSave = () => {
+    console.log("Saving Habit:", dataHabit);
+    if (dataHabit.title.trim() !== "") {
+      setHabit([...habit, dataHabit]);
+      window.location.href = '/habit';
+      return;
+    }
+    alert("Habit name cannot be empty.");
+  };
+  
+
   return (
     <div className={Styles.container}>
 
@@ -41,8 +75,15 @@ export default function AddHabit() {
       {/* 2. Main Name Input */}
       <div className={Styles.headerInput}>
         <img src={helpIcon} alt="help" />
-        <input type="text" placeholder="Enter Habit Name" />
-
+        <input 
+          type="text" 
+          placeholder="Enter Habit Name" 
+          value={dataHabit.title}
+          onChange={(e) => {
+            setDataHabit({ ...dataHabit, title: e.target.value })
+          }}
+          required
+        />
       </div>
 
       {/* 3. Form Body */}
@@ -55,12 +96,22 @@ export default function AddHabit() {
             <span>Repeat</span>
           </div>
           <div className={Styles.inputCol}>
-            <select name="ulangi" value={dataHabit.goals.ulangi} onChange={(e) => setDataHabit({ ...dataHabit, goals: { ...dataHabit.goals, ulangi: e.target.value } })}>
+            {/* Select Tipe Ulangi */}
+            <select 
+              name="repeatType" 
+              value={dataHabit.repeatType} 
+              onChange={(e) => setDataHabit({ ...dataHabit, repeatType: e.target.value })}
+            >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
             </select>
-            <select name="repeatDay">
+            {/* Select Hari Spesifik */}
+            <select 
+              name="daySet"
+              value={dataHabit.daySet}
+              onChange={(e) => setDataHabit({ ...dataHabit, daySet: e.target.value })}
+            >
               <option value="everyday">Every Day</option>
               <option value="weekdays">Weekdays</option>
               <option value="weekends">Weekends</option>
@@ -75,19 +126,35 @@ export default function AddHabit() {
             <span>Goal</span>
           </div>
           <div className={Styles.inputCol}>
-            <input type="number" defaultValue="1" className={Styles.goalNumber} />
-            <select name="unit">
+            {/* Input Count */}
+            <input 
+              type="number" 
+              value={dataHabit.goals.count} 
+              onChange={(e) => setDataHabit({ ...dataHabit, goals: { ...dataHabit.goals, count: parseInt(e.target.value) || 0 } })}
+              className={Styles.goalNumber} 
+            />
+            {/* Select Satuan (Unit) */}
+            <select 
+              name="satuan"
+              value={dataHabit.goals.satuan}
+              onChange={(e) => setDataHabit({ ...dataHabit, goals: { ...dataHabit.goals, satuan: e.target.value } })}
+            >
               <option value="times">times</option>
               <option value="minutes">mins</option>
             </select>
-            <select name="period">
+            {/* Select Periode (Period) */}
+            <select 
+              name="period"
+              value={dataHabit.goals.ulangi}
+              onChange={(e) => setDataHabit({ ...dataHabit, goals: { ...dataHabit.goals, ulangi: e.target.value } })}
+            >
               <option value="per_day">per day</option>
               <option value="per_week">per week</option>
             </select>
           </div>
         </div>
 
-        {/* Row: Time of Day */}
+        {/* Row: Time of Day (Checkboxes) */}
         <div className={Styles.row}>
           <div className={Styles.labelCol}>
             <img src={sunIcon} alt="time" />
@@ -96,13 +163,28 @@ export default function AddHabit() {
           <div className={Styles.inputCol}>
             <div className={Styles.checkboxGroup}>
               <label className={Styles.checkboxItem}>
-                <input type="checkbox" defaultChecked /> Morning
+                <input 
+                  type="checkbox" 
+                  value="Morning"
+                  checked={dataHabit.waktu.includes("Morning")}
+                  onChange={handleCheckbox}
+                /> Morning
               </label>
               <label className={Styles.checkboxItem}>
-                <input type="checkbox" defaultChecked /> Afternoon
+                <input 
+                  type="checkbox" 
+                  value="Afternoon"
+                  checked={dataHabit.waktu.includes("Afternoon")}
+                  onChange={handleCheckbox}
+                /> Afternoon
               </label>
               <label className={Styles.checkboxItem}>
-                <input type="checkbox" defaultChecked /> Evening
+                <input 
+                  type="checkbox" 
+                  value="Evening"
+                  checked={dataHabit.waktu.includes("Evening")}
+                  onChange={handleCheckbox}
+                /> Evening
               </label>
             </div>
           </div>
@@ -115,7 +197,12 @@ export default function AddHabit() {
             <span>Start Date</span>
           </div>
           <div className={Styles.inputCol}>
-            <input type="date" className={Styles.fullWidthInput} />
+            <input 
+              type="date" 
+              className={Styles.fullWidthInput} 
+              value={dataHabit.waktuMulai}
+              onChange={(e) => setDataHabit({ ...dataHabit, waktuMulai: e.target.value })}
+            />
           </div>
         </div>
 
@@ -126,10 +213,14 @@ export default function AddHabit() {
             <span>End Condition</span>
           </div>
           <div className={Styles.inputCol}>
-            <select className={Styles.fullWidthInput}>
-              <option>Never</option>
-              <option>On Date</option>
-              <option>After X days</option>
+            <select 
+              className={Styles.fullWidthInput}
+              value={dataHabit.kondisihabis}
+              onChange={(e) => setDataHabit({ ...dataHabit, kondisihabis: e.target.value })}
+            >
+              <option value="Never">Never</option>
+              <option value="On Date">On Date</option>
+              <option value="After X days">After X days</option>
             </select>
           </div>
         </div>
@@ -141,8 +232,12 @@ export default function AddHabit() {
             <span>Reminders</span>
           </div>
           <div className={Styles.inputCol}>
-            {/* Simulating the placeholder look from image */}
-            <input type="time" className={Styles.fullWidthInput} defaultValue="09:00" />
+            <input 
+              type="time" 
+              className={Styles.fullWidthInput} 
+              value={dataHabit.pengingat}
+              onChange={(e) => setDataHabit({ ...dataHabit, pengingat: e.target.value })}
+            />
           </div>
         </div>
 
@@ -153,7 +248,13 @@ export default function AddHabit() {
             <span>Area</span>
           </div>
           <div className={Styles.inputCol}>
-            <input type="text" placeholder="Select areas" className={Styles.fullWidthInput} />
+            <input 
+              type="text" 
+              placeholder="Select areas" 
+              className={Styles.fullWidthInput}
+              value={dataHabit.area}
+              onChange={(e) => setDataHabit({ ...dataHabit, area: e.target.value })}
+            />
           </div>
         </div>
 
@@ -164,7 +265,13 @@ export default function AddHabit() {
             <span>Checklist</span>
           </div>
           <div className={Styles.inputCol}>
-            <input type="text" placeholder="Add New Checklist" className={Styles.fullWidthInput} />
+            <input 
+              type="text" 
+              placeholder="Add New Checklist" 
+              className={Styles.fullWidthInput}
+              value={dataHabit.checkList}
+              onChange={(e) => setDataHabit({ ...dataHabit, checkList: e.target.value })}
+            />
           </div>
         </div>
 
@@ -175,7 +282,13 @@ export default function AddHabit() {
         <Link to="/habit">
           <button className={Styles.btnCancel}>Cancel</button>
         </Link>
-        <button className={Styles.btnSave}>Save</button>
+        <button 
+          className={dataHabit.title !== "" ? Styles.btnSave : Styles.btnSaveDisabled} 
+          onClick={handleSave}
+          // disabled={isSaveDisabled} 
+        >
+          Save
+        </button>
       </div>
 
     </div>
