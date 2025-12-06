@@ -15,27 +15,26 @@ import { useEffect, useState } from "react";
 export default function AddHabit() {
   const { habit, setHabit } = useHabitProvider();
   
-  // Memperbarui state agar sesuai dengan semua input
   const [dataHabit, setDataHabit] = useState({
     title: "",
-    repeatType: "daily", // Untuk select pertama Repeat
-    daySet: "everyday",  // Untuk select kedua Repeat
+    repeatType: "daily", 
+    daySet: "everyday",  
     goals: { 
       count: 1, 
-      satuan: "times", // Unit: times/minutes
-      ulangi: "per_day"  // Period: per day/per week
+      satuan: "times", 
+      ulangi: "per_day"  
     },
-    waktu: ["Morning", "Afternoon", "Evening"], // Array untuk menampung checkbox Time of Day
-    waktuMulai: "",      // Start Date
-    pengingat: "09:00",  // Reminder Time
-    kondisihabis: "Never", // End Condition
-    area: "",            // Area input
-    checkList: "",       // Checklist input
+    waktu: ["Morning", "Afternoon", "Evening"], 
+    waktuMulai: "",      
+    pengingat: "09:00",  
+    kondisihabis: "Never", 
+    area: "",            
+    checkList: "",       
     isGrouped: true,
   });
 
   useEffect(() => {
-    console.log(dataHabit);
+    console.log(dataHabit.title);
   }, [dataHabit]);
 
   const handleCheckbox = (e) => {
@@ -51,11 +50,18 @@ export default function AddHabit() {
     setDataHabit({ ...dataHabit, waktu: updatedWaktu });
   };
   
+  // Variabel untuk menentukan apakah tombol Save harus dinonaktifkan
+  const isSaveDisabled = dataHabit.title.trim() === "";
+
   const handleSave = () => {
-    // Implementasi simpan data
     console.log("Saving Habit:", dataHabit);
-    setHabit([...habit, dataHabit]);
+    if (dataHabit.title.trim() !== "") {
+      setHabit([...habit, dataHabit]);
+      return;
+    }
+    alert("Habit name cannot be empty.");
   };
+  
 
   return (
     <div className={Styles.container}>
@@ -72,9 +78,11 @@ export default function AddHabit() {
           type="text" 
           placeholder="Enter Habit Name" 
           value={dataHabit.title}
-          onChange={(e) => setDataHabit({ ...dataHabit, title: e.target.value })}
+          onChange={(e) => {
+            setDataHabit({ ...dataHabit, title: e.target.value })
+          }}
+          required
         />
-
       </div>
 
       {/* 3. Form Body */}
@@ -273,7 +281,13 @@ export default function AddHabit() {
         <Link to="/habit">
           <button className={Styles.btnCancel}>Cancel</button>
         </Link>
-        <button className={Styles.btnSave} onClick={handleSave}>Save</button>
+        <button 
+          className={dataHabit.title !== "" ? Styles.btnSave : Styles.btnSaveDisabled} 
+          onClick={handleSave}
+          // disabled={isSaveDisabled} // Menggunakan kondisi di sini
+        >
+          Save
+        </button>
       </div>
 
     </div>
