@@ -80,6 +80,8 @@ p {
   color: var(--background-color);
   font-weight: bold;
   width: fit-content;
+  margin-top: 20px;
+  /* position: relative; */
   position: absolute;
   bottom: 20%;
   right: 20px;

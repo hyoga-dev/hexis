@@ -30,7 +30,7 @@ export default function AddHabit() {
     kondisihabis: "Never", 
     area: "",            
     checkList: "",       
-    isGrouped: true,
+    isGrouped: false,
   });
 
   useEffect(() => {

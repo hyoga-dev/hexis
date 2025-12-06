@@ -42,11 +42,11 @@ const Habit = () => {
         </div>
 
         <HabitItem />
+        <Link to="/addhabit" className={style.addHabitBtn}>
+          add habit
+        </Link>
       </div>
 
-      <Link to="/addhabit" className={style.addHabitBtn}>
-        add habit
-      </Link>
     </div>
   );
 };
