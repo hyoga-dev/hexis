@@ -57,6 +57,7 @@ export default function AddHabit() {
     console.log("Saving Habit:", dataHabit);
     if (dataHabit.title.trim() !== "") {
       setHabit([...habit, dataHabit]);
+      window.location.href = '/habit';
       return;
     }
     alert("Habit name cannot be empty.");
@@ -284,7 +285,7 @@ export default function AddHabit() {
         <button 
           className={dataHabit.title !== "" ? Styles.btnSave : Styles.btnSaveDisabled} 
           onClick={handleSave}
-          // disabled={isSaveDisabled} // Menggunakan kondisi di sini
+          // disabled={isSaveDisabled} 
         >
           Save
         </button>
