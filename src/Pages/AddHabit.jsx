@@ -48,7 +48,7 @@ export default function AddHabit() {
     }
 
     setDataHabit({ ...dataHabit, waktu: updatedWaktu });
-  };
+  };  
   
   // Variabel untuk menentukan apakah tombol Save harus dinonaktifkan
   const isSaveDisabled = dataHabit.title.trim() === "";
