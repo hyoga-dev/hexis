@@ -11,10 +11,29 @@ import reminderIcon from "../assets/Images/reminder.png";
 import slashIcon from "../assets/Images/slash.png";
 import areasIcon from "../assets/Images/areas.png";
 import checklistIcon from "../assets/Images/checklist.png";
+import { useHabitProvider } from "../data/habitData";
+import { useEffect, useState } from "react";
 
 
 export default function AddHabit() {
+  const {habit, setHabit} = useHabitProvider();
+  const [dataHabit, setDataHabit] = useState({
+    title: "",
+    daySet: [], 
+    goals: {count: 0, satuan: "", ulangi: ""},
+    waktu: "",
+    waktuMulai: "",
+    pengingat: "",
+    kondisihabis: "",
+    checkList: "",
+    isGrouped: true,
+  });
 
+  useEffect(() => {
+    console.log(dataHabit);
+  }, [dataHabit]);
+
+ 
   return (
     <div className={Styles["container"]}>
       <Back title="Add Habit" link="/habit" />
@@ -36,10 +55,10 @@ export default function AddHabit() {
           </div>
 
           <div >
-            <select name="ulangi">
+            <select name="ulangi" value={dataHabit.goals.ulangi} onChange={(e) => setDataHabit({...dataHabit, goals: {...dataHabit.goals, ulangi: e.target.value}}) }>
               <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="yearly">Yearly</option>
+              <option value="monthly">Monthly</option>
+              <option value="interval">Interval</option>
             </select>
 
             <select name="ulangi">

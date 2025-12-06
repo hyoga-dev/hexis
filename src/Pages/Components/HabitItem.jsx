@@ -8,10 +8,11 @@ let habitData = [
   {title:";afjklksdafhj", icon:"something", isGrouped: true},
 ]
 
+
+
 const HabitItem = () => {
-    const {habit, sethabit, value} = useHabitProvider()
+    const {habit, sethabit} = useHabitProvider()
     console.log(habit);
-    
 
     return (
         <div className={style.cardContainer}>
