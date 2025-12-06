@@ -15,6 +15,7 @@ import Settings from "./Pages/Settings";
 import Profil from "./Pages/profil";
 import Analytics from "./Pages/Analytics";
 import AuthTest from "./data/authTest";
+import Hello from "./Pages/Hello";
 
 
 function App() {
