@@ -9,8 +9,9 @@ let habitData = [
 ]
 
 const HabitItem = () => {
-    const {habit, setHabit, value} = useHabitProvider()
-    // console.log(habit)
+    const {habit, sethabit, value} = useHabitProvider()
+    console.log(habit);
+    
 
     return (
         <div className={style.cardContainer}>
@@ -32,9 +33,7 @@ const HabitItem = () => {
                             <div>
                                 <div>
                                     <img src={Icon} alt="icon" />   
-                                    <p>
-                                        alamak {item.title}
-                                    </p>
+                                    <p>{item.title}</p>
                                 </div>
                                 <img src={Icon} alt="icon" />   
                             </div>

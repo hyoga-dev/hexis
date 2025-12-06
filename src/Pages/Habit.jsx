@@ -11,12 +11,10 @@ import { useAuthLogin } from "../data/useAuthLogin";
 const Habit = () => {
   const [isOpen, setIsOpen] = useState(false);
   const {currentUser, loading} = useAuthLogin();
-
-  useEffect(() => {
-    if (currentUser) {
-        window.location.href = '/habit';
-    }
-  }, []);
+  
+  // useEffect(() => {
+  //   console.log(currentUser);
+  // }, [currentUser]);
 
   return (
     <div className={style.wrapper}>

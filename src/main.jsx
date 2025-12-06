@@ -5,6 +5,7 @@ import { UserProvider } from "./data/userData.jsx";
 import App from "./App.jsx";
 import "./assets/Styles/global.css";
 import { HabitProvider } from "./data/habitData.jsx";
+import { AuthProvider } from "./data/AuthProvider.jsx";
 
 registerSW({
   immediate: true,
@@ -12,10 +13,12 @@ registerSW({
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <HabitProvider>
-      <UserProvider>
-        <App />
-      </UserProvider>
-    </HabitProvider>
+    <AuthProvider>
+      <HabitProvider>
+        <UserProvider>
+          <App />
+        </UserProvider>
+      </HabitProvider>
+    </AuthProvider>
   </StrictMode>
 );
