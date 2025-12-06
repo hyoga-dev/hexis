@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import Styles from "../assets/Styles/addhabit.module.css";
-import Back from "./Components/Back";
+// import Back from "./Components/Back"; // Optional based on image
 import helpIcon from "../assets/Images/help.png";
-import mapsIcon from "../assets/Images/maps.png";
 import repeatIcon from "../assets/Images/repeat.png";
 import goalIcon from "../assets/Images/goal.png";
 import sunIcon from "../assets/Images/sun.png";
@@ -12,138 +11,155 @@ import slashIcon from "../assets/Images/slash.png";
 import areasIcon from "../assets/Images/areas.png";
 import checklistIcon from "../assets/Images/checklist.png";
 
-
 export default function AddHabit() {
-
   return (
-    <div className={Styles["container"]}>
-      <Back title="Add Habit" link="/habit" />
-      <br />
+    <div className={Styles.container}>
 
-      <div className={Styles["nama-habit"]}>
-        <img src={helpIcon} alt="help icon" />
-        <input type="text" placeholder="Masukkan nama habit" />
-        <img src={mapsIcon} alt="maps icon" />
-        <Link to="/roadmap" className={Styles["link-roadmap"]}>Roadmap</Link>
+      {/* 1. Top Tabs */}
+      <div className={Styles.header}>
+        <h2>Add Habit</h2>
       </div>
 
-      <div className={Styles["section"]}>
+      {/* 2. Main Name Input */}
+      <div className={Styles.headerInput}>
+        <img src={helpIcon} alt="help" />
+        <input type="text" placeholder="Enter Habit Name" />
 
-        <div>
-          <div>
-            <img src={repeatIcon} alt="repeat icon" />
-            <h3>Ulangi</h3>
+      </div>
+
+      {/* 3. Form Body */}
+      <div className={Styles.formBody}>
+
+        {/* Row: Repeat */}
+        <div className={Styles.row}>
+          <div className={Styles.labelCol}>
+            <img src={repeatIcon} alt="repeat" />
+            <span>Repeat</span>
           </div>
-
-          <div >
-            <select name="ulangi">
+          <div className={Styles.inputCol}>
+            <select name="repeatFreq">
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
-              <option value="yearly">Yearly</option>
+              <option value="monthly">Monthly</option>
             </select>
-
-            <select name="ulangi">
-              <option value="day">Every day</option>
-              <option value="day">Sunday</option>
-              <option value="day">Monday</option>
-              <option value="day">Tuesday</option>
-              <option value="day">Wednesday</option>
-              <option value="day">Thursday</option>
-              <option value="day">Friday</option>
-              <option value="day">Saturday</option>
+            <select name="repeatDay">
+              <option value="everyday">Every Day</option>
+              <option value="weekdays">Weekdays</option>
+              <option value="weekends">Weekends</option>
             </select>
           </div>
         </div>
 
-        <div>
-          <div>
-            <img src={goalIcon} alt="goal icon" />
-            <h3>Goals</h3>
+        {/* Row: Goal */}
+        <div className={Styles.row}>
+          <div className={Styles.labelCol}>
+            <img src={goalIcon} alt="goal" />
+            <span>Goal</span>
           </div>
-
-          <div>
-            <input type="number" placeholder="0" />
-            <select name="goal" >
-              <option value="daily">Times</option>
-              <option value="daily">Timed</option>
+          <div className={Styles.inputCol}>
+            <input type="number" defaultValue="1" className={Styles.goalNumber} />
+            <select name="unit">
+              <option value="times">times</option>
+              <option value="minutes">mins</option>
             </select>
-            <select name="goal" >
-              <option value="Per-day">Per day</option>
-              <option value="Per-week">Per week</option>
+            <select name="period">
+              <option value="per_day">per day</option>
+              <option value="per_week">per week</option>
             </select>
           </div>
         </div>
 
-        <div className={Styles.times}>
-          <div >
-            <img src={sunIcon} alt="sun icon" />
-            <h3>Times</h3>
+        {/* Row: Time of Day */}
+        <div className={Styles.row}>
+          <div className={Styles.labelCol}>
+            <img src={sunIcon} alt="time" />
+            <span>Time of Day</span>
           </div>
-
-          <div>
-            <div>
-              <input type="checkbox" id="mark-morning" />
-              <div>Morning</div>
-            </div>
-            <div>
-              <input type="checkbox" id="mark-afternoon" />
-              <div>Afternoon</div>
-            </div>
-            <div>
-              <input type="checkbox" id="mark-evening" />
-              <div>Evening</div>
+          <div className={Styles.inputCol}>
+            <div className={Styles.checkboxGroup}>
+              <label className={Styles.checkboxItem}>
+                <input type="checkbox" defaultChecked /> Morning
+              </label>
+              <label className={Styles.checkboxItem}>
+                <input type="checkbox" defaultChecked /> Afternoon
+              </label>
+              <label className={Styles.checkboxItem}>
+                <input type="checkbox" defaultChecked /> Evening
+              </label>
             </div>
           </div>
         </div>
 
-        <div>
-          <div>
-            <img src={flagIcon} alt="flag icon" />
-            <h3>Start Date</h3>
+        {/* Row: Start Date */}
+        <div className={Styles.row}>
+          <div className={Styles.labelCol}>
+            <img src={flagIcon} alt="start" />
+            <span>Start Date</span>
           </div>
-          <input type="date" className={Styles.date} />
+          <div className={Styles.inputCol}>
+            <input type="date" className={Styles.fullWidthInput} />
+          </div>
         </div>
 
-        <div>
-          <div>
-            <img src={reminderIcon} alt="reminder icon" />
-            <h3>Reminder</h3>
+        {/* Row: End Condition */}
+        <div className={Styles.row}>
+          <div className={Styles.labelCol}>
+            <img src={slashIcon} alt="end" />
+            <span>End Condition</span>
           </div>
-          <input type="time" />
+          <div className={Styles.inputCol}>
+            <select className={Styles.fullWidthInput}>
+              <option>Never</option>
+              <option>On Date</option>
+              <option>After X days</option>
+            </select>
+          </div>
         </div>
 
-        <div>
-          <div>
-            <img src={slashIcon} alt="slash icon" />
-            <h3>End conditon</h3>
+        {/* Row: Reminders */}
+        <div className={Styles.row}>
+          <div className={Styles.labelCol}>
+            <img src={reminderIcon} alt="reminder" />
+            <span>Reminders</span>
           </div>
-          <select name="end-condition" >
-            <option value="daily">Never</option>
-            <option value="weekly"></option>
-            <option value="yearly"></option>
-          </select>
-
+          <div className={Styles.inputCol}>
+            {/* Simulating the placeholder look from image */}
+            <input type="time" className={Styles.fullWidthInput} defaultValue="09:00" />
+          </div>
         </div>
 
-        <div>
-          <div>
-            <img src={areasIcon} alt="areas icon" />
-            <h3>Areas</h3>
+        {/* Row: Area */}
+        <div className={Styles.row}>
+          <div className={Styles.labelCol}>
+            <img src={areasIcon} alt="area" />
+            <span>Area</span>
           </div>
-          <input type="text" placeholder="select areas" />
+          <div className={Styles.inputCol}>
+            <input type="text" placeholder="Select areas" className={Styles.fullWidthInput} />
+          </div>
         </div>
 
-        <div>
-          <div>
-            <img src={checklistIcon} alt="checklist icon" />
-            <h3>Checklist</h3>
+        {/* Row: Checklist */}
+        <div className={Styles.row} style={{ borderBottom: 'none' }}>
+          <div className={Styles.labelCol}>
+            <img src={checklistIcon} alt="checklist" />
+            <span>Checklist</span>
           </div>
-          <input type="text" placeholder="Add new checklist" />
-
+          <div className={Styles.inputCol}>
+            <input type="text" placeholder="Add New Checklist" className={Styles.fullWidthInput} />
+          </div>
         </div>
 
-        <button className={Styles.buttonSave}>save</button>
       </div>
+
+      {/* 4. Footer Buttons */}
+      <div className={Styles.footer}>
+        <Link to="/habit">
+          <button className={Styles.btnCancel}>Cancel</button>
+        </Link>
+        <button className={Styles.btnSave}>Save</button>
+      </div>
+
     </div>
   );
 }

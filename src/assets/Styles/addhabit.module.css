@@ -1,248 +1,268 @@
-.input-decor {
-  background-color: var(--surface-color);
-  color: var(--font-color);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: none;
-  box-shadow: 0px 1px 4px var(--shadow-color);
-  border: 2px solid transparent;
-  transition: all 0.4s ease-in-out;
-}
-
-.buttonSave {
-  background-color: var(--primary-color);
-  color: var(--on-primary);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: none;
-  box-shadow: 0px 1px 4px var(--shadow-color);
-  border: 2px solid transparent;
-  transition: all 0.4s ease-in-out;
-  margin-bottom: 20px;
-}
-
-.nama-habit {
-  margin: 10px 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.section {
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.section > div {
-  display: flex;
-  align-items: start;
-  flex-direction: column;
-  /* gap: .5rem; */
-  /* background-color: red; */
-  /* height: 3rem; */
-  margin-bottom: 2rem;
-  /* width: 100%; */
-}
-
-.section > div select {
-  /* background-color: red; */
-  height: 100%;
-}
-
-.section > div > div {
-  display: flex;
-  flex-direction: row;
-  text-align: start;
-  /* flex: 1; */
-}
-
-.section > div > :not(:first-child) {
-  /* width: fit-content; */
-  /* background-color: red; */
-  /* min-width: 0; */
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  flex: 1;
-}
-
-.section > div > :not(:first-child) select {
-  flex: 1;
-}
-
-.section > div > div:first-child {
-  /* background-color: #3983E4; */
-  width: 200px;
-  margin-right: 10px;
-  margin-bottom: 8px;
-}
-
-.section > div > div img {
-  /* background-color: #3983E4; */
-  /* width: 100px; */
-  margin-right: 10px;
-}
-
-.container h3 {
-  font-size: 1.5rem;
-}
-
-img {
-  width: 2rem;
-  height: 2rem;
-  justify-content: center;
-  display: flex;
-}
-
+/* addhabit.module.css */
 .container {
   display: flex;
   flex-direction: column;
-  text-align: center;
-  width: 100%;
-  padding: 20px 10px;
-  margin: 5px;
-  background-color: var(--background-color);
+  width: 30%;
+  height: fit-content;
+  margin: 20px auto;
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  color: var(--font-color);
+  font-family: sans-serif;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
-.nama-habit input {
-  background-color: var(--surface-color);
-  color: var(--font-color);
+/* Header */
+.header {
   padding: 1rem;
-  margin: 0 1rem;
-  border-radius: 0.5rem;
-  width: 100%;
-  border: none;
-  box-shadow: 0px 1px 4px var(--shadow-color);
-  border: 2px solid transparent;
-  transition: all 0.4s ease-in-out;
-  margin-top: 0px;
 }
 
-select {
-  background-color: var(--surface-color);
-  color: var(--font-color);
-  padding: 10px;
-  /* padding: 1rem; */
-  padding-left: 5px;
-  border-radius: 0.5rem;
-  border: none;
-  box-shadow: 0px 1px 4px var(--shadow-color);
-  border: 2px solid transparent;
-  transition: all 0.4s ease-in-out;
-}
-
-.times {
-  /* margin-bottom: 40px; */
-  /* height: 40px; */
-}
-
-.times input {
-  margin: 0;
-}
-
-.times > :not(:first-child) {
+/* --- Header Input Section (Habit Name) --- */
+.headerInput {
   display: flex;
-  align-items: start;
-  /* margin-right: .3rem; */
-  /* background-color: red; */
-}
-
-.times > :not(:first-child) div {
-  display: flex;
-  height: 30px;
   align-items: center;
-  margin-right: 0.3rem;
-}
-
-input {
-  height: 100%;
   background-color: var(--surface-color);
-  color: var(--font-color);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: none;
-  box-shadow: 0px 1px 4px var(--shadow-color);
-  border: 2px solid transparent;
-  transition: all 0.4s ease-in-out;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-input[type="checkbox"] {
+.headerInput input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--font-color);
+  font-weight: bold;
+  padding: 0 15px;
+  outline: none;
+}
+
+.headerInput img {
+  width: 24px;
+  height: 24px;
+  opacity: 0.7;
+}
+
+.magicFill {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: 0.3s;
+}
+
+.magicFill:hover {
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+}
+
+/* --- Main Form Rows --- */
+.formBody {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Allows scrolling inside form on mobile if height is fixed */
+}
+
+.row {
+  display: flex;
+  align-items: center; /* Aligns label and inputs vertically */
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* The Label Column (Left side) */
+.labelCol {
+  width: 180px; /* Fixed width for alignment on desktop */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--font-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex-shrink: 0; /* Prevents label from squishing */
+}
+
+.labelCol img {
   width: 20px;
   height: 20px;
-  border-radius: 4px;
-  margin-right: 5px;
+  opacity: 0.9;
 }
 
-input[type="number"] {
-  width: 70px;
-  text-align: center;
-  /* background-color: red; */
-}
-
-input::placeholder {
-  color: var(--secondary-font-color);
-}
-
-input:hover {
-  border: 2px solid var(--primary-color);
-}
-
-input:focus {
-  border: 2px solid var(--primary-color);
-}
-
-input:active {
-  border: 2px solid var(--primary-color);
-}
-
-.btn-primary-check {
-  margin-top: 1.5rem;
-  background-color: var(--primary-color);
-  border: none;
-  border-radius: 0.5rem;
-  padding: 1.2rem;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  width: 65%;
-}
-
-@media (min-width: 768px) {
-  .container-add-habit {
-    width: 800px;
-  }
-}
-
-.link-check {
-  color: var(--secondary-color);
-  text-decoration: none;
-}
-
-.header {
-  font-weight: bold;
-  font-size: 1.5rem;
+/* The Input Column (Right side) */
+.inputCol {
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: left;
-  gap: 1rem;
+  gap: 10px;
 }
 
-.link-roadmap {
-  text-decoration: none;
-  color: var(--primary-color);
+/* --- Input & Select Styling --- */
+.inputCol select,
+.inputCol input[type="text"],
+.inputCol input[type="number"],
+.inputCol input[type="date"],
+.inputCol input[type="time"] {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--font-color);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
 }
 
-.custom-mark {
-  width: 25px;
-  height: 25px;
-  border-radius: 4px;
-  /* margin-right: 8px; */
+.inputCol select:focus,
+.inputCol input:focus {
+  border-color: var(--primary-hover);
 }
 
-.date {
-  composes: input-decor;
-  margin-top: 0px;
-  width: 40px;
-  /* height: 20px; */
+.inputCol select {
+  min-width: 120px;
+}
+
+/* Specific styling for the Goals row */
+.goalNumber {
+  width: 60px;
+  text-align: center;
+}
+
+/* Styling for Time of Day Checkboxes */
+.checkboxGroup {
+  display: flex;
+  gap: 20px;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap; /* Keeps "Morning" text with checkbox */
+}
+
+.checkboxItem input[type="checkbox"] {
+  accent-color: var(--primary-color);
+  width: 16px;
+  height: 16px;
+}
+
+/* Full width inputs */
+.fullWidthInput {
+  width: 100%;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--secondary-font-color);
+  padding: 10px;
+  border-radius: 6px;
+}
+
+/* --- Footer Buttons --- */
+.footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px;
+  background-color: var(--surface-color);
+  border-top: 1px solid var(--border-color);
+}
+
+.btnCancel {
+  background: transparent;
+  color: var(--font-color);
+  border: 1px solid var(--border-color);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btnSave {
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btnSave:hover {
+  background-color: var(--primary-hover);
+}
+
+/* ========================================= */
+/* MOBILE RESPONSIVE STYLES */
+/* ========================================= */
+
+@media (max-width: 768px) {
+  .container {
+    width: 90dvw;
+    height: 95dvh;
+    border-radius: 0.5rem;
+    border: none;
+  }
+
+  /* Make rows stack vertically */
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    height: 100rem;
+    gap: 10px;
+  }
+
+  /* Label takes full width */
+  .labelCol {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  /* Inputs take full width and wrap if needed */
+  .inputCol {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Expand inputs to be easier to tap */
+  .inputCol select,
+  .inputCol input[type="text"],
+  .inputCol input[type="date"],
+  .inputCol input[type="time"] {
+    flex: 1; /* Grow to fill the row */
+    min-width: 45%; /* Ensure they don't get too tiny */
+  }
+
+  /* Allow Goal Number to stay small but align nicely */
+  .goalNumber {
+    width: 60px !important;
+    flex: none !important;
+  }
+
+  /* Fix checkbox group wrapping */
+  .checkboxGroup {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  /* Adjust footer for mobile access */
+  .footer {
+    padding: 15px;
+    justify-content: space-between; /* Spread buttons out */
+  }
+
+  .btnCancel,
+  .btnSave {
+    flex: 1; /* Buttons take equal width */
+    text-align: center;
+  }
 }
