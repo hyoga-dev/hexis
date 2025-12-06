@@ -2,9 +2,10 @@
 .container {
   display: flex;
   flex-direction: column;
-  width: 30%;
-  height: fit-content;
-  margin: 20px auto;
+  width: clamp(500px, 40%, 800px);
+  max-height: 90vh;
+  height: auto;
+  margin: 5vh auto;
   background-color: var(--surface-color);
   border-radius: 8px;
   color: var(--font-color);
@@ -12,11 +13,13 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   border: 1px solid var(--border-color);
+  position: relative;
 }
 
 /* Header */
 .header {
   padding: 1rem;
+  flex-shrink: 0;
 }
 
 /* --- Header Input Section (Habit Name) --- */
@@ -26,6 +29,7 @@
   background-color: var(--surface-color);
   padding: 15px 20px;
   border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .headerInput input {
@@ -45,35 +49,29 @@
   opacity: 0.7;
 }
 
-.magicFill {
-  background: transparent;
-  border: 1px solid var(--primary-color);
-  color: var(--primary-color);
-  padding: 8px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: 0.3s;
-}
-
-.magicFill:hover {
-  background-color: var(--primary-color);
-  color: var(--on-primary);
-}
-
 /* --- Main Form Rows --- */
 .formBody {
   display: flex;
   flex-direction: column;
-  overflow-y: auto; /* Allows scrolling inside form on mobile if height is fixed */
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+::-webkit-scrollbar {
+  width: 1rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--border-color);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--secondary-color);
 }
 
 .row {
   display: flex;
-  align-items: center; /* Aligns label and inputs vertically */
+  align-items: center;
   padding: 15px 20px;
   border-bottom: 1px solid var(--border-color);
 }
@@ -167,7 +165,8 @@
 
 /* --- Footer Buttons --- */
 .footer {
-  margin-top: auto;
+  /* Footer stays fixed at the bottom */
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -206,10 +205,11 @@
 
 @media (max-width: 768px) {
   .container {
-    width: 90dvw;
-    height: 95dvh;
+    width: 95vw; /* Almost full width on mobile */
+    max-height: 95dvh; /* Use dynamic viewport height for mobile browsers */
+    height: 95dvh; /* Force full height on mobile for better feel */
+    margin: 2.5dvh auto;
     border-radius: 0.5rem;
-    border: none;
   }
 
   /* Make rows stack vertically */
@@ -217,7 +217,7 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 15px;
-    height: 100rem;
+    height: auto; /* REMOVED 100rem - let content dictate height */
     gap: 10px;
   }
 
