@@ -10,8 +10,8 @@ import { useAuthLogin } from "../data/useAuthLogin";
 
 const Habit = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const {currentUser, loading} = useAuthLogin();
-  
+  const { currentUser, loading } = useAuthLogin();
+
   // useEffect(() => {
   //   console.log(currentUser);
   // }, [currentUser]);
@@ -24,7 +24,7 @@ const Habit = () => {
       <div className={Styles.header}>
 
         <button onClick={() => setIsOpen(true)} className={Styles.menuBtn}>
-          <BurgerIcon width="2rem" height="2rem" />
+          <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
         </button>
 
         <div className={Styles.streak}>

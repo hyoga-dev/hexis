@@ -38,7 +38,7 @@ const SideBar = ({ isOpen, onClose }) => {
       <div className={`${Styles.container} ${isOpen ? Styles.active : ""}`}>
         <div className={Styles.header}>
           <button onClick={onClose} className={Styles.BurgerIcon}>
-            <BurgerIcon width="2rem" height="2rem" />
+            <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
           </button>
           <img src={Logo} alt="Hexis Logo" className={Styles.logo} />
         </div>

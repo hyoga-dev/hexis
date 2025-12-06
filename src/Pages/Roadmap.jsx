@@ -20,7 +20,8 @@ const Roadmap = () => {
           className={NavbarStyles.menuBtn}
         >
 
-          <BurgerIcon width="2rem" height="2rem" />
+          <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
+
 
         </button>
       </div>
@@ -34,12 +35,12 @@ const Roadmap = () => {
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua.
           </p>
-          
+
           <div className={Styles.star}>
             <img src={Icon} alt="" />
             <img src={Icon} alt="" />
           </div>
-          
+
         </div>
 
       </div>
