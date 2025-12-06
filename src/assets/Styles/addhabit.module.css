@@ -1,29 +1,28 @@
 .input-decor {
-  background-color: var(--background-color);
+  background-color: var(--surface-color);
   color: var(--font-color);
   padding: 1rem;
   border-radius: 0.5rem;
   border: none;
-  box-shadow: 0px 1px 4px #0c0c0d17;
+  box-shadow: 0px 1px 4px var(--shadow-color);
   border: 2px solid transparent;
   transition: all 0.4s ease-in-out;
 }
 
 .buttonSave {
-  background-color: var(--background-color);
-  color: var(--font-color);
+  background-color: var(--primary-color);
+  color: var(--on-primary);
   padding: 1rem;
   border-radius: 0.5rem;
   border: none;
-  box-shadow: 0px 1px 4px #0c0c0d17;
+  box-shadow: 0px 1px 4px var(--shadow-color);
   border: 2px solid transparent;
   transition: all 0.4s ease-in-out;
-  background-color: red;
   margin-bottom: 20px;
 }
 
 .nama-habit {
-  margin: 10px 1rem ;
+  margin: 10px 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -58,8 +57,7 @@
   /* flex: 1; */
 }
 
-
-.section > div > :not(:first-child) { 
+.section > div > :not(:first-child) {
   /* width: fit-content; */
   /* background-color: red; */
   /* min-width: 0; */
@@ -73,15 +71,14 @@
   flex: 1;
 }
 
-
-.section > div > div:first-child { 
+.section > div > div:first-child {
   /* background-color: #3983E4; */
   width: 200px;
   margin-right: 10px;
   margin-bottom: 8px;
 }
 
-.section > div > div img { 
+.section > div > div img {
   /* background-color: #3983E4; */
   /* width: 100px; */
   margin-right: 10px;
@@ -105,31 +102,32 @@ img {
   width: 100%;
   padding: 20px 10px;
   margin: 5px;
+  background-color: var(--background-color);
 }
 
 .nama-habit input {
-  background-color: var(--background-color);
+  background-color: var(--surface-color);
   color: var(--font-color);
   padding: 1rem;
   margin: 0 1rem;
   border-radius: 0.5rem;
   width: 100%;
   border: none;
-  box-shadow: 0px 1px 4px #0c0c0d17;
+  box-shadow: 0px 1px 4px var(--shadow-color);
   border: 2px solid transparent;
   transition: all 0.4s ease-in-out;
   margin-top: 0px;
 }
 
 select {
-  background-color: var(--background-color);
+  background-color: var(--surface-color);
   color: var(--font-color);
   padding: 10px;
   /* padding: 1rem; */
   padding-left: 5px;
   border-radius: 0.5rem;
   border: none;
-  box-shadow: 0px 1px 4px #0c0c0d17;
+  box-shadow: 0px 1px 4px var(--shadow-color);
   border: 2px solid transparent;
   transition: all 0.4s ease-in-out;
 }
@@ -154,24 +152,23 @@ select {
   display: flex;
   height: 30px;
   align-items: center;
-  margin-right: .3rem;
+  margin-right: 0.3rem;
 }
 
 input {
   height: 100%;
-  background-color: var(--background-color);
+  background-color: var(--surface-color);
   color: var(--font-color);
   padding: 1rem;
   border-radius: 0.5rem;
   border: none;
-  box-shadow: 0px 1px 4px #0c0c0d17;
+  box-shadow: 0px 1px 4px var(--shadow-color);
   border: 2px solid transparent;
   transition: all 0.4s ease-in-out;
-  
 }
 
 input[type="checkbox"] {
-  width: 20px; 
+  width: 20px;
   height: 20px;
   border-radius: 4px;
   margin-right: 5px;
@@ -217,7 +214,6 @@ input:active {
   }
 }
 
-
 .link-check {
   color: var(--secondary-color);
   text-decoration: none;
@@ -229,23 +225,24 @@ input:active {
   display: flex;
   align-items: center;
   justify-content: left;
+  gap: 1rem;
 }
 
 .link-roadmap {
   text-decoration: none;
-  color: #3983E4;
+  color: var(--primary-color);
 }
 
 .custom-mark {
-    width: 25px; 
-    height: 25px;
-    border-radius: 4px;
-    /* margin-right: 8px; */
+  width: 25px;
+  height: 25px;
+  border-radius: 4px;
+  /* margin-right: 8px; */
 }
 
 .date {
   composes: input-decor;
-  margin-top: 0px;   
-  width: 40px; 
+  margin-top: 0px;
+  width: 40px;
   /* height: 20px; */
 }

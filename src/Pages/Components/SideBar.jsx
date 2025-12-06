@@ -7,8 +7,10 @@ import RoadMapIcon from "../../assets/Icon/SideBar/RoadMapIcon";
 import HabitIcon from "../../assets/Icon/SideBar/HabitIcon";
 import SettingIcon from "../../assets/Icon/SideBar/SettingIcon";
 import AnalyticsIcon from "../../assets/Icon/SideBar/AnalyticsIcon";
+import LogoutIcon from "../../assets/Icon/SideBar/LogoutIcon.jsx"
+import AccountIcon from "../../assets/Icon/SideBar/AccountIcon.jsx"
 import { signInWithPopup, signOut, getAuth } from 'firebase/auth';
-import { auth, googleProvider } from '../../firebase.js'; 
+import { auth, googleProvider } from '../../firebase.js';
 
 const navLinks = [
   { name: "Habit", path: "/habit", icon: HabitIcon },
@@ -18,7 +20,7 @@ const navLinks = [
 ];
 
 const SideBar = ({ isOpen, onClose }) => {
-  const user = auth.currentUser; 
+  const user = auth.currentUser;
 
   const handleSignOut = async () => {
     try {
@@ -57,11 +59,22 @@ const SideBar = ({ isOpen, onClose }) => {
         </nav>
 
         <div className={Styles.footer}>
-          <NavLink onClick={handleSignOut} to="/login" className={Styles.logout}>
-            Logout
-          </NavLink>
+          <div className={Styles.profile}>
+            <AccountIcon width="2rem" height="2rem" />
+            <span>Dontol Mania</span>
+          </div>
+
+
+          <div className={Styles.logout}>
+            <NavLink onClick={handleSignOut} to="/login" className={Styles.logout}>
+              <LogoutIcon width="2rem" height="2rem" />
+            </NavLink>
+          </div>
+
         </div>
+
       </div>
+
       <div
         className={`${Styles.overlay} ${isOpen ? Styles.overlayActive : ""}`}
         onClick={onClose}

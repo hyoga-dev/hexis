@@ -1,32 +1,33 @@
 .container {
-    margin: 0 20px;
+  margin: 0 20px;
 }
 
 .container p {
-    color: gray;
-    margin: 20px 0 ;
-    text-align: justify;
-    font-size: medium;
+  color: gray;
+  margin: 20px 0;
+  text-align: justify;
+  font-size: medium;
 }
 
 .wrapper {
   width: 100%;
-  
 }
 
-@media (min-width:768px){
-    .wrapper {
-        padding-left: var(--sidebar-width);
-    }
+@media (min-width: 768px) {
+  .wrapper {
+    padding-left: var(--sidebar-width);
+  }
 }
 
 .card {
-    margin-top: 1rem;
-    padding: 24px 16px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+  background-color: var(--surface-color);
+  border-radius: 1rem;
+  padding: 24px 16px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 .star {
-    display: flex;
-    gap: 8px;
-    flex-direction: row;
+  display: flex;
+  gap: 8px;
+  flex-direction: row;
 }
