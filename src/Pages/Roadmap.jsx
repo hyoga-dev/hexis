@@ -1,5 +1,6 @@
 import Styles from "../assets/Styles/Roadmap.module.css";
 import Icon from "../assets/Images/goal.png";
+import StarIcon from "../assets/Icon/StarIcon"
 import { useState } from "react";
 import NavbarStyles from "../assets/Styles/navbar.module.css";
 import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
@@ -37,8 +38,8 @@ const Roadmap = () => {
           </p>
 
           <div className={Styles.star}>
-            <img src={Icon} alt="" />
-            <img src={Icon} alt="" />
+            <StarIcon />
+            <span>4.5</span>
           </div>
 
         </div>

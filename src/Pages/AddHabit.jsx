@@ -13,8 +13,58 @@ import { useHabitProvider } from "../data/habitData";
 import { useEffect, useState } from "react";
 
 export default function AddHabit() {
-  const { habit, setHabit } = useHabitProvider();
+  const DAYS_OF_WEEK = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu","Minggu"];
+  const DATES_IN_MONTH = Array.from({ length: 31 }, (_, i) => i + 1);
 
+  const handleDayToggle = (day) => {
+    let currentDays = Array.isArray(dataHabit.daySet) ? [...dataHabit.daySet] : [];
+
+    if (currentDays.includes(day)) {
+      // Remove if exists
+      currentDays = currentDays.filter(d => d !== day);
+    } else {
+      // Add if not exists
+      currentDays.push(day);
+    }
+    setDataHabit({ ...dataHabit, daySet: currentDays });
+  };
+
+  const handleEverydayToggle = (e) => {
+    if (e.target.checked) {
+      setDataHabit({ ...dataHabit, daySet: [...DAYS_OF_WEEK] });
+    } else {
+      setDataHabit({ ...dataHabit, daySet: [] });
+    }
+  };
+
+  const handleDateToggle = (date) => {
+    let currentDates = Array.isArray(dataHabit.daySet) ? [...dataHabit.daySet] : [];
+
+    if (currentDates.includes(date)) {
+      currentDates = currentDates.filter(d => d !== date);
+    } else {
+      currentDates.push(date);
+    }
+    setDataHabit({ ...dataHabit, daySet: currentDates });
+  };
+
+  const handleRepeatTypeChange = (e) => {
+    const newType = e.target.value;
+    let defaultVal = [];
+
+    // Reset logic: interval needs a number or string, others need arrays
+    if (newType === 'interval') defaultVal = "1";
+    else defaultVal = [];
+
+    setDataHabit({
+      ...dataHabit,
+      repeatType: newType,
+      daySet: defaultVal
+    });
+  };
+
+
+  const { habit, setHabit } = useHabitProvider();
   const [dataHabit, setDataHabit] = useState({
     title: "",
     repeatType: "daily",
@@ -28,6 +78,7 @@ export default function AddHabit() {
     waktuMulai: "",
     pengingat: "09:00",
     kondisihabis: "Never",
+    endDetails: "",
     area: "",
     checkList: "",
     isGrouped: false,
@@ -95,27 +146,92 @@ export default function AddHabit() {
             <img src={repeatIcon} alt="repeat" />
             <span>Repeat</span>
           </div>
-          <div className={Styles.inputCol}>
-            {/* Select Tipe Ulangi */}
+
+          <div className={Styles["inputCol-repeat"]}>
+
+            {/* 1. LEFT SIDE: Type Selector */}
             <select
               name="repeatType"
               value={dataHabit.repeatType}
-              onChange={(e) => setDataHabit({ ...dataHabit, repeatType: e.target.value })}
+              onChange={handleRepeatTypeChange}
+              className={Styles.fullWidthInput}
             >
               <option value="daily">Daily</option>
-              <option value="weekly">Monthly</option>
-              <option value="monthly">Interval</option>
+              <option value="monthly">Monthly</option>
+              <option value="interval">Interval</option>
             </select>
-            {/* Select Hari Spesifik */}
-            <select
-              name="daySet"
-              value={dataHabit.daySet}
-              onChange={(e) => setDataHabit({ ...dataHabit, daySet: e.target.value })}
-            >
-              <option value="senin, selasa, rabu">Every Day</option>
-              <option value="weekdays">Weekdays</option>
-              <option value="weekends">Weekends</option>
-            </select>
+
+            {/* 2. RIGHT SIDE: Dynamic Input */}
+            <div style={{ width: '100%', marginTop: '5px' }}>
+
+              {/* CASE A: DAILY (Vertical Checkboxes) */}
+              {dataHabit.repeatType === 'daily' && (
+                <div className={Styles.daily}>
+
+                  {/* Everyday Checkbox */}
+                  <label>
+                    <input
+                      type="checkbox"
+                      onChange={handleEverydayToggle}
+                      checked={Array.isArray(dataHabit.daySet) && dataHabit.daySet.length === 7}
+                    />
+                    Setiap Hari
+                  </label>
+                  <hr />
+
+                  {/* Individual Days */}
+                  {DAYS_OF_WEEK.map((day) => (
+                    <label key={day} >
+                      <input
+                        type="checkbox"
+                        value={day}
+                        checked={Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(day)}
+                        onChange={() => handleDayToggle(day)}
+                      />
+                      {day}
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {/* CASE B: MONTHLY (Grid of Dates) */}
+              {dataHabit.repeatType === 'monthly' && (
+                <div className={Styles.monthly}>
+                  {DATES_IN_MONTH.map((date) => {
+                    const isSelected = Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(date);
+                    return (
+                      <div
+                        key={date}
+                        onClick={() => handleDateToggle(date)}
+                        style={{
+                          backgroundColor: isSelected ? '#38acff' : '#f0f0f0',
+                          color: isSelected ? 'white' : 'black',
+                        }}
+                        className={Styles["input-monthly"]}
+                      >
+                        {date}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* CASE C: INTERVAL (Number Input) */}
+              {dataHabit.repeatType === 'interval' && (
+                <div className={Styles.interval}>
+                  <span>Setiap</span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={dataHabit.daySet}
+                    onChange={(e) => setDataHabit({ ...dataHabit, daySet: e.target.value })}
+
+                  />
+                  <span>Hari</span>
+                </div>
+              )}
+
+            </div>
           </div>
         </div>
 
@@ -133,7 +249,7 @@ export default function AddHabit() {
               onChange={(e) => setDataHabit({ ...dataHabit, goals: { ...dataHabit.goals, count: parseInt(e.target.value) || 0 } })}
               className={Styles.goalNumber}
             />
-            {/* Select Satuan (Unit) */}
+       {/* Select Satuan (Unit) */}
             <select
               name="satuan"
               value={dataHabit.goals.satuan}
@@ -141,7 +257,15 @@ export default function AddHabit() {
             >
               <option value="times">times</option>
               <option value="minutes">mins</option>
+              <option value="hours">hours</option>
+              <option value="steps">steps</option>
+              <option value="km">km</option>
+              <option value="ml">ml</option>
+              <option value="glasses">glasses</option>
+              <option value="pages">pages</option>
             </select>
+
+
             {/* Select Periode (Period) */}
             <select
               name="period"
@@ -207,23 +331,63 @@ export default function AddHabit() {
         </div>
 
         {/* Row: End Condition */}
-        <div className={Styles.row}>
-          <div className={Styles.labelCol}>
-            <img src={slashIcon} alt="end" />
-            <span>End Condition</span>
-          </div>
-          <div className={Styles.inputCol}>
-            <select
-              className={Styles.fullWidthInput}
-              value={dataHabit.kondisihabis}
-              onChange={(e) => setDataHabit({ ...dataHabit, kondisihabis: e.target.value })}
-            >
-              <option value="Never">Never</option>
-              <option value="On Date">On Date</option>
-              <option value="After X days">After X days</option>
-            </select>
-          </div>
-        </div>
+       {/* Row: End Condition */}
+<div className={Styles.row} style={{ alignItems: 'flex-start' }}>
+  <div className={Styles.labelCol} style={{ paddingTop: '10px' }}>
+    <img src={slashIcon} alt="end" />
+    <span>End Condition</span>
+  </div>
+
+  <div className={Styles.inputCol} style={{ flexDirection: 'column', gap: '10px' }}>
+    
+    {/* 1. The Dropdown (Selector) */}
+    <select
+      className={Styles.fullWidthInput}
+      value={dataHabit.kondisihabis}
+      onChange={(e) => {
+        // Reset the details when type changes
+        setDataHabit({ 
+          ...dataHabit, 
+          kondisihabis: e.target.value,
+          endDetails: "" 
+        });
+      }}
+    >
+      <option value="Never">Never</option>
+      <option value="On Date">On Date</option>
+      <option value="After X days">After X days</option>
+    </select>
+
+    {/* 2. The Conditional Input */}
+    
+    {/* CASE A: ON DATE -> Show Calendar Input */}
+    {dataHabit.kondisihabis === 'On Date' && (
+      <input
+        type="date"
+        className={Styles.fullWidthInput}
+        value={dataHabit.endDetails}
+        onChange={(e) => setDataHabit({ ...dataHabit, endDetails: e.target.value })}
+        required
+      />
+    )}
+
+    {/* CASE B: AFTER X DAYS -> Show Number Input */}
+    {dataHabit.kondisihabis === 'After X days' && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+        <input
+          type="number"
+          placeholder="e.g. 30"
+          value={dataHabit.endDetails}
+          onChange={(e) => setDataHabit({ ...dataHabit, endDetails: e.target.value })}
+          className={Styles.fullWidthInput}
+          min="1"
+        />
+        <span style={{ whiteSpace: 'nowrap' }}>days</span>
+      </div>
+    )}
+
+  </div>
+</div>
 
         {/* Row: Reminders */}
         <div className={Styles.row}>
@@ -237,40 +401,6 @@ export default function AddHabit() {
               className={Styles.fullWidthInput}
               value={dataHabit.pengingat}
               onChange={(e) => setDataHabit({ ...dataHabit, pengingat: e.target.value })}
-            />
-          </div>
-        </div>
-
-        {/* Row: Area */}
-        <div className={Styles.row}>
-          <div className={Styles.labelCol}>
-            <img src={areasIcon} alt="area" />
-            <span>Area</span>
-          </div>
-          <div className={Styles.inputCol}>
-            <input
-              type="text"
-              placeholder="Select areas"
-              className={Styles.fullWidthInput}
-              value={dataHabit.area}
-              onChange={(e) => setDataHabit({ ...dataHabit, area: e.target.value })}
-            />
-          </div>
-        </div>
-
-        {/* Row: Checklist */}
-        <div className={Styles.row} style={{ borderBottom: 'none' }}>
-          <div className={Styles.labelCol}>
-            <img src={checklistIcon} alt="checklist" />
-            <span>Checklist</span>
-          </div>
-          <div className={Styles.inputCol}>
-            <input
-              type="text"
-              placeholder="Add New Checklist"
-              className={Styles.fullWidthInput}
-              value={dataHabit.checkList}
-              onChange={(e) => setDataHabit({ ...dataHabit, checkList: e.target.value })}
             />
           </div>
         </div>

@@ -71,9 +71,46 @@
 
 .row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 15px 20px;
   border-bottom: 1px solid var(--border-color);
+}
+
+.daily {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.daily label {
+  display: flex;
+  gap: 8px;
+  font-weight: bold;
+}
+
+.monthly {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.input-monthly {
+  padding: 5px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.interval {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.interval input[type="number"] {
+  width: 100px;
+  padding: 5px;
 }
 
 /* The Label Column (Left side) */
@@ -82,6 +119,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  padding-top: 10px;
   color: var(--font-color);
   font-weight: 600;
   font-size: 0.95rem;
@@ -98,8 +136,16 @@
 .inputCol {
   flex: 1;
   display: flex;
-  align-items: center;
+
   gap: 10px;
+}
+
+.inputCol-repeat {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 /* --- Input & Select Styling --- */
@@ -107,7 +153,8 @@
 .inputCol input[type="text"],
 .inputCol input[type="number"],
 .inputCol input[type="date"],
-.inputCol input[type="time"] {
+.inputCol input[type="time"],
+.interval input[type="number"] {
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
   color: var(--font-color);
@@ -147,7 +194,8 @@
   white-space: nowrap; /* Keeps "Morning" text with checkbox */
 }
 
-.checkboxItem input[type="checkbox"] {
+.checkboxItem input[type="checkbox"],
+.daily input[type="checkbox"] {
   accent-color: var(--primary-color);
   width: 16px;
   height: 16px;
@@ -231,6 +279,15 @@
   .inputCol {
     width: 100%;
     flex-wrap: wrap;
+  }
+
+  .inputCol-repeat {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   /* Expand inputs to be easier to tap */
