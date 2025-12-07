@@ -25,7 +25,6 @@ const HabitItem = () => {
                 <>
                     {isToday(item.daySet) && (
                         <div className={Styles.cardContainer}>
-                            
                             <div className={Styles.card} key={index}>
                         
 
@@ -38,26 +37,6 @@ const HabitItem = () => {
                                     </div>
 
 
-
-                                {/* Conditional Rendering untuk Grup */}
-                                {/* {item.isGrouped && (
-                                    <div className={Styles.groupedContent}> 
-                                        {habitData
-                                            .filter(subItem => subItem.isGrouped) // Filter jika Anda hanya ingin menampilkan item yang termasuk grup
-                                            .map((subItem, idx) => (
-                                                <div className={Styles.groupedCard} key={idx}>
-                                                    <div>
-                                                        <div>
-                                                            <img src={Icon} alt="icon" /> 
-                                                            <p>{subItem.title}</p>
-                                                        </div>
-                                                        <img src={Icon} alt="icon" /> 
-                                                    </div>
-                                                </div>
-                                            ))
-                                        }
-                                    </div>
-                                )} */}
                             </div>
                         </div>
                     )}
