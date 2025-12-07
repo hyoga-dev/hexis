@@ -14,22 +14,22 @@ import { useEffect, useState } from "react";
 
 export default function AddHabit() {
   const { habit, setHabit } = useHabitProvider();
-  
+
   const [dataHabit, setDataHabit] = useState({
     title: "",
-    repeatType: "daily", 
-    daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu"],  
-    goals: { 
-      count: 1, 
-      satuan: "times", 
-      ulangi: "per_day"  
+    repeatType: "daily",
+    daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
+    goals: {
+      count: 1,
+      satuan: "times",
+      ulangi: "per_day"
     },
-    waktu: ["Morning", "Afternoon", "Evening"], 
-    waktuMulai: "",      
-    pengingat: "09:00",  
-    kondisihabis: "Never", 
-    area: "",            
-    checkList: "",       
+    waktu: ["Morning", "Afternoon", "Evening"],
+    waktuMulai: "",
+    pengingat: "09:00",
+    kondisihabis: "Never",
+    area: "",
+    checkList: "",
     isGrouped: false,
   });
 
@@ -48,8 +48,8 @@ export default function AddHabit() {
     }
 
     setDataHabit({ ...dataHabit, waktu: updatedWaktu });
-  };  
-  
+  };
+
   // Variabel untuk menentukan apakah tombol Save harus dinonaktifkan
   const isSaveDisabled = dataHabit.title.trim() === "";
 
@@ -62,7 +62,7 @@ export default function AddHabit() {
     }
     alert("Habit name cannot be empty.");
   };
-  
+
 
   return (
     <div className={Styles.container}>
@@ -75,9 +75,9 @@ export default function AddHabit() {
       {/* 2. Main Name Input */}
       <div className={Styles.headerInput}>
         <img src={helpIcon} alt="help" />
-        <input 
-          type="text" 
-          placeholder="Enter Habit Name" 
+        <input
+          type="text"
+          placeholder="Enter Habit Name"
           value={dataHabit.title}
           onChange={(e) => {
             setDataHabit({ ...dataHabit, title: e.target.value })
@@ -97,9 +97,9 @@ export default function AddHabit() {
           </div>
           <div className={Styles.inputCol}>
             {/* Select Tipe Ulangi */}
-            <select 
-              name="repeatType" 
-              value={dataHabit.repeatType} 
+            <select
+              name="repeatType"
+              value={dataHabit.repeatType}
               onChange={(e) => setDataHabit({ ...dataHabit, repeatType: e.target.value })}
             >
               <option value="daily">Daily</option>
@@ -107,7 +107,7 @@ export default function AddHabit() {
               <option value="monthly">Interval</option>
             </select>
             {/* Select Hari Spesifik */}
-            <select 
+            <select
               name="daySet"
               value={dataHabit.daySet}
               onChange={(e) => setDataHabit({ ...dataHabit, daySet: e.target.value })}
@@ -127,14 +127,14 @@ export default function AddHabit() {
           </div>
           <div className={Styles.inputCol}>
             {/* Input Count */}
-            <input 
-              type="number" 
-              value={dataHabit.goals.count} 
+            <input
+              type="number"
+              value={dataHabit.goals.count}
               onChange={(e) => setDataHabit({ ...dataHabit, goals: { ...dataHabit.goals, count: parseInt(e.target.value) || 0 } })}
-              className={Styles.goalNumber} 
+              className={Styles.goalNumber}
             />
             {/* Select Satuan (Unit) */}
-            <select 
+            <select
               name="satuan"
               value={dataHabit.goals.satuan}
               onChange={(e) => setDataHabit({ ...dataHabit, goals: { ...dataHabit.goals, satuan: e.target.value } })}
@@ -143,7 +143,7 @@ export default function AddHabit() {
               <option value="minutes">mins</option>
             </select>
             {/* Select Periode (Period) */}
-            <select 
+            <select
               name="period"
               value={dataHabit.goals.ulangi}
               onChange={(e) => setDataHabit({ ...dataHabit, goals: { ...dataHabit.goals, ulangi: e.target.value } })}
@@ -163,24 +163,24 @@ export default function AddHabit() {
           <div className={Styles.inputCol}>
             <div className={Styles.checkboxGroup}>
               <label className={Styles.checkboxItem}>
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   value="Morning"
                   checked={dataHabit.waktu.includes("Morning")}
                   onChange={handleCheckbox}
                 /> Morning
               </label>
               <label className={Styles.checkboxItem}>
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   value="Afternoon"
                   checked={dataHabit.waktu.includes("Afternoon")}
                   onChange={handleCheckbox}
                 /> Afternoon
               </label>
               <label className={Styles.checkboxItem}>
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   value="Evening"
                   checked={dataHabit.waktu.includes("Evening")}
                   onChange={handleCheckbox}
@@ -197,9 +197,9 @@ export default function AddHabit() {
             <span>Start Date</span>
           </div>
           <div className={Styles.inputCol}>
-            <input 
-              type="date" 
-              className={Styles.fullWidthInput} 
+            <input
+              type="date"
+              className={Styles.fullWidthInput}
               value={dataHabit.waktuMulai}
               onChange={(e) => setDataHabit({ ...dataHabit, waktuMulai: e.target.value })}
             />
@@ -213,7 +213,7 @@ export default function AddHabit() {
             <span>End Condition</span>
           </div>
           <div className={Styles.inputCol}>
-            <select 
+            <select
               className={Styles.fullWidthInput}
               value={dataHabit.kondisihabis}
               onChange={(e) => setDataHabit({ ...dataHabit, kondisihabis: e.target.value })}
@@ -232,9 +232,9 @@ export default function AddHabit() {
             <span>Reminders</span>
           </div>
           <div className={Styles.inputCol}>
-            <input 
-              type="time" 
-              className={Styles.fullWidthInput} 
+            <input
+              type="time"
+              className={Styles.fullWidthInput}
               value={dataHabit.pengingat}
               onChange={(e) => setDataHabit({ ...dataHabit, pengingat: e.target.value })}
             />
@@ -248,9 +248,9 @@ export default function AddHabit() {
             <span>Area</span>
           </div>
           <div className={Styles.inputCol}>
-            <input 
-              type="text" 
-              placeholder="Select areas" 
+            <input
+              type="text"
+              placeholder="Select areas"
               className={Styles.fullWidthInput}
               value={dataHabit.area}
               onChange={(e) => setDataHabit({ ...dataHabit, area: e.target.value })}
@@ -265,9 +265,9 @@ export default function AddHabit() {
             <span>Checklist</span>
           </div>
           <div className={Styles.inputCol}>
-            <input 
-              type="text" 
-              placeholder="Add New Checklist" 
+            <input
+              type="text"
+              placeholder="Add New Checklist"
               className={Styles.fullWidthInput}
               value={dataHabit.checkList}
               onChange={(e) => setDataHabit({ ...dataHabit, checkList: e.target.value })}
@@ -282,10 +282,10 @@ export default function AddHabit() {
         <Link to="/habit">
           <button className={Styles.btnCancel}>Cancel</button>
         </Link>
-        <button 
-          className={dataHabit.title !== "" ? Styles.btnSave : Styles.btnSaveDisabled} 
+        <button
+          className={dataHabit.title !== "" ? Styles.btnSave : Styles.btnSaveDisabled}
           onClick={handleSave}
-          // disabled={isSaveDisabled} 
+        // disabled={isSaveDisabled} 
         >
           Save
         </button>
