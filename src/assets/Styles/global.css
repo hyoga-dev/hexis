@@ -25,7 +25,7 @@
   --error-color: #e74c3c; /* For form validation */
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     /* BACKGROUNDS */
     --background-color: #121416;
