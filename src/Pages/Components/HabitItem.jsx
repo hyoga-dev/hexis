@@ -22,7 +22,7 @@ const HabitItem = () => {
     return (
         <>
             {habit.map((item, index) => (
-                <>
+                <div key={index} className={Styles.wrapperCard}> 
                     {isToday(item.daySet) && (
                         <div className={Styles.cardContainer}>
                             <div className={Styles.card} key={index}>
@@ -41,7 +41,7 @@ const HabitItem = () => {
                         </div>
                     )}
 
-                </>
+                </div>
                 
             ))}
         </>
