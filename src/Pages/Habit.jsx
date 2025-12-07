@@ -7,17 +7,51 @@ import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
 import BasilFireOutline from "../assets/Icon/BasilFireOutline";
 import SideBar from "./Components/SideBar";
 import { useAuthLogin } from "../data/useAuthLogin";
+import { useHabitProvider } from "../data/habitData";
+
+
+
+
+
+
 
 const Habit = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const { currentUser, loading } = useAuthLogin();
+  const { habit, setHabit } = useHabitProvider();
+  const [popUpContent, setPopUpContent] = useState(null);
 
-  // useEffect(() => {
-  //   console.log(currentUser);
-  // }, [currentUser]);
+  function cardVisibility(visibility, index) {
+
+    setPopUpContent(habit[index]);
+    
+    console.log(habit[index]);
+    setIsVisible(visibility);
+  }
+
+
+
+  function PopUp() {
+    return (
+      <div className={style.popUp}>
+        <div className={style.popUpBackground} onClick={() => setIsVisible(false)} />
+        <div className={style.card}>
+          {/* {`Title: ${popUpContent.title}`} */}
+          <div>
+
+          <input type="number"  />
+          </div>
+
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={style.wrapper}>
+
+      {isVisible && <PopUp />}
 
       {/* header */}
       <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
@@ -41,7 +75,7 @@ const Habit = () => {
           <p>Filter</p>
         </div>
 
-        <HabitItem />
+        <HabitItem onUpdate={cardVisibility} />
         <Link to="/addhabit" className={style.addHabitBtn}>
           add habit
         </Link>

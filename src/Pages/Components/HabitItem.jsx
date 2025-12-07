@@ -12,8 +12,14 @@ function isToday(dayset) {
     return dayset.includes(getDayName());
 }
 
-const HabitItem = () => {
+const HabitItem = ({onUpdate}) => {
     const { habit, setHabit } = useHabitProvider(); 
+
+
+    const handleClick = (index) => {
+        onUpdate(true, index);
+        
+    };
 
     // useEffect(() => {
     //     console.log("isToday changed:", getDayName(), isToday);
@@ -22,9 +28,10 @@ const HabitItem = () => {
     return (
         <>
             {habit.map((item, index) => (
-                <div key={index} className={Styles.wrapperCard}> 
+                // <div key={index} className={Styles.wrapperCard}> 
+                <>
                     {isToday(item.daySet) && (
-                        <div className={Styles.cardContainer}>
+                        <div className={Styles.cardContainer} onClick={() => handleClick(index)}>
                             <div className={Styles.card} key={index}>
                         
 
@@ -38,10 +45,14 @@ const HabitItem = () => {
 
 
                             </div>
+
+                            {/* <div className={Styles.popUp} >
+                                <p>Details coming soon...</p>
+                            </div> */}
                         </div>
                     )}
-
-                </div>
+                </>
+                // </div> 
                 
             ))}
         </>
