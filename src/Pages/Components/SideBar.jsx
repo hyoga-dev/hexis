@@ -70,8 +70,8 @@ const SideBar = ({ isOpen, onClose }) => {
 
 
           <div className={Styles.logout}>
-            <NavLink onClick={handleSignOut} to="/" className={Styles.logout}>
-              <LogoutIcon width="2rem" height="2rem" />
+            <NavLink onClick={handleSignOut} to="/login" className={Styles.logout}>
+              <LogoutIcon color="var(--primary-color)" width="2rem" height="2rem" />
             </NavLink>
           </div>
 
