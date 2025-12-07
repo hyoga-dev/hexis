@@ -18,7 +18,7 @@ export default function AddHabit() {
   const [dataHabit, setDataHabit] = useState({
     title: "",
     repeatType: "daily", 
-    daySet: "everyday",  
+    daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu"],  
     goals: { 
       count: 1, 
       satuan: "times", 
@@ -103,8 +103,8 @@ export default function AddHabit() {
               onChange={(e) => setDataHabit({ ...dataHabit, repeatType: e.target.value })}
             >
               <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
+              <option value="weekly">Monthly</option>
+              <option value="monthly">Interval</option>
             </select>
             {/* Select Hari Spesifik */}
             <select 
@@ -112,7 +112,7 @@ export default function AddHabit() {
               value={dataHabit.daySet}
               onChange={(e) => setDataHabit({ ...dataHabit, daySet: e.target.value })}
             >
-              <option value="everyday">Every Day</option>
+              <option value="senin, selasa, rabu">Every Day</option>
               <option value="weekdays">Weekdays</option>
               <option value="weekends">Weekends</option>
             </select>

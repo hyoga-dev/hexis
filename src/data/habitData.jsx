@@ -11,16 +11,21 @@ export const useHabitProvider = () => {
 
 const dataHabit = [
     {
-        uid: "guest",
-        title: "judul",
-        daySet: ["senin", "selasa"], 
-        goals: {count: 0, satuan: "time", ulangi: "perday"},
-        waktu: "morning",
+        title: "",
+        repeatType: "daily", 
+        daySet: ["minggu", "senin", "selasa", "rabu", "kamis"],  
+        goals: { 
+        count: 1, 
+        satuan: "times", 
+        ulangi: "per_day"  
+        },
+        waktu: ["Morning", "Afternoon", "Evening"], 
         waktuMulai: "",
-        pengingat: "",
-        kondisihabis: "",
-        checkList: "",
-        isGrouped: true,
+        pengingat: "09:00",
+        kondisihabis: "Never",
+        area: "",
+        checkList: "",       
+        isGrouped: false
     }
 ]
 
@@ -32,7 +37,6 @@ export function HabitProvider({children}) {
     dataHabit[0].uid = currentUser ? currentUser.uid : "guest";
 
     const [habit, setHabit] = useLocalStorage("habitDetail", dataHabit);
-
     const contextValue = {
         habit,
         setHabit

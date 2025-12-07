@@ -1,14 +1,11 @@
 import { useEffect } from "react";
 import { useHabitProvider } from "../../data/habitData";
-import useAddHabit from "./useAddHabit";
 
 
 const getDayName = () => {
     const days = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
     return days[new Date().getDay()];
 };
-
-
 
 
 export default function HabitLogic() {
