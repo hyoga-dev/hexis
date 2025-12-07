@@ -17,10 +17,12 @@ import Analytics from "./Pages/Analytics";
 import AuthTest from "./data/authTest";
 import LoadingScreen from "./Pages/LoadingScreen";
 import HabitLogic from "./Pages/Components/habitLogic";
+import useTheme from "./data/useTheme";
 
 
 function App() {
-
+  useTheme();
+  
   return (
     <>
       <BrowserRouter>

@@ -1,10 +1,272 @@
 .wrapper {
   width: 100%;
-  
 }
 
-@media (min-width:768px){
-    .wrapper {
-        padding-left: var(--sidebar-width);
-    }
+.container {
+  margin: 0 20px;
+}
+
+/* Navbar Container */
+.navbar {
+  display: flex;
+  gap: 20px;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 20px;
+}
+
+/* Nav Items (Buttons) */
+.navItem {
+  background: none;
+  border: none;
+  padding: 10px 5px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.navItem:hover {
+  color: var(--primary-color);
+}
+
+/* Active State */
+.active {
+  color: var(--primary-color);
+}
+
+.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px; /* Pull it down to cover the container border */
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--primary-color); /* Active line color */
+}
+
+/* Content Area */
+.contentArea {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Setting Group Styles */
+.settingGroup {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settingGroup h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--font-color);
+  margin: 0;
+}
+
+.settingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settingHeader label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--font-color);
+}
+
+.description {
+  font-size: 13px;
+  color: var(--secondary-font-color);
+  margin: 0;
+}
+
+/* Toggle Switch */
+.toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 50px;
+  height: 26px;
+  background-color: var(--border-color);
+  border: none;
+  border-radius: 13px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.toggle::before {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: white;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s ease;
+}
+
+.toggle:checked {
+  background-color: var(--primary-color);
+}
+
+.toggle:checked::before {
+  left: 26px;
+}
+
+.toggle:hover {
+  opacity: 0.8;
+}
+
+/* Color Grid */
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.colorItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.colorItem label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--font-color);
+  text-transform: capitalize;
+}
+
+.colorInputWrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.colorInput {
+  width: 50px;
+  height: 50px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.colorInput:hover {
+  border-color: var(--primary-color);
+}
+
+.colorValue {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--secondary-font-color);
+  font-family: "Courier New", monospace;
+  user-select: all;
+}
+
+/* Reset Button */
+.resetBtn {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background-color: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.resetBtn:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+/* Button Group */
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* Apply Button */
+.applyBtn {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.applyBtn:hover:not(:disabled) {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+.applyBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Discard Button */
+.discardBtn {
+  padding: 10px 20px;
+  background-color: transparent;
+  color: var(--secondary-font-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.discardBtn:hover:not(:disabled) {
+  border-color: var(--font-color);
+  color: var(--font-color);
+  transform: translateY(-2px);
+}
+
+.discardBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 768px) {
+  .wrapper {
+    padding-left: var(--sidebar-width);
+  }
 }
