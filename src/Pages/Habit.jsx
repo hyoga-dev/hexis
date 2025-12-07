@@ -30,7 +30,9 @@ const Habit = () => {
     setIsVisible(visibility);
   }
 
-
+  useEffect(() => {
+    console.log(popUpContent);
+  }, [popUpContent]);
 
   function PopUp() {
     return (
@@ -38,11 +40,13 @@ const Habit = () => {
         <div className={style.popUpBackground} onClick={() => setIsVisible(false)} />
         <div className={style.card}>
           {/* {`Title: ${popUpContent.title}`} */}
+          
           <div>
-
-          <input type="number"  />
+            <input type="number" value={popUpContent.goals.count} onChange={(e) => setPopUpContent({...popUpContent, goals: { ...popUpContent.goals, count: parseInt(e.target.value) || 0 }}) } />
+            <span> / 7 times</span>
           </div>
 
+          <button onClick={() => setIsVisible(false)}>Close</button>
         </div>
       </div>
     )
