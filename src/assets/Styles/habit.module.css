@@ -76,19 +76,21 @@ p {
 }
 
 .addHabitBtn {
-  border-radius: 4px;
   color: var(--background-color);
   font-weight: bold;
-  width: fit-content;
+  border-radius: 50%;
+  width: 5rem;
   margin-top: 20px;
-  /* position: relative; */
   position: absolute;
-  bottom: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: 10dvh;
   right: 20px;
   text-decoration: none;
   border: 1px solid var(--primary-color);
   background-color: var(--primary-color);
-  padding: 10px;
+  height: 5rem;
 }
 
 .groupedCard > div {
@@ -116,11 +118,11 @@ p {
   justify-content: center;
   align-items: center;
   /* background-color: var(--surface-color); */
-  
+
   z-index: 10;
   width: 95%;
   height: 100%;
-} 
+}
 
 .popUpBackground {
   position: absolute;

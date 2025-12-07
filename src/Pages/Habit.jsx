@@ -8,11 +8,7 @@ import BasilFireOutline from "../assets/Icon/BasilFireOutline";
 import SideBar from "./Components/SideBar";
 import { useAuthLogin } from "../data/useAuthLogin";
 import { useHabitProvider } from "../data/habitData";
-
-
-
-
-
+import AddHabitIcon from "../assets/Icon/AddHabitIcon"
 
 
 const Habit = () => {
@@ -25,7 +21,7 @@ const Habit = () => {
   function cardVisibility(visibility, index) {
 
     setPopUpContent(habit[index]);
-    
+
     console.log(habit[index]);
     setIsVisible(visibility);
   }
@@ -40,7 +36,7 @@ const Habit = () => {
           {/* {`Title: ${popUpContent.title}`} */}
           <div>
 
-          <input type="number"  />
+            <input type="number" />
           </div>
 
         </div>
@@ -77,7 +73,7 @@ const Habit = () => {
 
         <HabitItem onUpdate={cardVisibility} />
         <Link to="/addhabit" className={style.addHabitBtn}>
-          add habit
+          <AddHabitIcon width="4rem" height="4rem" />
         </Link>
       </div>
 
