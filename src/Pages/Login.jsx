@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../assets/Styles/global.css";
 import Styles from "../assets/Styles/login.module.css";
-import Logo from "../assets/Images/logo.png";
+import Logo from "../assets/Icon/HexisLogoBottom.jsx";
 import FormBox from "./Components/FormBox";
 import AltLogin from "./Components/AltLogin";
 import { useAuthLogic } from "../data/userAuth";
@@ -18,7 +18,11 @@ export default function Login() {
   return (
     <div className={Styles.pageWrapper}>
       <div className={Styles.container}>
-        <img src={Logo} alt="Logo" className={Styles.logo} />
+        <Logo
+          width="22dvw"
+          height="22dvh"
+          primary="var(--primary-color)"
+          secondary="var(--font-color)" />
         <FormBox
           title="Login to your account"
           isRegister={false}

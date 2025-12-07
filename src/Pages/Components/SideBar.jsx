@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import "../../assets/Styles/global.css";
 import Styles from "../../assets/Styles/sidebar.module.css";
-import Logo from "../../assets/Images/logo.png";
+import Logo from "../../assets//Icon/HexisLogoRight.jsx";
 import BurgerIcon from "../../assets/Icon/SideBar/BurgerIcon";
 import RoadMapIcon from "../../assets/Icon/SideBar/RoadMapIcon";
 import HabitIcon from "../../assets/Icon/SideBar/HabitIcon";
@@ -40,7 +40,11 @@ const SideBar = ({ isOpen, onClose }) => {
           <button onClick={onClose} className={Styles.BurgerIcon}>
             <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
           </button>
-          <img src={Logo} alt="Hexis Logo" className={Styles.logo} />
+          <Logo
+            width="22dvw"
+            height="7dvh"
+            primary="var(--primary-color)"
+            secondary="var(--font-color)" />
         </div>
 
         <nav className={Styles.nav}>
