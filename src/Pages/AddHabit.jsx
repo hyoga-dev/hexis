@@ -13,17 +13,15 @@ import { useHabitProvider } from "../data/habitData";
 import { useEffect, useState } from "react";
 
 export default function AddHabit() {
-  const DAYS_OF_WEEK = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu","Minggu"];
+  const DAYS_OF_WEEK = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu","minggu"];
   const DATES_IN_MONTH = Array.from({ length: 31 }, (_, i) => i + 1);
 
   const handleDayToggle = (day) => {
     let currentDays = Array.isArray(dataHabit.daySet) ? [...dataHabit.daySet] : [];
 
     if (currentDays.includes(day)) {
-      // Remove if exists
       currentDays = currentDays.filter(d => d !== day);
     } else {
-      // Add if not exists
       currentDays.push(day);
     }
     setDataHabit({ ...dataHabit, daySet: currentDays });

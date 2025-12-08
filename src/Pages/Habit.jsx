@@ -17,8 +17,8 @@ const Habit = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [data, setData] = useState([]);
-  const { currentUser, loading } = useAuthLogin();
-  const { habit, setHabit } = useHabitProvider();
+  const {currentUser, loading} = useAuthLogin();
+  const {habit, setHabit} = useHabitProvider();
   const [popUpContent, setPopUpContent] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(null);
 
@@ -40,7 +40,6 @@ const Habit = () => {
       }
     };
     fetchData()
-    // console.log(data);
   }, [])
 
   function cardVisibility(visibility, index) {
@@ -52,18 +51,18 @@ const Habit = () => {
   }
 
   function handleCloseAndSave() {
-        if (currentIndex !== null && popUpContent) {
-            
-            const updatedHabit = [...habit];
-            
-            updatedHabit[currentIndex] = popUpContent;
-            
-            setHabit(updatedHabit); 
-        }
+    if (currentIndex !== null && popUpContent) {
         
-        setIsVisible(false);
-        setCurrentIndex(null);
+        const updatedHabit = [...habit];
+        
+        updatedHabit[currentIndex] = popUpContent;
+        
+        setHabit(updatedHabit); 
     }
+    
+    setIsVisible(false);
+    setCurrentIndex(null);
+  }
 
   useEffect(() => {
     // console.log(popUpContent);
@@ -77,18 +76,22 @@ const Habit = () => {
       <div className={style.popUp}>
         <div className={style.popUpBackground} onClick={handleCloseAndSave} />
         <div className={style.card}>
-          {/* {`Title: ${popUpContent.title}`} */}
           
           <div>
             <input type="number" value={popUpContent.goals.count} onChange={(e) => setPopUpContent({...popUpContent, goals: { ...popUpContent.goals, count: parseInt(e.target.value) || 0}}) } />
             <span> / 7 times</span>
           </div>
 
-          <button onClick={handleCloseAndSave}>Close</button>
+          {/* <button onClick={handleCloseAndSave}>Close</button> */}
         </div>
       </div>
     )
   }
+
+
+
+
+
 
   return (
     <div className={style.wrapper}>
