@@ -9,40 +9,82 @@ import SideBar from "./Components/SideBar";
 import { useAuthLogin } from "../data/useAuthLogin";
 import { useHabitProvider } from "../data/habitData";
 import AddHabitIcon from "../assets/Icon/AddHabitIcon"
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 
 const Habit = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [data, setData] = useState([]);
   const { currentUser, loading } = useAuthLogin();
   const { habit, setHabit } = useHabitProvider();
   const [popUpContent, setPopUpContent] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const collectionRef = collection(db, 'habit'); 
+        const querySnapshot = await getDocs(collectionRef);
+        
+        const items = querySnapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data() 
+        }));
+        console.log(items);
+        
+        setData(items);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+    fetchData()
+    // console.log(data);
+  }, [])
 
   function cardVisibility(visibility, index) {
 
     setPopUpContent(habit[index]);
+    setCurrentIndex(index);
 
-    console.log(habit[index]);
     setIsVisible(visibility);
   }
 
+  function handleCloseAndSave() {
+        if (currentIndex !== null && popUpContent) {
+            
+            const updatedHabit = [...habit];
+            
+            updatedHabit[currentIndex] = popUpContent;
+            
+            setHabit(updatedHabit); 
+        }
+        
+        setIsVisible(false);
+        setCurrentIndex(null);
+    }
+
   useEffect(() => {
-    console.log(popUpContent);
+    // console.log(popUpContent);
   }, [popUpContent]);
 
   function PopUp() {
+
+    if (!popUpContent) return null;
+
     return (
       <div className={style.popUp}>
-        <div className={style.popUpBackground} onClick={() => setIsVisible(false)} />
+        <div className={style.popUpBackground} onClick={handleCloseAndSave} />
         <div className={style.card}>
           {/* {`Title: ${popUpContent.title}`} */}
           
           <div>
-            <input type="number" value={popUpContent.goals.count} onChange={(e) => setPopUpContent({...popUpContent, goals: { ...popUpContent.goals, count: parseInt(e.target.value) || 0 }}) } />
+            <input type="number" value={popUpContent.goals.count} onChange={(e) => setPopUpContent({...popUpContent, goals: { ...popUpContent.goals, count: parseInt(e.target.value) || 0}}) } />
             <span> / 7 times</span>
           </div>
 
-          <button onClick={() => setIsVisible(false)}>Close</button>
+          <button onClick={handleCloseAndSave}>Close</button>
         </div>
       </div>
     )

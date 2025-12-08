@@ -28,7 +28,7 @@ export default function Register() {
         <AltLogin />
         <p>
           Already have an account?{" "}
-          <Link to="/" className={Styles.link}>
+          <Link to="/login" className={Styles.link}>
             Sign In
           </Link>
         </p>
