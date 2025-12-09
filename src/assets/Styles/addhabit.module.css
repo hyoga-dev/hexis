@@ -1,4 +1,5 @@
-/* addhabit.module.css */
+/* src/assets/Styles/addhabit.module.css */
+
 .container {
   display: flex;
   flex-direction: column;
@@ -22,7 +23,7 @@
   flex-shrink: 0;
 }
 
-/* --- Header Input Section (Habit Name) --- */
+/* Header Input (Habit Name) */
 .headerInput {
   display: flex;
   align-items: center;
@@ -49,7 +50,7 @@
   opacity: 0.7;
 }
 
-/* --- Main Form Rows --- */
+/* Form Body */
 .formBody {
   display: flex;
   flex-direction: column;
@@ -61,7 +62,6 @@
 ::-webkit-scrollbar {
   width: 1rem;
 }
-
 ::-webkit-scrollbar-track {
   background-color: var(--border-color);
 }
@@ -76,12 +76,89 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+/* Labels & Inputs */
+.labelCol {
+  width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 10px;
+  color: var(--font-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.labelCol img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+}
+
+.inputCol {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+.inputCol-repeat {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Input Styling */
+.inputCol select,
+.inputCol input[type="text"],
+.inputCol input[type="number"],
+.inputCol input[type="date"],
+.inputCol input[type="time"],
+.inputCol textarea,
+.interval input[type="number"] {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--font-color);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.inputCol textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.inputCol select:focus,
+.inputCol input:focus,
+.inputCol textarea:focus {
+  border-color: var(--primary-hover);
+}
+
+/* Specifics */
+.goalNumber {
+  width: 80px;
+  text-align: center;
+}
+
+.calcText {
+  width: 100%;
+  font-size: 0.85rem;
+  color: var(--secondary-font-color);
+  margin-top: 5px;
+  font-style: italic;
+}
+
+/* Daily/Monthly Toggles */
 .daily {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
-
 .daily label {
   display: flex;
   gap: 8px;
@@ -93,7 +170,6 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
 }
-
 .input-monthly {
   padding: 5px;
   text-align: center;
@@ -107,93 +183,24 @@
   align-items: center;
   gap: 10px;
 }
-
 .interval input[type="number"] {
   width: 100px;
-  padding: 5px;
 }
 
-/* The Label Column (Left side) */
-.labelCol {
-  width: 180px; /* Fixed width for alignment on desktop */
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-top: 10px;
-  color: var(--font-color);
-  font-weight: 600;
-  font-size: 0.95rem;
-  flex-shrink: 0; /* Prevents label from squishing */
-}
-
-.labelCol img {
-  width: 20px;
-  height: 20px;
-  opacity: 0.9;
-}
-
-/* The Input Column (Right side) */
-.inputCol {
-  flex: 1;
-  display: flex;
-
-  gap: 10px;
-}
-
-.inputCol-repeat {
-  display: flex;
-  flex: 1;
-  gap: 10px;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-/* --- Input & Select Styling --- */
-.inputCol select,
-.inputCol input[type="text"],
-.inputCol input[type="number"],
-.inputCol input[type="date"],
-.inputCol input[type="time"],
-.interval input[type="number"] {
-  background-color: var(--surface-color);
-  border: 1px solid var(--border-color);
-  color: var(--font-color);
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  outline: none;
-}
-
-.inputCol select:focus,
-.inputCol input:focus {
-  border-color: var(--primary-hover);
-}
-
-.inputCol select {
-  min-width: 120px;
-}
-
-/* Specific styling for the Goals row */
-.goalNumber {
-  width: 60px;
-  text-align: center;
-}
-
-/* Styling for Time of Day Checkboxes */
+/* Checkboxes */
 .checkboxGroup {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
 }
-
 .checkboxItem {
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   font-size: 0.9rem;
-  white-space: nowrap; /* Keeps "Morning" text with checkbox */
+  white-space: nowrap;
 }
-
 .checkboxItem input[type="checkbox"],
 .daily input[type="checkbox"] {
   accent-color: var(--primary-color);
@@ -201,19 +208,8 @@
   height: 16px;
 }
 
-/* Full width inputs */
-.fullWidthInput {
-  width: 100%;
-  background-color: var(--surface-color);
-  border: 1px solid var(--border-color);
-  color: var(--secondary-font-color);
-  padding: 10px;
-  border-radius: 6px;
-}
-
-/* --- Footer Buttons --- */
+/* Footer */
 .footer {
-  /* Footer stays fixed at the bottom */
   flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
@@ -247,85 +243,32 @@
   background-color: var(--primary-hover);
 }
 
-/* ========================================= */
-/* MOBILE RESPONSIVE STYLES */
-/* ========================================= */
+.btnSaveDisabled {
+  background-color: gray;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: not-allowed;
+  font-weight: bold;
+}
 
+/* Mobile */
 @media (max-width: 768px) {
   .container {
-    width: 95vw; /* Almost full width on mobile */
-    max-height: 95dvh; /* Use dynamic viewport height for mobile browsers */
-    height: 95dvh; /* Force full height on mobile for better feel */
+    width: 95vw;
+    max-height: 95dvh;
+    height: 95dvh;
     margin: 2.5dvh auto;
-    border-radius: 0.5rem;
   }
-
-  /* Make rows stack vertically */
   .row {
     flex-direction: column;
-    align-items: flex-start;
-    padding: 15px;
-    height: auto; /* REMOVED 100rem - let content dictate height */
     gap: 10px;
   }
-
-  /* Label takes full width */
   .labelCol {
     width: 100%;
-    margin-bottom: 5px;
   }
-
-  /* Inputs take full width and wrap if needed */
   .inputCol {
     width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .inputCol-repeat {
-    display: flex;
-    flex: 1;
-    width: 100%;
-    gap: 10px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  /* Expand inputs to be easier to tap */
-  .inputCol select,
-  .inputCol input[type="text"],
-  .inputCol input[type="date"],
-  .inputCol input[type="time"] {
-    flex: 1; /* Grow to fill the row */
-    min-width: 45%; /* Ensure they don't get too tiny */
-  }
-
-  /* Allow Goal Number to stay small but align nicely */
-  .goalNumber {
-    width: 60px !important;
-    flex: none !important;
-  }
-
-  /* Fix checkbox group wrapping */
-  .checkboxGroup {
-    flex-wrap: wrap;
-    gap: 15px;
-  }
-
-  /* Adjust footer for mobile access */
-  .footer {
-    padding: 15px;
-    justify-content: space-between; /* Spread buttons out */
-  }
-
-  .btnCancel,
-  .btnSave {
-    flex: 1; /* Buttons take equal width */
-    text-align: center;
-  }
-
-  .btnSaveDisabled {
-    composes: btnSave;
-    background-color: gray;
-    color: white;
   }
 }
