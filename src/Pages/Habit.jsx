@@ -11,16 +11,7 @@ import { useHabitProvider } from "../data/habitData";
 import AddHabitIcon from "../assets/Icon/AddHabitIcon";
 import AddHabit from "./AddHabit"; 
 
-// Import Icons
-import helpIcon from "../assets/Images/help.png";
-import repeatIcon from "../assets/Images/repeat.png";
-import goalIcon from "../assets/Images/goal.png";
-import sunIcon from "../assets/Images/sun.png";
-import flagIcon from "../assets/Images/flag.png";
-import reminderIcon from "../assets/Images/reminder.png";
-import slashIcon from "../assets/Images/slash.png";
-
-// --- TIMER COMPONENT ---
+// --- TIMER COMPONENT (Same as before) ---
 const TimerInterface = ({ habit, onSave, onClose }) => {
   const [isActive, setIsActive] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -72,6 +63,7 @@ const Habit = () => {
   // Filters
   const [filterStatus, setFilterStatus] = useState("all"); 
   const [filterTime, setFilterTime] = useState("all"); 
+  const [activeRoadmapId, setActiveRoadmapId] = useState("all"); // RESTORED
 
   // Modals
   const [isAddHabitOpen, setIsAddHabitOpen] = useState(false); 
@@ -82,28 +74,51 @@ const Habit = () => {
 
   const { habit, setHabit } = useHabitProvider();
 
-  // --- 1. FILTERING ---
+  // --- 1. EXTRACT JOINED ROADMAPS (RESTORED) ---
+  const joinedRoadmaps = useMemo(() => {
+    const map = new Map();
+    habit.forEach(h => {
+        if (h.roadmapId) {
+            const title = h.roadmapTitle || `Roadmap ${h.roadmapId}`; // Fallback if title missing
+            if (!map.has(h.roadmapId)) {
+                map.set(h.roadmapId, title);
+            }
+        }
+    });
+    return Array.from(map, ([id, title]) => ({ id, title }));
+  }, [habit]);
+
+  // --- 2. FILTERING LOGIC ---
   const filteredHabits = useMemo(() => {
     if (!habit) return [];
     return habit.filter((item) => {
-      const matchesTab = (activeTab === "personal") ? !item.roadmapId : item.roadmapId;
-      if (!matchesTab) return false;
+      
+      // A. TAB FILTER
+      if (activeTab === "personal") {
+         if (item.roadmapId) return false;
+      } else {
+         if (!item.roadmapId) return false;
+         // B. SUB-ROADMAP FILTER (RESTORED)
+         if (activeRoadmapId !== "all" && item.roadmapId !== activeRoadmapId) return false;
+      }
 
-      const isCompleted = (item.goals.count || 0) >= (item.goals.target || 1);
+      // C. STATUS FILTER
+      const current = item.goals.count || 0;
+      const target = item.goals.target || 1;
+      const isCompleted = current >= target;
       if (filterStatus === "completed" && !isCompleted) return false;
       if (filterStatus === "incomplete" && isCompleted) return false;
 
+      // D. TIME FILTER
       if (filterTime !== "all") {
         if (filterTime === "Anytime") { if (item.waktu && item.waktu.length > 0) return false; }
         else { if (!item.waktu || !item.waktu.includes(filterTime)) return false; }
       }
       return true; 
     });
-  }, [habit, activeTab, filterStatus, filterTime]);
+  }, [habit, activeTab, activeRoadmapId, filterStatus, filterTime]);
 
-  // --- 2. HANDLERS ---
-  
-  // FIXED: Removed the "if (timeContext)" check. Now it ALWAYS opens the popup.
+  // --- HANDLERS ---
   const handleCardClick = (clickedHabit) => {
     const realIndex = habit.findIndex(h => h.id === clickedHabit.id);
     setPopUpContent({ ...clickedHabit }); 
@@ -141,7 +156,7 @@ const Habit = () => {
     if (realIndex !== -1) setHabit(habit.filter((_, i) => i !== realIndex));
   };
 
-  // --- 3. POPUP RENDERER ---
+  // --- POPUP ---
   const ProgressPopUp = () => {
     if (!popUpContent) return null;
     const isTimer = ["minutes", "hours"].includes(popUpContent.goals.satuan);
@@ -172,6 +187,7 @@ const Habit = () => {
     );
   };
 
+  // --- RENDER ---
   const timeGroups = [{ label: "Morning", icon: "🌅" }, { label: "Afternoon", icon: "☀️" }, { label: "Evening", icon: "🌙" }];
   const groupsToRender = filterTime === "all" ? timeGroups : (filterTime === "Anytime" ? [] : timeGroups.filter(g => g.label === filterTime));
 
@@ -208,6 +224,27 @@ const Habit = () => {
           <button onClick={() => setActiveTab("roadmap")} className={`${style.navItem} ${activeTab === "roadmap" ? style.active : ""}`}>Roadmap</button>
         </div>
 
+        {/* --- RESTORED ROADMAP SUB-MENU --- */}
+        {activeTab === "roadmap" && joinedRoadmaps.length > 0 && (
+            <div className={style.subNav}>
+                <button 
+                    className={`${style.subNavItem} ${activeRoadmapId === "all" ? style.activeSub : ""}`}
+                    onClick={() => setActiveRoadmapId("all")}
+                >
+                    All Roadmaps
+                </button>
+                {joinedRoadmaps.map((rm) => (
+                    <button 
+                        key={rm.id}
+                        className={`${style.subNavItem} ${activeRoadmapId === rm.id ? style.activeSub : ""}`}
+                        onClick={() => setActiveRoadmapId(rm.id)}
+                    >
+                        {rm.title}
+                    </button>
+                ))}
+            </div>
+        )}
+
         <div className={style.controls}>
           <select className={style.filterSelect} value={filterTime} onChange={(e) => setFilterTime(e.target.value)}>
             <option value="all">All Day</option>
@@ -233,7 +270,7 @@ const Habit = () => {
                   <div key={group.label} className={style.timeSection}>
                     <h3 className={style.timeHeader}>{group.label} <span>{group.icon}</span></h3>
                     <HabitItem 
-                        onUpdate={(_, idx) => handleCardClick(groupHabits[idx])} // ALWAYS opens popup now
+                        onUpdate={(_, idx) => handleCardClick(groupHabits[idx])} 
                         onEdit={(idx) => handleEditHabit(groupHabits[idx])} 
                         onDelete={(idx) => handleDelete(groupHabits[idx])} 
                         habits={groupHabits} 

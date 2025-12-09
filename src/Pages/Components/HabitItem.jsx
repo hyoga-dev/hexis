@@ -20,7 +20,7 @@ const isToday = (dayset) => {
     return dayset.includes(getDayName());
 }
 
-const HabitItem = ({ onUpdate, onEdit, onDelete, habits }) => {
+const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
     const [openMenuIndex, setOpenMenuIndex] = useState(null);
 
     const toggleMenu = (e, index) => {
@@ -55,11 +55,23 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits }) => {
             {habits.map((item, index) => {
                 const scheduledForToday = isToday(item.daySet) || isTodayDate(item.daySet);
                 
-                // --- PROGRESS LOGIC (Restored Original) ---
+                // --- PROGRESS LOGIC ---
                 const current = item.goals.count || 0;
                 const target = item.goals.target || 1;
+                // Calculate percentage (max 100%)
                 const percent = Math.min((current / target) * 100, 100);
                 const isCompleted = current >= target;
+
+                // Status Text
+                let statusText = `${current} / ${target} ${item.goals.satuan}`;
+                let visualPercent = percent;
+
+                // If in a time slot (Morning/etc), show simplified status if preferred, 
+                // OR just show the global progress bar which is usually better.
+                if (timeContext) {
+                    const isSlotDone = item.completedTimeSlots && item.completedTimeSlots.includes(timeContext);
+                    // Optionally override status text here if you want "Done" instead of numbers
+                }
 
                 if (scheduledForToday) {
                     return (
@@ -82,26 +94,30 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits }) => {
                                         </div>
                                     </div>
 
-                                    <button className={Styles.menuBtn} onClick={(e) => toggleMenu(e, index)}>
-                                        ⋮
-                                    </button>
+                                    {/* Hide menu for Roadmap items */}
+                                    {!item.roadmapId && (
+                                        <button className={Styles.menuBtn} onClick={(e) => toggleMenu(e, index)}>
+                                            ⋮
+                                        </button>
+                                    )}
                                 </div>
 
                                 {item.description && (
                                     <p className={Styles.habitDesc}>"{item.description}"</p>
                                 )}
 
+                                {/* PROGRESS BAR SECTION */}
                                 <div className={Styles.progressSection}>
                                     <div className={Styles.progressInfo}>
                                         <span>Progress</span>
-                                        {/* Shows exact count: "1 / 5 times" */}
-                                        <span>{current} / {target} {item.goals.satuan}</span>
+                                        <span>{statusText}</span>
                                     </div>
                                     <div className={Styles.progressBarBg}>
                                         <div 
                                             className={Styles.progressBarFill} 
                                             style={{ 
-                                                width: `${percent}%`,
+                                                width: `${visualPercent}%`,
+                                                // Green if complete, Primary Blue if in progress
                                                 backgroundColor: isCompleted ? '#4caf50' : 'var(--primary-color)' 
                                             }} 
                                         />
@@ -109,6 +125,7 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits }) => {
                                 </div>
                             </div>
 
+                            {/* Dropdown Menu */}
                             {openMenuIndex === index && (
                                 <div className={Styles.menuDropdown}>
                                     <button className={Styles.menuItem} onClick={(e) => handleEditClick(e, index)}>

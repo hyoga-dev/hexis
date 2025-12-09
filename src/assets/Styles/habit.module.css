@@ -19,7 +19,7 @@ div, img, p {
   padding-bottom: 100px;
 }
 
-/* --- Tab Navigation --- */
+/* --- TAB NAVIGATION --- */
 .nav {
   display: flex;
   gap: 20px;
@@ -46,6 +46,67 @@ div, img, p {
 .active {
   border-bottom: 3px solid var(--primary-color);
   color: var(--primary-color);
+}
+
+/* --- SUB-NAVIGATION (Roadmap Selector) --- */
+.subNav {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
+}
+
+.subNav::-webkit-scrollbar {
+  display: none;
+}
+
+.subNavItem {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  color: var(--secondary-font-color);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.subNavItem:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.subNavItem.activeSub {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* --- CONTROLS ROW --- */
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--font-color);
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 110px;
 }
 
 /* --- CARD STYLES --- */
@@ -75,7 +136,6 @@ div, img, p {
   transform: scale(0.98);
 }
 
-/* Card Header */
 .cardHeader {
   display: flex;
   justify-content: space-between;
@@ -112,11 +172,10 @@ div, img, p {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
-/* Progress Section */
+/* --- PROGRESS BAR STYLES (The Missing Part) --- */
 .progressSection {
   margin-top: 5px;
-  padding-left: 44px;
+  padding-left: 44px; /* Aligns with text */
 }
 
 .progressInfo {
@@ -129,20 +188,20 @@ div, img, p {
 
 .progressBarBg {
   width: 100%;
-  height: 6px;
-  background-color: var(--border-color);
-  border-radius: 3px;
+  height: 8px; /* Thickness of bar */
+  background-color: var(--border-color); /* Gray background */
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .progressBarFill {
   height: 100%;
-  background-color: var(--primary-color);
-  border-radius: 3px;
-  transition: width 0.3s ease-in-out;
+  border-radius: 4px;
+  transition: width 0.3s ease-in-out, background-color 0.3s ease;
+  /* Green color is handled inline in JSX for dynamic switching */
 }
 
-/* Menu */
+/* --- MENU STYLES --- */
 .menuBtn {
   background: none;
   border: none;
@@ -186,7 +245,7 @@ div, img, p {
   color: var(--error-color);
 }
 
-/* FAB */
+/* --- FAB --- */
 .addHabitBtn {
   color: var(--on-primary);
   font-weight: bold;
@@ -203,10 +262,10 @@ div, img, p {
   background-color: var(--primary-color);
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   z-index: 99;
-  text-decoration: none;
+  cursor: pointer;
 }
 
-/* --- POPUP (Common) --- */
+/* --- POPUP --- */
 .popUp {
   position: fixed;
   top: 0;
@@ -253,65 +312,7 @@ div, img, p {
   cursor: pointer;
 }
 
-/* --- TIMER POPUP SPECIFIC --- */
-.timerDisplay {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--font-color);
-  font-variant-numeric: tabular-nums; /* Keeps numbers from jumping */
-  margin: 10px 0;
-}
-
-.timerControls {
-  display: flex;
-  gap: 15px;
-  width: 100%;
-  justify-content: center;
-}
-
-.timerBtn {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-
-.timerBtn:active {
-  transform: scale(0.95);
-}
-
-.startBtn {
-  background-color: #4caf50; /* Green */
-  color: white;
-}
-
-.stopBtn {
-  background-color: #f44336; /* Red */
-  color: white;
-}
-
-.resetBtn {
-  background-color: var(--background-color);
-  color: var(--font-color);
-  border: 1px solid var(--border-color);
-  width: 50px;
-  height: 50px;
-  font-size: 1rem;
-}
-
-.sessionResult {
-  font-size: 0.9rem;
-  color: var(--primary-color);
-  font-weight: bold;
-}
-
-/* --- COUNTER POPUP SPECIFIC --- */
+/* --- TIMER & COUNTER --- */
 .counterWrapper {
   display: flex;
   flex-direction: column;
@@ -320,10 +321,11 @@ div, img, p {
   width: 100%;
 }
 
-.counterControls {
+.counterControls, .timerControls {
   display: flex;
   align-items: center;
   gap: 15px;
+  justify-content: center;
 }
 
 .counterBtn {
@@ -340,6 +342,31 @@ div, img, p {
   justify-content: center;
 }
 
+.timerBtn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.startBtn { background-color: #4caf50; color: white; }
+.stopBtn { background-color: #f44336; color: white; }
+.resetBtn { background-color: var(--background-color); color: var(--font-color); border: 1px solid var(--border-color); width: 50px; height: 50px; font-size: 1rem; }
+
+.timerDisplay {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--font-color);
+  font-variant-numeric: tabular-nums;
+  margin: 10px 0;
+}
+
 .counterDisplay {
   font-size: 2rem;
   font-weight: bold;
@@ -347,38 +374,7 @@ div, img, p {
   text-align: center;
 }
 
-/* --- Controls Row (New) --- */
-.controls {
-  display: flex;
-  justify-content: flex-end; /* Push to right */
-  margin-bottom: 15px;
-  align-items: center;
-  gap: 10px;
-}
-
-.filterLabel {
-  font-size: 0.9rem;
-  color: var(--secondary-font-color);
-  font-weight: 500;
-}
-
-.filterSelect {
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background-color: var(--surface-color);
-  color: var(--font-color);
-  font-size: 0.9rem;
-  outline: none;
-  cursor: pointer;
-  min-width: 120px;
-}
-
-.filterSelect:focus {
-  border-color: var(--primary-color);
-}
-
-/* --- Time Grouping Headers --- */
+/* --- TIME GROUP HEADERS --- */
 .timeSection {
   margin-bottom: 25px;
 }
@@ -395,76 +391,4 @@ div, img, p {
   letter-spacing: 0.5px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 5px;
-}
-
-.controls {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 15px;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap; /* Allow wrapping on small screens */
-}
-
-.filterLabel {
-  font-size: 0.9rem;
-  color: var(--secondary-font-color);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.filterSelect {
-  padding: 8px 12px; /* Slightly bigger touch target */
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background-color: var(--surface-color);
-  color: var(--font-color);
-  font-size: 0.9rem;
-  outline: none;
-  cursor: pointer;
-  min-width: 110px; /* Consistent width */
-}
-
-.filterSelect:focus {
-  border-color: var(--primary-color);
-}
-
-/* --- SUB-NAVIGATION (Roadmap Selector) --- */
-.subNav {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  margin-bottom: 15px;
-  padding-bottom: 5px; /* For scrollbar spacing */
-  /* Hide Scrollbar */
-  scrollbar-width: none; 
-  -ms-overflow-style: none;
-}
-
-.subNav::-webkit-scrollbar {
-  display: none;
-}
-
-.subNavItem {
-  background-color: var(--surface-color);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 0.9rem;
-  color: var(--secondary-font-color);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  font-weight: 500;
-}
-
-.subNavItem:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-
-.subNavItem.activeSub {
-  background-color: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
 }
