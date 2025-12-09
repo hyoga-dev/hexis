@@ -40,7 +40,6 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
   // Load habitToEdit if provided (EDIT MODE)
   useEffect(() => {
     if (habitToEdit) {
-      // Ensure we merge with default state to prevent missing fields
       setDataHabit({ ...defaultState, ...habitToEdit });
     }
   }, [habitToEdit]);
@@ -104,7 +103,7 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
   };
 
   return (
-    // If used as a modal, override container styles to fit
+    // Style override to fit inside modal if needed
     <div className={Styles.container} style={onSave ? { width: '100%', margin: 0, height: '100%', maxHeight: 'none', boxShadow: 'none', border: 'none' } : {}}>
 
       <div className={Styles.header} style={onSave ? { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } : {}}>
@@ -125,6 +124,7 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
       </div>
 
       <div className={Styles.formBody}>
+        
         {/* Motivation */}
         <div className={Styles.row}>
           <div className={Styles.labelCol}>
@@ -173,7 +173,23 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
                   ))}
                 </div>
               )}
-              {/* ... (Monthly & Interval logic same as before) ... */}
+              {dataHabit.repeatType === 'monthly' && (
+                <div className={Styles.monthly}>
+                  {DATES_IN_MONTH.map((date) => (
+                    <div key={date} onClick={() => handleDateToggle(date)} className={Styles["input-monthly"]} 
+                         style={{ backgroundColor: Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(date) ? '#38acff' : '#f0f0f0', color: Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(date) ? 'white' : 'black' }}>
+                      {date}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {dataHabit.repeatType === 'interval' && (
+                <div className={Styles.interval}>
+                  <span>Setiap</span>
+                  <input type="number" min="1" value={dataHabit.daySet} onChange={(e) => setDataHabit({ ...dataHabit, daySet: e.target.value })} />
+                  <span>Hari</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -232,7 +248,64 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
           </div>
         </div>
 
-        {/* End & Reminder sections... (kept same as your code) */}
+        {/* End Condition (Restored) */}
+        <div className={Styles.row}>
+          <div className={Styles.labelCol}>
+            <img src={slashIcon} alt="end" />
+            <span>End Condition</span>
+          </div>
+          <div className={Styles.inputCol} style={{ flexDirection: 'column', gap: '10px', alignItems: 'flex-start' }}>
+            <select
+              value={dataHabit.kondisihabis}
+              onChange={(e) => setDataHabit({ ...dataHabit, kondisihabis: e.target.value, endDetails: "" })}
+              style={{ width: '100%' }}
+            >
+              <option value="Never">Never</option>
+              <option value="On Date">On Date</option>
+              <option value="After X days">After X days</option>
+            </select>
+
+            {dataHabit.kondisihabis === 'On Date' && (
+              <input
+                type="date"
+                value={dataHabit.endDetails}
+                onChange={(e) => setDataHabit({ ...dataHabit, endDetails: e.target.value })}
+                required
+                style={{ width: '100%' }}
+              />
+            )}
+
+            {dataHabit.kondisihabis === 'After X days' && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                <input
+                  type="number"
+                  placeholder="30"
+                  value={dataHabit.endDetails}
+                  onChange={(e) => setDataHabit({ ...dataHabit, endDetails: e.target.value })}
+                  style={{ flex: 1 }}
+                  min="1"
+                />
+                <span style={{ whiteSpace: 'nowrap' }}>days</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Reminders (Restored) */}
+        <div className={Styles.row}>
+          <div className={Styles.labelCol}>
+            <img src={reminderIcon} alt="reminder" />
+            <span>Reminders</span>
+          </div>
+          <div className={Styles.inputCol}>
+            <input
+              type="time"
+              value={dataHabit.pengingat}
+              onChange={(e) => setDataHabit({ ...dataHabit, pengingat: e.target.value })}
+            />
+          </div>
+        </div>
+
       </div>
 
       <div className={Styles.footer}>

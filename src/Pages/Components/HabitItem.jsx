@@ -94,7 +94,8 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
                                         </div>
                                     </div>
 
-                                    {/* Hide menu for Roadmap items */}
+                                    {/* --- FIX: ONLY SHOW MENU FOR PERSONAL HABITS --- */}
+                                    {/* If roadmapId exists, this button will NOT render */}
                                     {!item.roadmapId && (
                                         <button className={Styles.menuBtn} onClick={(e) => toggleMenu(e, index)}>
                                             ⋮
@@ -125,7 +126,7 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
                                 </div>
                             </div>
 
-                            {/* Dropdown Menu */}
+                            {/* Dropdown Menu - Only renders if menu was clicked (impossible for roadmap items now) */}
                             {openMenuIndex === index && (
                                 <div className={Styles.menuDropdown}>
                                     <button className={Styles.menuItem} onClick={(e) => handleEditClick(e, index)}>

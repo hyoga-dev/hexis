@@ -2,13 +2,13 @@ import Styles from "../assets/Styles/roadmap.module.css";
 import StarIcon from "../assets/Icon/StarIcon";
 import AddHabitIcon from "../assets/Icon/AddHabitIcon"; 
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
+import { useNavigate } from "react-router-dom"; 
 import NavbarStyles from "../assets/Styles/navbar.module.css";
 import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
 import SideBar from "./Components/SideBar";
 import { useHabitProvider } from "../data/habitData";
 
-// --- MOCK DATA ---
+// --- MOCK DATA (STRUCTURED BY DAYS) ---
 const ROADMAP_DATA = [
   // 1. Official
   {
@@ -18,22 +18,29 @@ const ROADMAP_DATA = [
     title: "30-Day Morning Reset",
     description: "Start your day right with this hydration and movement bundle.",
     date: "2024-11-01",
-    habits: [
-        { title: "Drink 500ml Water", time: ["Morning"] },
-        { title: "5 Min Stretching", time: ["Morning"] },
-        { title: "Make Bed", time: ["Morning"] }
-    ]
-  },
-  {
-    id: 2,
-    type: "official",
-    category: "Productivity",
-    title: "Deep Work Mastery",
-    description: "Train your focus with these daily work blocks.",
-    date: "2024-12-15",
-    habits: [
-        { title: "No Phone Block (1h)", time: ["Morning"] },
-        { title: "Read 10 Pages", time: ["Evening"] }
+    days: [
+        { 
+            dayNumber: 1, 
+            focus: "Hydration First", 
+            habits: [{ title: "Drink 500ml Water", time: ["Morning"], target: 1, unit: "times" }]
+        },
+        { 
+            dayNumber: 2, 
+            focus: "Add Movement", 
+            habits: [
+                { title: "Drink 500ml Water", time: ["Morning"], target: 1, unit: "times" },
+                { title: "5 Min Stretching", time: ["Morning"], target: 5, unit: "mins" }
+            ]
+        },
+        { 
+            dayNumber: 3, 
+            focus: "Full Routine", 
+            habits: [
+                { title: "Drink 500ml Water", time: ["Morning"] },
+                { title: "5 Min Stretching", time: ["Morning"] },
+                { title: "Make Bed", time: ["Morning"] }
+            ]
+        }
     ]
   },
   // 2. Community
@@ -45,40 +52,31 @@ const ROADMAP_DATA = [
     description: "Beginner running plan.",
     rating: 4.5,
     date: "2025-02-01",
-    habits: [
-        { title: "Run / Walk 30m", time: ["Afternoon"] }
+    days: [
+        { 
+            dayNumber: 1, 
+            focus: "The First Run", 
+            habits: [{ title: "Run 1min / Walk 1min", time: ["Afternoon"], target: 20, unit: "mins" }]
+        },
+        { 
+            dayNumber: 2, 
+            focus: "Active Recovery", 
+            habits: [{ title: "Light Walk", time: ["Anytime"], target: 15, unit: "mins" }]
+        },
+        { 
+            dayNumber: 3, 
+            focus: "Push Harder", 
+            habits: [{ title: "Run 2min / Walk 1min", time: ["Afternoon"], target: 20, unit: "mins" }]
+        }
     ]
-  },
-  {
-    id: 4,
-    type: "community",
-    category: "Mindfulness",
-    title: "Zen Habits",
-    description: "Daily mindfulness routine.",
-    rating: 4.2,
-    date: "2025-01-20",
-    habits: [
-        { title: "Meditate 10m", time: ["Morning"] },
-        { title: "Gratitude Journal", time: ["Evening"] }
-    ]
-  },
-  // 3. My Roadmap
-  {
-    id: 10,
-    type: "personal",
-    category: "Learning",
-    title: "My React Journey",
-    description: "My personal plan to master React hooks.",
-    date: "2025-02-15",
-    progress: "40%",
-  },
+  }
 ];
 
 const Roadmap = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("official"); 
   
-  const navigate = useNavigate(); // 2. Initialize Hook
+  const navigate = useNavigate(); 
   const { habit, setHabit } = useHabitProvider();
 
   // Filter States
@@ -86,29 +84,42 @@ const Roadmap = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
 
-  // --- LOGIC: JOIN ROADMAP ---
+  // --- LOGIC: JOIN ROADMAP (Adapted for Days) ---
   const handleJoinRoadmap = (roadmapItem) => {
-    if (!roadmapItem.habits || roadmapItem.habits.length === 0) {
-        alert("This roadmap has no habits configured.");
+    // Flatten all habits from all days into one list for the user
+    // (In a real app, you might only add Day 1's habits first)
+    if (!roadmapItem.days || roadmapItem.days.length === 0) {
+        alert("This roadmap is empty.");
         return;
     }
 
-    const newHabits = roadmapItem.habits.map((item) => ({
-        title: item.title,
-        waktu: item.time || ["Morning"],
-        repeatType: "daily",
-        daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
-        goals: { count: 0, target: 1, satuan: "times", ulangi: "per_day" }, // Fixed count:0
-        waktuMulai: new Date().toISOString().split('T')[0],
-        pengingat: "09:00",
-        kondisihabis: "Never",
-        area: roadmapItem.category,
-        isGrouped: false,
-        roadmapId: roadmapItem.id
-    }));
+    const allNewHabits = [];
+    
+    roadmapItem.days.forEach(day => {
+        day.habits.forEach(h => {
+             // Avoid adding duplicates if the same habit is in multiple days
+             // For simplicity here, we add them all, but you might want logic to merge duplicates
+             allNewHabits.push({
+                title: h.title,
+                waktu: h.time || ["Morning"],
+                repeatType: "daily",
+                daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
+                goals: { count: 0, target: h.target || 1, satuan: h.unit || "times", ulangi: "per_day" },
+                waktuMulai: new Date().toISOString().split('T')[0],
+                pengingat: "09:00",
+                kondisihabis: "Never",
+                area: roadmapItem.category,
+                isGrouped: false,
+                roadmapId: roadmapItem.id
+             });
+        });
+    });
 
-    setHabit([...habit, ...newHabits]);
-    alert(`Successfully joined "${roadmapItem.title}"!`);
+    // Simple de-duplication based on title to avoid spamming the user's list
+    const uniqueHabits = Array.from(new Map(allNewHabits.map(item => [item.title, item])).values());
+
+    setHabit([...habit, ...uniqueHabits]);
+    alert(`Successfully joined "${roadmapItem.title}"! Added ${uniqueHabits.length} unique habits.`);
   };
 
   // --- DATA FILTERING ---
@@ -175,26 +186,17 @@ const Roadmap = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className={Styles.searchInput}
           />
-          
-          {/* 3. Changed Chips back to Dropdown */}
-          <select 
-            value={selectedCategory} 
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className={Styles.categorySelect}
-          >
+          <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={Styles.categorySelect}>
             {categories.map((cat) => (
               <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
             ))}
           </select>
-
           {activeTab === "community" && (
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={Styles.categorySelect}>
               <option value="newest">Newest</option>
               <option value="rating">Top Rated</option>
             </select>
           )}
-
-          {/* 4. Fixed Routing */}
           <button className={Styles.createBtn} onClick={() => navigate("/CreateRoadmap")}>
              <AddHabitIcon className={Styles.btnIcon} />
              <span className={Styles.btnText}>Create</span>
@@ -213,29 +215,20 @@ const Roadmap = () => {
               >
                 <div style={{display:'flex', justifyContent:'space-between', alignItems: 'center'}}>
                    <span className={Styles.categoryBadge}>{item.category}</span>
-
                    {activeTab !== "personal" && (
                      <button 
                         onClick={(e) => {
-                            e.stopPropagation(); // Prevent navigating to detail page
+                            e.stopPropagation(); 
                             handleJoinRoadmap(item);
                         }}
                         style={{
-                            background: "transparent",
-                            border: "1px solid var(--primary-color)",
-                            color: "var(--primary-color)",
-                            padding: "6px 12px",
-                            borderRadius: "6px",
-                            fontWeight: "bold",
-                            cursor: "pointer",
-                            fontSize: "0.8rem",
-                            transition: "all 0.2s"
+                            background: "transparent", border: "1px solid var(--primary-color)", color: "var(--primary-color)",
+                            padding: "6px 12px", borderRadius: "6px", fontWeight: "bold", cursor: "pointer", fontSize: "0.8rem"
                         }}
                      >
                         Join +
                      </button>
                    )}
-
                    {activeTab === "personal" && (
                      <span style={{fontWeight:'bold', color: 'var(--primary-color)'}}>{item.progress}</span>
                    )}
@@ -244,9 +237,9 @@ const Roadmap = () => {
                 <h2>{item.title}</h2>
                 <p>{item.description}</p>
 
-                {item.habits && (
+                {item.days && (
                     <p style={{fontSize: "0.8rem", color: "var(--secondary-font-color)", marginTop: "5px"}}>
-                        Includes {item.habits.length} daily habits
+                        {item.days.length} Days Plan
                     </p>
                 )}
 
@@ -262,7 +255,6 @@ const Roadmap = () => {
             <p>No roadmaps found.</p>
           )}
         </div>
-
       </div>
     </div>
   );

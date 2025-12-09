@@ -40,7 +40,7 @@ function App() {
           <Route path="/Habit" element={<Habit />} />
           <Route path="/Data" element={<UserData />} />
           <Route path="/Roadmap" element={<Roadmap />} />
-          <Route path="/RoadmapDetail" element={<RoadmapDetail />} />
+          <Route path="/Roadmap-Detail" element={<RoadmapDetail />} />
           <Route path="/CreateRoadmap" element={<CreateRoadmap />} />
           <Route path="/Settings" element={<Settings />} />
           <Route path="/Profil" element={<Profil />} />
