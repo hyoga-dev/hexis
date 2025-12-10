@@ -85,9 +85,7 @@ const Roadmap = () => {
   const [sortBy, setSortBy] = useState("newest");
 
   // --- LOGIC: JOIN ROADMAP (Adapted for Days) ---
-  const handleJoinRoadmap = (roadmapItem) => {
-    // Flatten all habits from all days into one list for the user
-    // (In a real app, you might only add Day 1's habits first)
+ const handleJoinRoadmap = (roadmapItem) => {
     if (!roadmapItem.days || roadmapItem.days.length === 0) {
         alert("This roadmap is empty.");
         return;
@@ -97,8 +95,6 @@ const Roadmap = () => {
     
     roadmapItem.days.forEach(day => {
         day.habits.forEach(h => {
-             // Avoid adding duplicates if the same habit is in multiple days
-             // For simplicity here, we add them all, but you might want logic to merge duplicates
              allNewHabits.push({
                 title: h.title,
                 waktu: h.time || ["Morning"],
@@ -110,16 +106,21 @@ const Roadmap = () => {
                 kondisihabis: "Never",
                 area: roadmapItem.category,
                 isGrouped: false,
-                roadmapId: roadmapItem.id
+                roadmapId: roadmapItem.id,
+                roadmapTitle: roadmapItem.title,
+                
+                // --- CAPTURE THE DAY FOCUS HERE ---
+                dayNumber: day.dayNumber,
+                dayFocus: day.focus, 
+                
+                completedTimeSlots: []
              });
         });
     });
 
-    // Simple de-duplication based on title to avoid spamming the user's list
     const uniqueHabits = Array.from(new Map(allNewHabits.map(item => [item.title, item])).values());
-
     setHabit([...habit, ...uniqueHabits]);
-    alert(`Successfully joined "${roadmapItem.title}"! Added ${uniqueHabits.length} unique habits.`);
+    alert(`Successfully joined "${roadmapItem.title}"!`);
   };
 
   // --- DATA FILTERING ---

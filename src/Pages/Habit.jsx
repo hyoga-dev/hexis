@@ -1,7 +1,7 @@
 import style from "../assets/Styles/habit.module.css";
 import AddHabitStyles from "../assets/Styles/addhabit.module.css"; 
 import HabitItem from "./Components/HabitItem";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useMemo, useEffect, useRef } from "react";
 import NavbarStyles from "../assets/Styles/navbar.module.css";
 import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
@@ -11,7 +11,7 @@ import { useHabitProvider } from "../data/habitData";
 import AddHabitIcon from "../assets/Icon/AddHabitIcon";
 import AddHabit from "./AddHabit"; 
 
-// --- TIMER COMPONENT (Same as before) ---
+// --- TIMER COMPONENT (No changes) ---
 const TimerInterface = ({ habit, onSave, onClose }) => {
   const [isActive, setIsActive] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -55,7 +55,7 @@ const TimerInterface = ({ habit, onSave, onClose }) => {
   );
 };
 
-// --- MAIN PAGE ---
+// --- MAIN COMPONENT ---
 const Habit = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
@@ -63,60 +63,103 @@ const Habit = () => {
   // Filters
   const [filterStatus, setFilterStatus] = useState("all"); 
   const [filterTime, setFilterTime] = useState("all"); 
-  const [activeRoadmapId, setActiveRoadmapId] = useState("all"); // RESTORED
+  const [activeRoadmapId, setActiveRoadmapId] = useState(null);
+  const [activeDay, setActiveDay] = useState(1);
 
   // Modals
   const [isAddHabitOpen, setIsAddHabitOpen] = useState(false); 
+  const [isRoadmapSelectorOpen, setIsRoadmapSelectorOpen] = useState(false); // NEW MODAL STATE
   const [habitToEdit, setHabitToEdit] = useState(null); 
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [popUpContent, setPopUpContent] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(null);
 
   const { habit, setHabit } = useHabitProvider();
+  const navigate = useNavigate();
 
-  // --- 1. EXTRACT JOINED ROADMAPS (RESTORED) ---
+  // --- 1. EXTRACT ROADMAPS ---
   const joinedRoadmaps = useMemo(() => {
     const map = new Map();
     habit.forEach(h => {
         if (h.roadmapId) {
-            const title = h.roadmapTitle || `Roadmap ${h.roadmapId}`; // Fallback if title missing
             if (!map.has(h.roadmapId)) {
-                map.set(h.roadmapId, title);
+                map.set(h.roadmapId, { 
+                    id: h.roadmapId, 
+                    title: h.roadmapTitle || `Roadmap ${h.roadmapId}`,
+                    // Try to get description if saved, else fallback
+                    description: h.roadmapDescription || "Your journey continues...",
+                    habits: []
+                });
             }
+            map.get(h.roadmapId).habits.push(h);
         }
     });
-    return Array.from(map, ([id, title]) => ({ id, title }));
+
+    return Array.from(map.values()).map(roadmap => {
+        // Calculate Progress (Total roadmap progress or daily progress?)
+        // Let's do Daily Progress for now
+        const total = roadmap.habits.length;
+        const completed = roadmap.habits.filter(h => (h.goals.count || 0) >= (h.goals.target || 1)).length;
+        const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+        return { ...roadmap, percent };
+    });
   }, [habit]);
 
-  // --- 2. FILTERING LOGIC ---
+  // --- 2. AUTO-SELECT ---
+  useEffect(() => {
+    if (activeTab === "roadmap" && joinedRoadmaps.length > 0) {
+        const exists = joinedRoadmaps.some(r => r.id === activeRoadmapId);
+        if (!activeRoadmapId || !exists) {
+            setActiveRoadmapId(joinedRoadmaps[0].id);
+            setActiveDay(1);
+        }
+    }
+  }, [activeTab, joinedRoadmaps, activeRoadmapId]);
+
+  // Get active roadmap object for UI
+  const activeRoadmapData = useMemo(() => 
+    joinedRoadmaps.find(r => r.id === activeRoadmapId), 
+  [activeRoadmapId, joinedRoadmaps]);
+
+  // --- 3. AVAILABLE DAYS ---
+  const availableDays = useMemo(() => {
+    if (!activeRoadmapId) return [];
+    const roadmapHabits = habit.filter(h => h.roadmapId === activeRoadmapId);
+    const days = new Set(roadmapHabits.map(h => h.dayNumber || 1));
+    return Array.from(days).sort((a, b) => a - b);
+  }, [habit, activeRoadmapId]);
+
+  // --- 4. FILTERING ---
   const filteredHabits = useMemo(() => {
     if (!habit) return [];
     return habit.filter((item) => {
-      
-      // A. TAB FILTER
       if (activeTab === "personal") {
          if (item.roadmapId) return false;
       } else {
          if (!item.roadmapId) return false;
-         // B. SUB-ROADMAP FILTER (RESTORED)
-         if (activeRoadmapId !== "all" && item.roadmapId !== activeRoadmapId) return false;
+         if (item.roadmapId !== activeRoadmapId) return false;
+         if (item.dayNumber && item.dayNumber !== activeDay) return false;
       }
 
-      // C. STATUS FILTER
       const current = item.goals.count || 0;
       const target = item.goals.target || 1;
       const isCompleted = current >= target;
       if (filterStatus === "completed" && !isCompleted) return false;
       if (filterStatus === "incomplete" && isCompleted) return false;
 
-      // D. TIME FILTER
       if (filterTime !== "all") {
         if (filterTime === "Anytime") { if (item.waktu && item.waktu.length > 0) return false; }
         else { if (!item.waktu || !item.waktu.includes(filterTime)) return false; }
       }
       return true; 
     });
-  }, [habit, activeTab, activeRoadmapId, filterStatus, filterTime]);
+  }, [habit, activeTab, activeRoadmapId, activeDay, filterStatus, filterTime]);
+
+  const activeDayFocus = useMemo(() => {
+    if (activeTab !== "roadmap" || !activeRoadmapId) return null;
+    const habitWithFocus = filteredHabits.find(h => h.dayFocus);
+    return habitWithFocus ? habitWithFocus.dayFocus : null;
+  }, [filteredHabits, activeTab, activeRoadmapId]);
 
   // --- HANDLERS ---
   const handleCardClick = (clickedHabit) => {
@@ -156,18 +199,15 @@ const Habit = () => {
     if (realIndex !== -1) setHabit(habit.filter((_, i) => i !== realIndex));
   };
 
-  // --- POPUP ---
   const ProgressPopUp = () => {
     if (!popUpContent) return null;
     const isTimer = ["minutes", "hours"].includes(popUpContent.goals.satuan);
-
     return (
       <div className={style.popUp}>
         <div className={style.popUpBackground} onClick={() => setIsProgressOpen(false)} />
         <div className={style.popUpCard}>
           <button className={style.closeBtn} onClick={() => setIsProgressOpen(false)}>×</button>
           <h3 style={{fontSize: "1.3rem", textAlign: "center", margin: "10px 0"}}>{popUpContent.title}</h3>
-          
           {isTimer ? (
             <TimerInterface habit={popUpContent} onSave={saveHabitProgress} onClose={() => setIsProgressOpen(false)} />
           ) : (
@@ -187,7 +227,6 @@ const Habit = () => {
     );
   };
 
-  // --- RENDER ---
   const timeGroups = [{ label: "Morning", icon: "🌅" }, { label: "Afternoon", icon: "☀️" }, { label: "Evening", icon: "🌙" }];
   const groupsToRender = filterTime === "all" ? timeGroups : (filterTime === "Anytime" ? [] : timeGroups.filter(g => g.label === filterTime));
 
@@ -195,6 +234,7 @@ const Habit = () => {
     <div className={style.wrapper}>
       {isProgressOpen && <ProgressPopUp />}
       
+      {/* REUSED ADD HABIT MODAL */}
       {isAddHabitOpen && (
         <div className={AddHabitStyles.modalOverlay} style={{zIndex: 200, position:'fixed', top:0, left:0, width:'100%', height:'100%', background:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center'}}>
            <div style={{width: '500px', maxHeight: '90vh', overflowY: 'auto', background: 'var(--surface-color)', borderRadius: '8px'}}>
@@ -204,6 +244,45 @@ const Habit = () => {
                  habitToEdit={habitToEdit} 
               />
            </div>
+        </div>
+      )}
+
+      {/* --- ROADMAP SELECTOR MODAL --- */}
+      {isRoadmapSelectorOpen && (
+        <div className={style.popUp}>
+            <div className={style.popUpBackground} onClick={() => setIsRoadmapSelectorOpen(false)} />
+            <div className={style.popUpCard} style={{maxWidth: '450px'}}>
+                <button className={style.closeBtn} onClick={() => setIsRoadmapSelectorOpen(false)}>×</button>
+                <h3 style={{margin: '0 0 15px 0'}}>Switch Roadmap</h3>
+                <div className={style.selectorList}>
+                    {joinedRoadmaps.map((rm) => (
+                        <div 
+                            key={rm.id} 
+                            className={`${style.selectorCard} ${activeRoadmapId === rm.id ? style.active : ''}`}
+                            onClick={() => {
+                                setActiveRoadmapId(rm.id);
+                                setActiveDay(1);
+                                setIsRoadmapSelectorOpen(false);
+                            }}
+                        >
+                            <div className={style.roadmapMeta}>
+                                <span className={style.roadmapTitle}>{rm.title}</span>
+                                <span style={{fontSize:'0.8rem', fontWeight:'bold', color:'var(--primary-color)'}}>{rm.percent}%</span>
+                            </div>
+                            <p className={style.roadmapDesc}>{rm.description}</p>
+                            <div className={style.miniProgress}>
+                                <div className={style.miniFill} style={{width: `${rm.percent}%`}}></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <button 
+                    onClick={() => navigate("/roadmap")}
+                    style={{marginTop: '10px', padding: '12px', background: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'}}
+                >
+                    + Join New Roadmap
+                </button>
+            </div>
         </div>
       )}
 
@@ -224,28 +303,36 @@ const Habit = () => {
           <button onClick={() => setActiveTab("roadmap")} className={`${style.navItem} ${activeTab === "roadmap" ? style.active : ""}`}>Roadmap</button>
         </div>
 
-        {/* --- RESTORED ROADMAP SUB-MENU --- */}
-        {activeTab === "roadmap" && joinedRoadmaps.length > 0 && (
-            <div className={style.subNav}>
-                <button 
-                    className={`${style.subNavItem} ${activeRoadmapId === "all" ? style.activeSub : ""}`}
-                    onClick={() => setActiveRoadmapId("all")}
-                >
-                    All Roadmaps
-                </button>
-                {joinedRoadmaps.map((rm) => (
-                    <button 
-                        key={rm.id}
-                        className={`${style.subNavItem} ${activeRoadmapId === rm.id ? style.activeSub : ""}`}
-                        onClick={() => setActiveRoadmapId(rm.id)}
-                    >
-                        {rm.title}
-                    </button>
-                ))}
-            </div>
-        )}
-
+        {/* --- CONTROLS ROW --- */}
         <div className={style.controls}>
+          
+          {/* ROADMAP TRIGGER BUTTON (Only in Roadmap Tab) */}
+          {activeTab === "roadmap" && (
+             <div style={{flex: 1, marginRight: 'auto'}}> 
+                {/* Checks if any roadmaps exist */}
+                {joinedRoadmaps.length > 0 ? (
+                    <button 
+                        className={style.selectorTrigger}
+                        onClick={() => setIsRoadmapSelectorOpen(true)}
+                    >
+                        <div className={style.triggerLabel}>
+                            <span className={style.triggerSubtitle}>Active Roadmap</span>
+                            <span className={style.triggerTitle}>{activeRoadmapData?.title || "Select Roadmap"}</span>
+                        </div>
+                        <span style={{color: 'var(--primary-color)'}}>▼</span>
+                    </button>
+                ) : (
+                    <button 
+                        className={style.iconBtnSmall} 
+                        style={{width: 'auto', padding: '0 15px'}}
+                        onClick={() => navigate("/roadmap")}
+                    >
+                        Explore Roadmaps
+                    </button>
+                )}
+             </div>
+          )}
+
           <select className={style.filterSelect} value={filterTime} onChange={(e) => setFilterTime(e.target.value)}>
             <option value="all">All Day</option>
             <option value="Morning">Morning</option>
@@ -260,8 +347,32 @@ const Habit = () => {
           </select>
         </div>
 
+        {/* --- DAY SELECTOR --- */}
+        {activeTab === "roadmap" && activeRoadmapId && availableDays.length > 0 && (
+            <div className={style.dayNav}>
+                {availableDays.map((d) => (
+                    <button
+                        key={d}
+                        className={`${style.dayNavItem} ${activeDay === d ? style.activeDay : ""}`}
+                        onClick={() => setActiveDay(d)}
+                    >
+                        {d}
+                    </button>
+                ))}
+            </div>
+        )}
+
+        {/* --- FOCUS BANNER --- */}
+        {activeTab === "roadmap" && activeDayFocus && (
+            <div className={style.focusBanner}>
+                <h4>Today's Focus</h4>
+                <p>{activeDayFocus}</p>
+            </div>
+        )}
+
+        {/* --- CONTENT --- */}
         <div>
-          {filteredHabits.length === 0 ? <p style={{ textAlign: "center", color: "gray", marginTop: "40px" }}>No habits found.</p> : (
+          {filteredHabits.length === 0 ? <p style={{ textAlign: "center", color: "gray", marginTop: "40px" }}>No habits for this section.</p> : (
             <>
               {groupsToRender.map((group) => {
                 const groupHabits = filteredHabits.filter(h => h.waktu && h.waktu.includes(group.label));
