@@ -10,7 +10,6 @@ export const useHabitProvider = () => {
 
 // --- ROBUST MOCK DATA ---
 const initialHabits = [
-    // 1. PERSONAL HABITS
     {
         id: "p1",
         title: "Walk the Dog",
@@ -25,8 +24,7 @@ const initialHabits = [
         roadmapId: null,
         completedTimeSlots: []
     },
-
-    // 2. ROADMAP: "30-Day Morning Reset" (ID: 1) - DAY 1
+    // ... (Your other mock data remains here)
     {
         id: "r1-1",
         title: "Drink 500ml Water",
@@ -41,7 +39,7 @@ const initialHabits = [
         roadmapId: 1,
         roadmapTitle: "30-Day Morning Reset",
         dayNumber: 1,
-        dayFocus: "Hydration First", // <--- NEW FIELD
+        dayFocus: "Hydration First",
         completedTimeSlots: []
     },
     {
@@ -58,10 +56,9 @@ const initialHabits = [
         roadmapId: 1,
         roadmapTitle: "30-Day Morning Reset",
         dayNumber: 1,
-        dayFocus: "Hydration First", // <--- NEW FIELD
+        dayFocus: "Hydration First",
         completedTimeSlots: []
     },
-     // 2. ROADMAP: "30-Day Morning Reset" - DAY 2
      {
         id: "r1-3",
         title: "Drink 500ml Water",
@@ -76,11 +73,9 @@ const initialHabits = [
         roadmapId: 1,
         roadmapTitle: "30-Day Morning Reset",
         dayNumber: 2,
-        dayFocus: "Add Movement", // <--- NEW FIELD
+        dayFocus: "Add Movement",
         completedTimeSlots: []
     },
-
-    // 3. ROADMAP: "Couch to 5K" (ID: 2) - DAY 1
     {
         id: "r2-1",
         title: "Run / Walk Intervals",
@@ -95,7 +90,7 @@ const initialHabits = [
         roadmapId: 2,
         roadmapTitle: "Couch to 5K",
         dayNumber: 1,
-        dayFocus: "The First Run", // <--- NEW FIELD
+        dayFocus: "The First Run", 
         completedTimeSlots: []
     }
 ];
@@ -104,13 +99,39 @@ export function HabitProvider({ children }) {
     const { currentUser } = useAuth();
     const [habit, setHabit] = useLocalStorage("habitDetail", initialHabits);
 
+    // --- NEW: STREAK STATE ---
+    // Stores { count: 3, lastActiveDate: "2024-12-10" }
+    const [userStreak, setUserStreak] = useLocalStorage("userStreak", { count: 0, lastActiveDate: null });
+
     useEffect(() => {
         if (!habit || habit.length === 0) {
             setHabit(initialHabits);
         }
     }, []);
 
-    const contextValue = { habit, setHabit };
+    // --- NEW: LOGIC TO UPDATE STREAK ---
+    const updateStreak = () => {
+        const today = new Date().toISOString().split('T')[0];
+        const { count, lastActiveDate } = userStreak;
+
+        // 1. If already active today, do nothing
+        if (lastActiveDate === today) return;
+
+        // 2. Calculate Yesterday's Date
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayString = yesterday.toISOString().split('T')[0];
+
+        if (lastActiveDate === yesterdayString) {
+            // 3. Consecutive day! Increment.
+            setUserStreak({ count: count + 1, lastActiveDate: today });
+        } else {
+            // 4. Broken streak (or first time). Reset to 1.
+            setUserStreak({ count: 1, lastActiveDate: today });
+        }
+    };
+
+    const contextValue = { habit, setHabit, userStreak, updateStreak }; // Export new props
     return (
         <habitContext.Provider value={contextValue}>
             {children}

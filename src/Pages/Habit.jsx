@@ -11,7 +11,7 @@ import { useHabitProvider } from "../data/habitData";
 import AddHabitIcon from "../assets/Icon/AddHabitIcon";
 import AddHabit from "./AddHabit"; 
 
-// --- TIMER COMPONENT (No changes) ---
+// --- TIMER COMPONENT ---
 const TimerInterface = ({ habit, onSave, onClose }) => {
   const [isActive, setIsActive] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -68,13 +68,14 @@ const Habit = () => {
 
   // Modals
   const [isAddHabitOpen, setIsAddHabitOpen] = useState(false); 
-  const [isRoadmapSelectorOpen, setIsRoadmapSelectorOpen] = useState(false); // NEW MODAL STATE
+  const [isRoadmapSelectorOpen, setIsRoadmapSelectorOpen] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState(null); 
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [popUpContent, setPopUpContent] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(null);
 
-  const { habit, setHabit } = useHabitProvider();
+  // --- GET STREAK DATA ---
+  const { habit, setHabit, userStreak, updateStreak } = useHabitProvider();
   const navigate = useNavigate();
 
   // --- 1. EXTRACT ROADMAPS ---
@@ -86,7 +87,6 @@ const Habit = () => {
                 map.set(h.roadmapId, { 
                     id: h.roadmapId, 
                     title: h.roadmapTitle || `Roadmap ${h.roadmapId}`,
-                    // Try to get description if saved, else fallback
                     description: h.roadmapDescription || "Your journey continues...",
                     habits: []
                 });
@@ -96,8 +96,6 @@ const Habit = () => {
     });
 
     return Array.from(map.values()).map(roadmap => {
-        // Calculate Progress (Total roadmap progress or daily progress?)
-        // Let's do Daily Progress for now
         const total = roadmap.habits.length;
         const completed = roadmap.habits.filter(h => (h.goals.count || 0) >= (h.goals.target || 1)).length;
         const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
@@ -116,7 +114,6 @@ const Habit = () => {
     }
   }, [activeTab, joinedRoadmaps, activeRoadmapId]);
 
-  // Get active roadmap object for UI
   const activeRoadmapData = useMemo(() => 
     joinedRoadmaps.find(r => r.id === activeRoadmapId), 
   [activeRoadmapId, joinedRoadmaps]);
@@ -188,7 +185,12 @@ const Habit = () => {
     if (currentIndex !== null && popUpContent) {
         const updated = [...habit];
         updated[currentIndex] = { ...popUpContent, goals: { ...popUpContent.goals, count: newCount } };
-        setHabit(updated); 
+        setHabit(updated);
+        
+        // --- TRIGGER STREAK UPDATE ---
+        if (newCount > (habit[currentIndex].goals.count || 0)) {
+            updateStreak();
+        }
     }
     setIsProgressOpen(false);
     setCurrentIndex(null);
@@ -234,7 +236,6 @@ const Habit = () => {
     <div className={style.wrapper}>
       {isProgressOpen && <ProgressPopUp />}
       
-      {/* REUSED ADD HABIT MODAL */}
       {isAddHabitOpen && (
         <div className={AddHabitStyles.modalOverlay} style={{zIndex: 200, position:'fixed', top:0, left:0, width:'100%', height:'100%', background:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center'}}>
            <div style={{width: '500px', maxHeight: '90vh', overflowY: 'auto', background: 'var(--surface-color)', borderRadius: '8px'}}>
@@ -247,7 +248,6 @@ const Habit = () => {
         </div>
       )}
 
-      {/* --- ROADMAP SELECTOR MODAL --- */}
       {isRoadmapSelectorOpen && (
         <div className={style.popUp}>
             <div className={style.popUpBackground} onClick={() => setIsRoadmapSelectorOpen(false)} />
@@ -291,9 +291,11 @@ const Habit = () => {
         <button onClick={() => setIsOpen(true)} className={NavbarStyles.menuBtn}>
           <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
         </button>
+        
+        {/* --- DYNAMIC STREAK --- */}
         <div className={NavbarStyles.streak}>
           <BasilFireOutline width="2rem" height="2rem" />
-          <span>4</span>
+          <span>{userStreak ? userStreak.count : 0}</span>
         </div>
       </div>
 
@@ -303,13 +305,9 @@ const Habit = () => {
           <button onClick={() => setActiveTab("roadmap")} className={`${style.navItem} ${activeTab === "roadmap" ? style.active : ""}`}>Roadmap</button>
         </div>
 
-        {/* --- CONTROLS ROW --- */}
         <div className={style.controls}>
-          
-          {/* ROADMAP TRIGGER BUTTON (Only in Roadmap Tab) */}
           {activeTab === "roadmap" && (
              <div style={{flex: 1, marginRight: 'auto'}}> 
-                {/* Checks if any roadmaps exist */}
                 {joinedRoadmaps.length > 0 ? (
                     <button 
                         className={style.selectorTrigger}
@@ -347,22 +345,38 @@ const Habit = () => {
           </select>
         </div>
 
-        {/* --- DAY SELECTOR --- */}
+        {/* --- RESTORED DROPDOWN DAY SELECTOR --- */}
         {activeTab === "roadmap" && activeRoadmapId && availableDays.length > 0 && (
-            <div className={style.dayNav}>
-                {availableDays.map((d) => (
-                    <button
-                        key={d}
-                        className={`${style.dayNavItem} ${activeDay === d ? style.activeDay : ""}`}
-                        onClick={() => setActiveDay(d)}
-                    >
-                        {d}
-                    </button>
-                ))}
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "15px" }}>
+                <span style={{ 
+                    fontWeight: "bold", 
+                    color: "var(--secondary-font-color)",
+                    fontSize: "1rem",
+                    whiteSpace: "nowrap" 
+                }}>
+                    Day :
+                </span>
+                
+                <select 
+                    value={activeDay} 
+                    onChange={(e) => setActiveDay(Number(e.target.value))}
+                    className={style.filterSelect}
+                    style={{ 
+                        flex: 1, 
+                        textAlign: 'left', 
+                        cursor: 'pointer',
+                        fontWeight: '600'
+                    }} 
+                >
+                    {availableDays.map((d) => (
+                        <option key={d} value={d}>
+                            Day {d}
+                        </option>
+                    ))}
+                </select>
             </div>
         )}
 
-        {/* --- FOCUS BANNER --- */}
         {activeTab === "roadmap" && activeDayFocus && (
             <div className={style.focusBanner}>
                 <h4>Today's Focus</h4>
@@ -370,7 +384,6 @@ const Habit = () => {
             </div>
         )}
 
-        {/* --- CONTENT --- */}
         <div>
           {filteredHabits.length === 0 ? <p style={{ textAlign: "center", color: "gray", marginTop: "40px" }}>No habits for this section.</p> : (
             <>

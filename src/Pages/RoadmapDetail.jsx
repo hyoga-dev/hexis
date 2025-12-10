@@ -1,96 +1,119 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Styles from "../assets/Styles/roadmapDetail.module.css";
-import NavbarStyles from "../assets/Styles/navbar.module.css";
-import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
-import SideBar from "./Components/SideBar";
 import LeftArrow from "../assets/Icon/LeftArrow";
+import StarIcon from "../assets/Icon/StarIcon"; 
 import { useHabitProvider } from "../data/habitData";
+import { useRoadmapProvider } from "../data/roadmapData"; 
+import { useAuth } from "../data/AuthProvider"; 
 
 const RoadmapDetail = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { habit, setHabit } = useHabitProvider();
+  const { roadmaps, rateRoadmap } = useRoadmapProvider(); 
+  const { currentUser } = useAuth(); 
 
-  // NEW: State for selected Day Popup
   const [selectedDay, setSelectedDay] = useState(null);
+  const [hoverRating, setHoverRating] = useState(0); 
 
-  const roadmapData = location.state?.roadmapItem;
+  const initialData = location.state?.roadmapItem;
+  const roadmapData = roadmaps.find(r => r.id === initialData?.id) || initialData;
 
-  if (!roadmapData) {
-    return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
-        <p>No roadmap data found.</p>
-        <button onClick={() => navigate("/roadmap")}>Back to List</button>
-      </div>
-    );
-  }
+  if (!roadmapData) return <div style={{padding:20}}>Roadmap not found. <button onClick={()=>navigate(-1)}>Back</button></div>;
 
   const isJoined = habit.some((h) => h.roadmapId === roadmapData.id);
+  
+  const userId = currentUser?.uid || currentUser?.email || "guest";
+  const userRating = roadmapData.ratings ? roadmapData.ratings[userId] : 0;
 
   const handleToggleJoin = () => {
     if (isJoined) {
-      if (window.confirm("Leave this roadmap?")) {
-        const updatedHabits = habit.filter((h) => h.roadmapId !== roadmapData.id);
-        setHabit(updatedHabits);
-      }
-    } else {
-      if (!roadmapData.days || roadmapData.days.length === 0) {
-        alert("This roadmap is empty!");
-        return;
-      }
-      // Combine all habits from all days (De-duplication logic can be added here)
-      const allHabits = [];
-      roadmapData.days.forEach(day => {
-        day.habits.forEach(h => {
-          allHabits.push({
-            title: h.title,
-            target: h.target || 1,
-            unit: h.unit || "times",
-            // ... other props
-            roadmapId: roadmapData.id,
-            roadmapTitle: roadmapData.title,
-            area: roadmapData.category,
-            waktu: h.time || ["Morning"],
-            goals: { count: 0, target: h.target, satuan: h.unit, ulangi: "per_day" },
-            daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
-            waktuMulai: new Date().toISOString().split('T')[0],
-            pengingat: "09:00",
-            completedTimeSlots: []
+        if (window.confirm("Leave this roadmap?")) {
+          const updatedHabits = habit.filter((h) => h.roadmapId !== roadmapData.id);
+          setHabit(updatedHabits);
+        }
+      } else {
+        if (!roadmapData.days || roadmapData.days.length === 0) {
+          alert("This roadmap is empty!");
+          return;
+        }
+        const allHabits = [];
+        roadmapData.days.forEach(day => {
+          day.habits.forEach(h => {
+            allHabits.push({
+              title: h.title,
+              target: h.target || 1,
+              unit: h.unit || "times",
+              roadmapId: roadmapData.id,
+              roadmapTitle: roadmapData.title,
+              area: roadmapData.category,
+              waktu: h.time || ["Morning"],
+              goals: { count: 0, target: h.target || 1, satuan: h.unit || "times", ulangi: "per_day" },
+              daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
+              waktuMulai: new Date().toISOString().split('T')[0],
+              pengingat: "09:00",
+              completedTimeSlots: []
+            });
           });
         });
-      });
+  
+        const unique = Array.from(new Map(allHabits.map(item => [item.title, item])).values());
+        setHabit([...habit, ...unique]);
+        alert(`Joined! Added ${unique.length} habits.`);
+      }
+  };
 
-      // Simple dedupe by title
-      const unique = Array.from(new Map(allHabits.map(item => [item.title, item])).values());
-      setHabit([...habit, ...unique]);
-      alert(`Joined! Added ${unique.length} habits.`);
-    }
+  const onRate = (score) => {
+      if(roadmapData.type !== 'community') return alert("Official roadmaps cannot be rated.");
+      rateRoadmap(roadmapData.id, userId, score);
   };
 
   return (
     <div className={Styles.wrapper}>
-
-
       <div className={Styles.container}>
-
-        {/* Back Button */}
         <div style={{ marginBottom: "20px", cursor: "pointer", display: 'inline-flex' }} onClick={() => navigate(-1)}>
           <LeftArrow width="2rem" height="2rem" />
         </div>
 
-        {/* Header Info */}
         <div className={Styles.header}>
-          <span className={Styles.categoryBadge}>{roadmapData.category}</span>
-          <h1 className={Styles.title}>{roadmapData.title}</h1>
+          <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:'10px'}}>
+             <div>
+                <span className={Styles.categoryBadge}>{roadmapData.category}</span>
+                <h1 className={Styles.title}>{roadmapData.title}</h1>
+             </div>
+             
+             <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end'}}>
+                 <div style={{display:'flex', gap:'5px', cursor: roadmapData.type === 'community' ? 'pointer' : 'default'}}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <div 
+                            key={star}
+                            onMouseEnter={() => setHoverRating(star)}
+                            onMouseLeave={() => setHoverRating(0)}
+                            onClick={() => onRate(star)}
+                            style={{
+                                color: (hoverRating || userRating) >= star ? '#FFD700' : '#e0e0e0',
+                                transition: 'color 0.2s',
+                                transform: hoverRating >= star ? 'scale(1.1)' : 'scale(1)'
+                            }}
+                        >
+                            <StarIcon width="1.8rem" height="1.8rem" />
+                        </div>
+                    ))}
+                 </div>
+                 <span style={{fontSize:'0.8rem', color:'gray', marginTop:'5px'}}>
+                    {userRating ? `You rated: ${userRating}/5` : "Rate this roadmap"} 
+                    {' • '} 
+                    <strong style={{color:'var(--font-color)'}}>{roadmapData.rating || 0} Avg</strong>
+                 </span>
+             </div>
+          </div>
+
           <div className={Styles.metaRow}>
-            <span>By {roadmapData.type === 'official' ? 'Hexis Team' : 'Community'}</span>
-            {roadmapData.rating && <span>⭐ {roadmapData.rating}</span>}
+            <span>By {roadmapData.author || (roadmapData.type === 'official' ? 'Hexis Team' : 'Community')}</span>
           </div>
         </div>
 
-        {/* Stats Grid */}
         <div className={Styles.statsGrid}>
           <div className={Styles.statCard}>
             <span className={Styles.statValue}>{roadmapData.days?.length || 0}</span>
@@ -102,7 +125,6 @@ const RoadmapDetail = () => {
           </div>
         </div>
 
-        {/* Description */}
         <div className={Styles.section}>
           <h3 className={Styles.sectionTitle}>Overview</h3>
           <p className={Styles.description}>
@@ -110,7 +132,6 @@ const RoadmapDetail = () => {
           </p>
         </div>
 
-        {/* --- DAY LIST --- */}
         <div className={Styles.section}>
           <h3 className={Styles.sectionTitle}>Timeline</h3>
           <div className={Styles.dayList}>
@@ -119,7 +140,7 @@ const RoadmapDetail = () => {
                 <div
                   key={index}
                   className={Styles.dayCard}
-                  onClick={() => setSelectedDay(day)} // Open Popup
+                  onClick={() => setSelectedDay(day)}
                 >
                   <div className={Styles.dayInfo}>
                     <h4>Day {day.dayNumber}: {day.focus}</h4>
@@ -134,7 +155,6 @@ const RoadmapDetail = () => {
           </div>
         </div>
 
-        {/* Footer Action Button */}
         <div className={Styles.footer}>
           <button
             className={`${Styles.joinBtn} ${isJoined ? Styles.joinedBtn : ""}`}
@@ -146,7 +166,6 @@ const RoadmapDetail = () => {
 
       </div>
 
-      {/* --- DAY DETAIL MODAL --- */}
       {selectedDay && (
         <div className={Styles.modalOverlay} onClick={() => setSelectedDay(null)}>
           <div className={Styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -174,7 +193,6 @@ const RoadmapDetail = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

@@ -9,13 +9,6 @@
   padding-bottom: 80px;
 }
 
-.container p {
-  color: gray;
-  margin: 20px 0;
-  text-align: justify;
-  font-size: medium;
-}
-
 /* --- Local Navigation (Tabs) --- */
 .nav {
   display: flex;
@@ -47,17 +40,19 @@
   color: var(--primary-color);
 }
 
-/* --- Controls Container --- */
+/* --- Controls --- */
 .controls {
   display: flex;
   gap: 12px;
   margin-bottom: 20px;
   align-items: center;
   width: 100%;
+  flex-wrap: wrap;
 }
 
-/* 1. Search Bar */
 .searchInput {
+  flex: 1;
+  min-width: 200px;
   padding: 12px 15px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -72,49 +67,8 @@
   border-color: var(--primary-color);
 }
 
-/* 2. Chips Container */
-.chipsContainer {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  /* Hide scrollbar */
-  scrollbar-width: none; 
-  -ms-overflow-style: none;
-  align-items: center;
-}
-
-.chipsContainer::-webkit-scrollbar {
-  display: none;
-}
-
-.chip {
-  padding: 8px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--border-color);
-  background-color: var(--surface-color);
-  color: var(--secondary-font-color);
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.chip:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-
-.activeChip {
-  background-color: var(--primary-color);
-  color: var(--on-primary);
-  border-color: var(--primary-color);
-}
-
-/* 3. Sort Dropdown */
 .categorySelect {
-  padding: 8px 12px;
+  padding: 12px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
   background-color: var(--surface-color);
@@ -122,17 +76,8 @@
   font-size: 0.85rem;
   outline: none;
   cursor: pointer;
-  white-space: nowrap;
-  /* Fixed width to ensure consistency across tabs */
-  width: 110px; 
-  flex-shrink: 0;
 }
 
-.categorySelect:focus {
-  border-color: var(--primary-color);
-}
-
-/* 4. Create Button */
 .createBtn {
   padding: 10px 20px;
   border-radius: 8px;
@@ -158,136 +103,150 @@
   height: 20px;
 }
 
-.btnText {
-  display: inline;
-}
-
 /* --- Cards --- */
 .card {
   margin-top: 1rem;
   background-color: var(--surface-color);
   border-radius: 1rem;
-  padding: 24px 16px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
 }
 
 .categoryBadge {
-  background-color: var(--primary-color);
-  color: var(--on-primary);
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  background-color: rgba(56, 172, 255, 0.1); /* Primary color low opacity */
+  color: var(--primary-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
   font-weight: bold;
-  align-self: flex-start;
   display: inline-block;
+  text-transform: uppercase;
 }
 
 .card h2 {
   font-size: 1.2rem;
   margin: 0;
+  color: var(--font-color);
 }
 
 .card p {
-  margin: 5px 0;
-  color: var(--font-color);
+  margin: 0;
+  color: var(--secondary-font-color);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.metaInfo {
+  font-size: 0.85rem;
+  color: var(--secondary-font-color);
+  font-weight: 500;
+}
+
+/* Buttons & Badges inside Card */
+.joinBtn {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.joinBtn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.joinedBadge {
+  color: #4caf50; /* Green */
+  font-weight: bold;
+  font-size: 0.85rem;
+  background-color: rgba(76, 175, 80, 0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.linkBtn {
+  margin-top: 10px;
+  color: var(--primary-color);
+  background: none;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
   font-size: 1rem;
 }
 
-.star {
-  display: flex;
-  gap: 8px;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 5px;
+.linkBtn:hover {
+  text-decoration: underline;
 }
 
-.star img {
-  width: 2rem;
+/* Rating Star */
+.star {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.star img, .star svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: #FFD700; /* Gold */
 }
 
 .star span {
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+  color: var(--font-color);
 }
 
-/* ========================================= */
-/* MOBILE STYLES (< 768px) */
-/* ========================================= */
-@media (max-width: 768px) {
-  .wrapper {
-    padding-left: 0;
-  }
-
-  .controls {
-    flex-wrap: wrap; 
-    gap: 12px;
-  }
-
-  /* Row 1: Search Bar (Full Width) */
-  .searchInput {
-    width: 100%; 
-    order: 1;
-  }
-
-  /* Row 2: Chips (Flexible) + Sort (Fixed) */
-  .chipsContainer {
-    flex: 1; /* Takes all remaining space */
-    order: 2;
-    min-width: 0; /* Important for flex scrolling */
-  }
-
-  .categorySelect {
-    order: 3;
-    /* Width is fixed at 110px by default rule above */
-  }
-
-  /* Floating Create Button */
-  .createBtn {
-    position: fixed;
-    bottom: 10vh;
-    right: 20px;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    padding: 0;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    z-index: 100;
-    order: 4;
-  }
-
-  .btnText {
-    display: none;
-  }
-
-  .btnIcon {
-    width: 28px;
-    height: 28px;
-  }
+/* Progress Bar */
+.progressContainer {
+  width: 100%;
+  height: 6px;
+  background-color: var(--border-color);
+  border-radius: 3px;
+  margin-top: 5px;
+  overflow: hidden;
 }
 
-/* ========================================= */
-/* DESKTOP STYLES (>= 768px) */
-/* ========================================= */
+.progressBar {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Responsive */
 @media (min-width: 768px) {
   .wrapper {
     padding-left: var(--sidebar-width);
   }
-
+  
   .controls {
-    flex-wrap: nowrap; /* Single line */
-  }
-
-  .searchInput {
-    flex: 1; /* Takes leftover space */
-    width: auto;
-  }
-
-  .chipsContainer {
-    flex: 0 0 auto; /* Only takes size of content */
-    max-width: 45%; /* Prevent it from stealing all search bar space */
+    flex-wrap: nowrap;
   }
 }

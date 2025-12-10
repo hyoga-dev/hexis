@@ -6,6 +6,7 @@ import App from "./App.jsx";
 import "./assets/Styles/global.css";
 import { HabitProvider } from "./data/habitData.jsx";
 import { AuthProvider } from "./data/AuthProvider.jsx";
+import { RoadmapProvider } from "./data/roadmapData.jsx"; // <--- Import this
 
 registerSW({
   immediate: true,
@@ -15,9 +16,11 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
       <HabitProvider>
-        <UserProvider>
-          <App />
-        </UserProvider>
+        <RoadmapProvider> 
+          <UserProvider>
+            <App />
+          </UserProvider>
+        </RoadmapProvider>
       </HabitProvider>
     </AuthProvider>
   </StrictMode>

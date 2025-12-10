@@ -3,11 +3,15 @@ import { useNavigate } from "react-router-dom";
 import Styles from "../assets/Styles/createRoadmap.module.css";
 import AddHabitStyles from "../assets/Styles/addhabit.module.css"; 
 import { useHabitProvider } from "../data/habitData";
+import { useRoadmapProvider } from "../data/roadmapData"; 
+import { useAuth } from "../data/AuthProvider"; // <--- 1. Import useAuth
 import AddHabit from "./AddHabit"; 
 
 export default function CreateRoadmap() {
   const navigate = useNavigate();
   const { habit } = useHabitProvider(); 
+  const { addRoadmap } = useRoadmapProvider(); 
+  const { currentUser } = useAuth(); // <--- 2. Get the current user
 
   // --- STATE ---
   const [formData, setFormData] = useState({
@@ -112,16 +116,29 @@ export default function CreateRoadmap() {
     setDays(updatedDays);
   };
 
+  // --- UPDATED SAVE HANDLER ---
   const handleSaveRoadmap = () => {
     if (!formData.title) return alert("Please enter a Roadmap Title");
+    
+    // Transform 'days' into the structure Roadmap.jsx expects
+    const cleanedDays = days.map(d => ({
+        dayNumber: d.dayNumber,
+        focus: d.description || `Day ${d.dayNumber}`,
+        habits: d.habits.map(h => ({
+            title: h.title,
+            target: h.goals?.target || h.target || 1,
+            unit: h.goals?.satuan || h.unit || "times",
+            time: h.waktu || h.time || ["Morning"]
+        }))
+    }));
+
     const finalRoadmap = {
         ...formData,
-        steps: days,
-        createdAt: new Date().toISOString(),
-        author: "CurrentUser",
-        habitsCount: days.reduce((acc, day) => acc + day.habits.length, 0)
+        author: currentUser?.displayName || "Anonymous", // <--- 3. Add Author Name
+        days: cleanedDays,
     };
-    console.log("Saving Roadmap:", finalRoadmap);
+
+    addRoadmap(finalRoadmap); 
     navigate("/roadmap");
   };
 
@@ -177,7 +194,7 @@ export default function CreateRoadmap() {
             <textarea 
                 name="description" 
                 className={Styles.dayDescInput} 
-                style={{ minHeight: '80px', fontSize: '0.9rem' }} // Slight style override for sidebar
+                style={{ minHeight: '80px', fontSize: '0.9rem' }} 
                 placeholder="What is the goal of this roadmap?"
                 value={formData.description}
                 onChange={handleInputChange}
