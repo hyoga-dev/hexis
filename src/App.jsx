@@ -13,7 +13,6 @@ import Roadmap from "./Pages/Roadmap";
 import RoadmapDetail from "./Pages/RoadmapDetail";
 import CreateRoadmap from "./Pages/CreateRoadmap";
 import Settings from "./Pages/Settings";
-import Profil from "./Pages/profil";
 import Analytics from "./Pages/Analytics";
 import AuthTest from "./data/authTest";
 import LoadingScreen from "./Pages/LoadingScreen";
@@ -43,7 +42,6 @@ function App() {
           <Route path="/Roadmap-Detail" element={<RoadmapDetail />} />
           <Route path="/CreateRoadmap" element={<CreateRoadmap />} />
           <Route path="/Settings" element={<Settings />} />
-          <Route path="/Profil" element={<Profil />} />
           <Route path="/Analytics" element={<Analytics />} />
           <Route path="/AuthTest" element={<AuthTest />} />
           <Route path="/habitLogic" element={<HabitLogic />} />
