@@ -33,7 +33,7 @@ const Analytics = () => {
   
   // Contribution Data: 12 Weeks (Columns) x 7 Days (Rows)
   const contributionData = useMemo(() => {
-    return Array.from({ length: 84 }).map(() => Math.floor(Math.random() * 5)); // 0-4 intensity
+    return Array.from({ length: 360 }).map(() => Math.floor(Math.random() * 5)); // 0-4 intensity
   }, []);
 
   // Trend Data: Last 7 Days
@@ -131,9 +131,9 @@ const Analytics = () => {
                    {/* Simple SVG Line Chart */}
                    <svg className={Styles.trendChart} viewBox="0 0 100 50" preserveAspectRatio="none">
                       {/* Grid Lines */}
-                      <line x1="0" y1="10" x2="100" y2="10" stroke="var(--border-color)" strokeWidth="0.5" />
-                      <line x1="0" y1="25" x2="100" y2="25" stroke="var(--border-color)" strokeWidth="0.5" />
-                      <line x1="0" y1="40" x2="100" y2="40" stroke="var(--border-color)" strokeWidth="0.5" />
+                      <line x1="0" y1="10" x2="100" y2="10" stroke="var(--border-color)" strokeWidth="0.1" />
+                      <line x1="0" y1="25" x2="100" y2="25" stroke="var(--border-color)" strokeWidth="0.1" />
+                      <line x1="0" y1="40" x2="100" y2="40" stroke="var(--border-color)" strokeWidth="0.1" />
                       
                       {/* The Line */}
                       <polyline 

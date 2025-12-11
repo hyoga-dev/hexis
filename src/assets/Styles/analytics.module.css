@@ -118,7 +118,7 @@
 .chartLine {
   fill: none;
   stroke: var(--primary-color);
-  stroke-width: 3;
+  stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -126,8 +126,8 @@
 .chartDot {
   fill: var(--surface-color);
   stroke: var(--primary-color);
-  stroke-width: 2;
-  r: 4;
+  stroke-width: 1;
+  r: 2;
 }
 
 /* Comparison List */
