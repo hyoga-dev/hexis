@@ -1,7 +1,5 @@
 import React from "react";
 
-const SideBarIcon = () => {};
-
 export function IcRoundAssignmentTurnedIn(props) {
   return (
     <svg
@@ -18,8 +16,6 @@ export function IcRoundAssignmentTurnedIn(props) {
     </svg>
   );
 }
-
-import React from "react";
 
 export function IcRoundBarChart(props) {
   return (
@@ -38,4 +34,6 @@ export function IcRoundBarChart(props) {
   );
 }
 
+// Default export if needed, or you can remove this if you only use named exports
+const SideBarIcon = { IcRoundAssignmentTurnedIn, IcRoundBarChart };
 export default SideBarIcon;
