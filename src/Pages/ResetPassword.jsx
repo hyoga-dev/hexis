@@ -4,9 +4,12 @@ import { Link } from "react-router-dom";
 import Styles from "../assets/Styles/reset.module.css";
 import { useAuthLogic } from "../data/userAuth";
 import Back from "./Components/Back";
+import { resetPassword } from "../data/AuthEmail";
 
 export default function Reset() {
-  const { formData, handleChange, handleSubmit } = useAuthLogic(true);
+  // const { formData, handleChange, handleSubmit } = useAuthLogic(true);
+  const { formData, handleChange } = useAuthLogic(true);
+
   return (
     <>
       <div className={Styles["container-reset"]}>
@@ -19,7 +22,7 @@ export default function Reset() {
         {/* <Back title="Reset Password" link="/habit" /> */}
 
         <div className={Styles["reset-box"]}>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={(e) => resetPassword(formData.email)}>
             <h3>Reset password</h3>
             <p>
               Enter the email associated with your account and we\u2019ll send
@@ -32,7 +35,7 @@ export default function Reset() {
               className={Styles.input}
               name="email"
               onChange={handleChange}
-              formdata={formData}
+              value={formData.email}
             />
 
             <Link to="/checkemail">

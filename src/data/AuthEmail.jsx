@@ -1,6 +1,8 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const auth = getAuth();
+const navigate = useNavigate();
 
 // const email = "pengguna.baru@contoh.com";
 // const password = "password_kuat_123";
@@ -23,8 +25,7 @@ export function signIn(email, password) {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        // console.log("Login Berhasil!", user);
-        window.location.href = '/habit';
+        navigate("/habit")
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -35,15 +36,12 @@ export function signIn(email, password) {
       });
 }
 
-export function resetPassword() {
-  const emailPengguna = "user@example.com"; 
+export function resetPassword(emailPengguna) {
 
   sendPasswordResetEmail(auth, emailPengguna)
     .then(() => {
-      // Email reset password berhasil terkirim!
       console.log("Email Reset Password Terkirim!");
       
-      // ***Tindakan KRUSIAL***: Beri tahu pengguna
       alert(`Tautan reset password telah dikirim ke ${emailPengguna}. Silakan cek kotak masuk Anda.`);
       
     })
