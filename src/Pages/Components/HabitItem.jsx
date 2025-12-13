@@ -1,7 +1,12 @@
 import { useState } from "react";
 import Styles from "../../assets/Styles/habit.module.css";
+
+//Icon
+import UncheckedIcon from "../../assets/Icon/UncheckedIcon";
+import CheckedIcon from "../../assets/Icon/CheckedIcon";
+
 import Icon from "../../assets/Images/goal.png";
-import CheckedIcon from "../../assets/Images/checklist.png";
+// import CheckedIcon from "../../assets/Images/checklist.png";
 
 // Helpers
 const getDayName = () => {
@@ -10,7 +15,7 @@ const getDayName = () => {
 };
 
 const isTodayDate = (dayset) => {
-    if (!Array.isArray(dayset)) return false; 
+    if (!Array.isArray(dayset)) return false;
     const today = (new Date().getDate());
     return dayset.includes(today);
 }
@@ -31,13 +36,13 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
     const handleEditClick = (e, index) => {
         e.stopPropagation();
         setOpenMenuIndex(null);
-        if (onEdit) onEdit(index); 
+        if (onEdit) onEdit(index);
     };
 
     const handleDeleteClick = (e, index) => {
         e.stopPropagation();
         setOpenMenuIndex(null);
-        if(window.confirm("Are you sure you want to delete this habit?")) {
+        if (window.confirm("Are you sure you want to delete this habit?")) {
             onDelete(index);
         }
     };
@@ -54,7 +59,7 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
         <>
             {habits.map((item, index) => {
                 const scheduledForToday = isToday(item.daySet) || isTodayDate(item.daySet);
-                
+
                 // --- PROGRESS LOGIC ---
                 const current = item.goals.count || 0;
                 const target = item.goals.target || 1;
@@ -76,19 +81,14 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
                 if (scheduledForToday) {
                     return (
                         <div key={item.id || index} className={Styles.cardContainer}>
-                            
+
                             <div className={Styles.card} onClick={() => onUpdate(true, index)}>
-                                
+
                                 <div className={Styles.cardHeader}>
                                     <div className={Styles.titleSection}>
-                                        <img 
-                                            src={isCompleted ? CheckedIcon : Icon} 
-                                            alt="icon" 
-                                            className={Styles.habitIcon}
-                                            style={{ opacity: isCompleted ? 1 : 0.7 }}
-                                        />
+                                        {isCompleted ? <CheckedIcon color="var(--primary-color)"  /> : <UncheckedIcon color="var(--secondary-color)" />}
                                         <div>
-                                            <h3 className={Styles.habitTitle} style={{textDecoration: isCompleted ? 'line-through' : 'none'}}>
+                                            <h3 className={Styles.habitTitle} style={{ textDecoration: isCompleted ? 'line-through' : 'none' }}>
                                                 {item.title}
                                             </h3>
                                         </div>
@@ -114,13 +114,13 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
                                         <span>{statusText}</span>
                                     </div>
                                     <div className={Styles.progressBarBg}>
-                                        <div 
-                                            className={Styles.progressBarFill} 
-                                            style={{ 
+                                        <div
+                                            className={Styles.progressBarFill}
+                                            style={{
                                                 width: `${visualPercent}%`,
                                                 // Green if complete, Primary Blue if in progress
-                                                backgroundColor: isCompleted ? '#4caf50' : 'var(--primary-color)' 
-                                            }} 
+                                                backgroundColor: isCompleted ? '#4caf50' : 'var(--primary-color)'
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -132,8 +132,8 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
                                     <button className={Styles.menuItem} onClick={(e) => handleEditClick(e, index)}>
                                         Edit Habit
                                     </button>
-                                    <button 
-                                        className={`${Styles.menuItem} ${Styles.deleteItem}`} 
+                                    <button
+                                        className={`${Styles.menuItem} ${Styles.deleteItem}`}
                                         onClick={(e) => handleDeleteClick(e, index)}
                                     >
                                         Delete

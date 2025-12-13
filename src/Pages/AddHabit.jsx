@@ -1,5 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
 import Styles from "../assets/Styles/addhabit.module.css";
+
+//Icon
+import NameIcon from "../assets/Icon/PenIcon";
+import MotivationIcon from "../assets/Icon/MotivationIcon";
+import RepeatIcon from "../assets/Icon/RepeatIcon";
+import GoalIcon from "../assets/Icon/GoalIcon";
+import TimeIcon from "../assets/Icon/TimeIcon";
+import StartIcon from "../assets/Icon/DateIcon";
+import EndIcon from "../assets/Icon/EndIcon";
+import RemainderIcon from "../assets/Icon/AlertIcon";
+
 import helpIcon from "../assets/Images/help.png";
 import repeatIcon from "../assets/Images/repeat.png";
 import goalIcon from "../assets/Images/goal.png";
@@ -13,15 +24,15 @@ import { useState, useEffect } from "react";
 // Updated to accept props for reuse
 export default function AddHabit({ onSave, onCancel, habitToEdit }) {
   const navigate = useNavigate();
-  const DAYS_OF_WEEK = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu","minggu"];
+  const DAYS_OF_WEEK = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"];
   const DATES_IN_MONTH = Array.from({ length: 31 }, (_, i) => i + 1);
 
   const { habit, setHabit } = useHabitProvider();
-  
+
   // Default State
   const defaultState = {
     title: "",
-    description: "", 
+    description: "",
     repeatType: "daily",
     daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
     goals: { target: 1, count: 0, satuan: "times", ulangi: "per_day" },
@@ -108,11 +119,11 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
 
       <div className={Styles.header} style={onSave ? { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } : {}}>
         <h2>{habitToEdit ? "Edit Habit" : "Add Habit"}</h2>
-        {onSave && <button onClick={handleCancel} style={{background:'none', border:'none', fontSize:'1.5rem', cursor:'pointer', color:'var(--secondary-font-color)'}}>×</button>}
+        {onSave && <button onClick={handleCancel} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--secondary-font-color)' }}>×</button>}
       </div>
 
       <div className={Styles.headerInput}>
-        <img src={helpIcon} alt="icon" />
+        <NameIcon color="var(--primary-color)" />
         <input
           type="text"
           placeholder="Enter Habit Name"
@@ -124,15 +135,15 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
       </div>
 
       <div className={Styles.formBody}>
-        
+
         {/* Motivation */}
         <div className={Styles.row}>
           <div className={Styles.labelCol}>
-            <img src={helpIcon} alt="desc" style={{opacity: 0.5}} />
+            <MotivationIcon color="var(--primary-color)" />
             <span>Motivation</span>
           </div>
           <div className={Styles.inputCol}>
-            <textarea 
+            <textarea
               placeholder="Why this habit?"
               value={dataHabit.description}
               onChange={(e) => setDataHabit({ ...dataHabit, description: e.target.value })}
@@ -143,7 +154,7 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
         {/* Repeat */}
         <div className={Styles.row}>
           <div className={Styles.labelCol}>
-            <img src={repeatIcon} alt="repeat" />
+            <RepeatIcon color="var(--primary-color)" />
             <span>Repeat</span>
           </div>
           <div className={Styles["inputCol-repeat"]}>
@@ -176,8 +187,8 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
               {dataHabit.repeatType === 'monthly' && (
                 <div className={Styles.monthly}>
                   {DATES_IN_MONTH.map((date) => (
-                    <div key={date} onClick={() => handleDateToggle(date)} className={Styles["input-monthly"]} 
-                         style={{ backgroundColor: Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(date) ? '#38acff' : '#f0f0f0', color: Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(date) ? 'white' : 'black' }}>
+                    <div key={date} onClick={() => handleDateToggle(date)} className={Styles["input-monthly"]}
+                      style={{ backgroundColor: Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(date) ? '#38acff' : '#f0f0f0', color: Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(date) ? 'white' : 'black' }}>
                       {date}
                     </div>
                   ))}
@@ -197,7 +208,7 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
         {/* Goal */}
         <div className={Styles.row}>
           <div className={Styles.labelCol}>
-            <img src={goalIcon} alt="goal" />
+            <GoalIcon color="var(--primary-color)" />
             <span>Goal</span>
           </div>
           <div className={Styles.inputCol}>
@@ -220,7 +231,7 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
         {/* Time of Day */}
         <div className={Styles.row}>
           <div className={Styles.labelCol}>
-            <img src={sunIcon} alt="time" />
+            <TimeIcon color="var(--primary-color)" />
             <span>Time</span>
           </div>
           <div className={Styles.inputCol}>
@@ -240,7 +251,7 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
         {/* Start Date */}
         <div className={Styles.row}>
           <div className={Styles.labelCol}>
-            <img src={flagIcon} alt="start" />
+             <StartIcon color="var(--primary-color)" />
             <span>Start</span>
           </div>
           <div className={Styles.inputCol}>
@@ -251,7 +262,7 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
         {/* End Condition (Restored) */}
         <div className={Styles.row}>
           <div className={Styles.labelCol}>
-            <img src={slashIcon} alt="end" />
+           <EndIcon color="var(--primary-color)" />
             <span>End Condition</span>
           </div>
           <div className={Styles.inputCol} style={{ flexDirection: 'column', gap: '10px', alignItems: 'flex-start' }}>
@@ -294,7 +305,7 @@ export default function AddHabit({ onSave, onCancel, habitToEdit }) {
         {/* Reminders (Restored) */}
         <div className={Styles.row}>
           <div className={Styles.labelCol}>
-            <img src={reminderIcon} alt="reminder" />
+            <RemainderIcon color="var(--primary-color)" />
             <span>Reminders</span>
           </div>
           <div className={Styles.inputCol}>

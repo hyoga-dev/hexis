@@ -1,6 +1,7 @@
 /* src/assets/Styles/analytics.module.css */
 
-/* ... (Keep existing layout styles wrapper, container, cards etc.) ... */
+/* ... (Keep all your existing styles wrapper, container, cards, etc.) ... */
+
 .wrapper {
   width: 100%;
   min-height: 100vh;
@@ -12,6 +13,13 @@
   .wrapper {
     padding-left: var(--sidebar-width);
   }
+}
+
+.sectionStack {
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* Space between Heatmap and Performance */
+  margin-bottom: 30px;
 }
 
 .container {
@@ -72,7 +80,7 @@
 
 .statBox {
   text-align: center;
-  border-right: 1px solid rgba(255,255,255,0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -109,7 +117,6 @@
   }
 }
 
-/* --- HEATMAP SECTION --- */
 .heatmapSection {
   background: var(--surface-color);
   padding: 25px;
@@ -117,38 +124,36 @@
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  overflow-x: auto; 
-  min-height: 280px; 
+  overflow-x: auto;
+  min-height: 280px;
+  width: 100%; /* Ensure it takes full width */
 }
 
-/* Updated Graph Container to hold Day Labels + Grid side-by-side */
 .graphContainer {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  margin: 0 auto; /* Center everything */
+  margin: 0 auto;
   width: max-content;
 }
 
-/* New: Column for Mon/Wed/Fri labels */
 .dayCol {
   display: grid;
-  grid-template-rows: repeat(7, 13px); /* Match cell height */
-  gap: 4px; /* Match grid gap */
-  margin-right: 8px; /* Space between label and grid */
-  margin-top: 17px; /* Push down to align with rows (skipping Month Header height) */
+  grid-template-rows: repeat(7, 13px);
+  gap: 4px;
+  margin-right: 8px;
+  margin-top: 17px;
 }
 
 .dayLabel {
   font-size: 0.65rem;
   color: var(--secondary-font-color);
-  line-height: 13px; /* Vertically center text */
+  line-height: 13px;
   height: 13px;
   display: flex;
   align-items: center;
 }
 
-/* New: Wrapper for Month Row + Heatmap Grid */
 .gridCol {
   display: flex;
   flex-direction: column;
@@ -171,7 +176,7 @@
   display: grid;
   grid-template-rows: repeat(7, 13px);
   grid-auto-flow: column;
-  gap: 4px; 
+  gap: 4px;
   width: max-content;
   padding-bottom: 5px;
 }
@@ -179,47 +184,105 @@
 .heatmapCell {
   width: 13px;
   height: 13px;
-  border-radius: 3px; 
+  border-radius: 3px;
   background-color: var(--border-color);
   transition: all 0.2s ease;
   cursor: pointer;
-  border: 1px solid transparent; 
+  border: 1px solid transparent;
 }
 
 .heatmapCell:hover {
   transform: scale(1.2);
   z-index: 10;
-  outline: 1px solid rgba(0,0,0,0.2);
+  outline: 1px solid rgba(0, 0, 0, 0.2);
 }
 
+/* Selected state (Keep for visual feedback) */
 .selectedCell {
   border: 2px solid var(--font-color);
   transform: scale(1.1);
   z-index: 5;
 }
 
-.level0 { background-color: var(--border-color); opacity: 0.2; }
-.level1 { background-color: var(--primary-color); opacity: 0.4; }
-.level2 { background-color: var(--primary-color); opacity: 0.6; }
-.level3 { background-color: var(--primary-color); opacity: 0.8; }
-.level4 { background-color: var(--primary-color); opacity: 1.0; }
+/* --- NEW: TOOLTIP STYLE --- */
+.tooltip {
+  position: fixed;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  pointer-events: none; /* Allows clicks to pass through if needed */
+  z-index: 1000;
+  transform: translate(-50%, -140%); /* Center horizontally, move above cell */
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Little arrow pointing down */
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(30, 30, 30, 0.95) transparent transparent transparent;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -130%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -140%);
+  }
+}
+
+.level0 {
+  background-color: var(--border-color);
+  opacity: 0.2;
+}
+.level1 {
+  background-color: var(--primary-color);
+  opacity: 0.4;
+}
+.level2 {
+  background-color: var(--primary-color);
+  opacity: 0.6;
+}
+.level3 {
+  background-color: var(--primary-color);
+  opacity: 0.8;
+}
+.level4 {
+  background-color: var(--primary-color);
+  opacity: 1;
+}
 
 .chartCard {
   background: var(--surface-color);
   padding: 25px;
   border-radius: 16px;
   border: 1px solid var(--border-color);
-  min-height: 280px;
+  min-height: 200px; /* Can be shorter now that it's wide */
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .comparisonList {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Keep vertical or change to row for wide view */
   gap: 18px;
   margin-top: 15px;
-  flex: 1; 
+  flex: 1;
 }
 
 .compareItem {
@@ -240,5 +303,9 @@
   font-size: 1rem;
   font-weight: bold;
 }
-.positive { color: #4caf50; }
-.negative { color: var(--error-color); }
+.positive {
+  color: #4caf50;
+}
+.negative {
+  color: var(--error-color);
+}
