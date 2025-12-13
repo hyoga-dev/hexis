@@ -7,6 +7,10 @@ import { useRoadmapProvider } from "../data/roadmapData";
 import { useAuth } from "../data/AuthProvider"; // <--- 1. Import useAuth
 import AddHabit from "./AddHabit"; 
 
+//Icon 
+import DeleteIcon from "../assets/Icon/DeleteIcon";
+import CopyIcon from "../assets/Icon/CopyIcon";
+
 export default function CreateRoadmap() {
   const navigate = useNavigate();
   const { habit } = useHabitProvider(); 
@@ -214,7 +218,7 @@ export default function CreateRoadmap() {
                             <span className={Styles.dayTitle}>Day {day.dayNumber}</span>
                             <span className={Styles.dayCount}>{day.habits.length} habits</span>
                         </div>
-                        <button className={Styles.deleteDayBtn} onClick={(e) => deleteDay(e, index)}>🗑️</button>
+                        <button className={Styles.deleteDayBtn} onClick={(e) => deleteDay(e, index)}><DeleteIcon color="var(--font-color)" /></button>
                     </div>
                 ))}
                 <button className={Styles.addDayBtn} onClick={addDay}>+ Add Day</button>
@@ -278,7 +282,7 @@ export default function CreateRoadmap() {
                 </div>
                 
                 <div className={Styles.copyHabitCard} onClick={() => setIsImportModalOpen(true)}>
-                    <span style={{fontSize: '1.5rem'}}>📥</span>
+                    <span style={{fontSize: '1.5rem'}}><CopyIcon color="var(--font-color)" /></span>
                     <p>Copy Existing</p>
                 </div>
             </div>

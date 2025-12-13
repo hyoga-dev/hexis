@@ -119,7 +119,7 @@
 
 .heatmapSection {
   background: var(--surface-color);
-  padding: 25px;
+  padding: 3rem;
   border-radius: 16px;
   border: 1px solid var(--border-color);
   display: flex;
