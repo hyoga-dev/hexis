@@ -18,6 +18,7 @@ import AuthTest from "./data/authTest";
 import LoadingScreen from "./Pages/LoadingScreen";
 import HabitLogic from "./Pages/Components/habitLogic";
 import useTheme from "./data/useTheme";
+import DbTest from "./data/DbTest";
 
 
 function App() {
@@ -43,7 +44,7 @@ function App() {
           <Route path="/CreateRoadmap" element={<CreateRoadmap />} />
           <Route path="/Settings" element={<Settings />} />
           <Route path="/Analytics" element={<Analytics />} />
-          <Route path="/AuthTest" element={<AuthTest />} />
+          <Route path="/dbtest" element={<DbTest />} />
           <Route path="/habitLogic" element={<HabitLogic />} />
         </Routes>
       </BrowserRouter>
