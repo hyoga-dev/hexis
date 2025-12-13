@@ -18,7 +18,7 @@ export default function Reset() {
             <img src="src/assets/Images/btn-back.png" alt="" />
           </Link>
         </div>
-
+      
         {/* <Back title="Reset Password" link="/habit" /> */}
 
         <div className={Styles["reset-box"]}>
@@ -39,7 +39,7 @@ export default function Reset() {
             />
 
             <Link to="/checkemail">
-              <button className={Styles["btn-primary"]}>Confirm</button>
+              <button onClick={(e) => resetPassword(formData.email)} className={Styles["btn-primary"] }>Confirm</button>
             </Link>
           </form>
           <p>

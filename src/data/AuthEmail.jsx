@@ -1,4 +1,4 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 const auth = getAuth();
@@ -39,13 +39,12 @@ export function signIn(email, password) {
 }
 
 export function resetPassword(emailPengguna) {
-
+  console.log("running")
   sendPasswordResetEmail(auth, emailPengguna)
     .then(() => {
       console.log("Email Reset Password Terkirim!");
       
-      alert(`Tautan reset password telah dikirim ke ${emailPengguna}. Silakan cek kotak masuk Anda.`);
-      
+      // alert(`Tautan reset password telah dikirim ke ${emailPengguna}. Silakan cek kotak masuk Anda.`);
     })
     .catch((error) => {
       const errorCode = error.code;
