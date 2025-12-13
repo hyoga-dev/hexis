@@ -19,6 +19,16 @@
   position: relative;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.header button {
+  background-color: transparent;
+  border: none;
+}
+
 .leftContent {
   padding: 20px;
   padding-bottom: 80px;
@@ -224,7 +234,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--border-color);
 }
 
@@ -271,7 +281,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -286,7 +296,7 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .modalTitle {
@@ -346,7 +356,8 @@
     flex-direction: column;
     overflow-y: auto;
   }
-  .leftPanel, .footer {
+  .leftPanel,
+  .footer {
     width: 100%;
     position: relative;
     flex: none;
@@ -567,7 +578,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--border-color);
 }
 
@@ -612,7 +623,8 @@
   gap: 15px;
 }
 
-.addHabitCard, .copyHabitCard {
+.addHabitCard,
+.copyHabitCard {
   border: 2px dashed var(--border-color);
   border-radius: 12px;
   padding: 20px;
@@ -646,7 +658,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -684,7 +696,8 @@
     flex-direction: column;
     overflow-y: auto;
   }
-  .leftPanel, .footer {
+  .leftPanel,
+  .footer {
     width: 100%;
     position: relative;
     flex: none;
