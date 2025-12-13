@@ -10,7 +10,7 @@ import { useAuth } from "../data/AuthProvider";
 const RoadmapDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { habit, setHabit, roadmapProgress } = useHabitProvider(); // Get roadmapProgress
+  const { habit, setHabit, roadmapProgress } = useHabitProvider(); 
   const { roadmaps, rateRoadmap } = useRoadmapProvider(); 
   const { currentUser } = useAuth(); 
 
@@ -23,7 +23,7 @@ const RoadmapDetail = () => {
   if (!roadmapData) return <div style={{padding:20}}>Roadmap not found. <button onClick={()=>navigate(-1)}>Back</button></div>;
 
   const isJoined = habit.some((h) => h.roadmapId === roadmapData.id);
-  const currentCompletedDay = roadmapProgress?.[roadmapData.id] || 0; // Get progress
+  const currentCompletedDay = roadmapProgress?.[roadmapData.id] || 0; 
   
   const userId = currentUser?.uid || currentUser?.email || "guest";
   const userRating = roadmapData.ratings ? roadmapData.ratings[userId] : 0;
@@ -48,7 +48,7 @@ const RoadmapDetail = () => {
           waktuMulai: new Date().toISOString().split('T')[0],
           pengingat: "09:00",
           completedTimeSlots: [],
-          dayNumber: day.dayNumber, // Ensure these are saved
+          dayNumber: day.dayNumber, 
           dayFocus: day.focus
         });
       });
@@ -118,8 +118,39 @@ const RoadmapDetail = () => {
              </div>
           </div>
 
-          <div className={Styles.metaRow}>
-            <span>By {roadmapData.author || (roadmapData.type === 'official' ? 'Hexis Team' : 'Community')}</span>
+          {/* --- NEW: AUTHOR AVATAR SECTION --- */}
+          <div className={Styles.metaRow} style={{ marginTop: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {roadmapData.authorPhotoURL ? (
+                    <img 
+                        src={roadmapData.authorPhotoURL} 
+                        alt="author" 
+                        style={{
+                            width: '32px', 
+                            height: '32px', 
+                            borderRadius: '50%', 
+                            objectFit: 'cover',
+                            border: '1px solid var(--border-color)'
+                        }} 
+                    />
+                ) : (
+                    <div style={{
+                        width: '32px', 
+                        height: '32px', 
+                        borderRadius: '50%', 
+                        backgroundColor: '#6c5ce7', 
+                        color: 'white',
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        fontWeight: 'bold',
+                        fontSize: '0.9rem'
+                    }}>
+                        {roadmapData.author ? roadmapData.author.charAt(0).toUpperCase() : 'H'}
+                    </div>
+                )}
+                <span>By {roadmapData.author || (roadmapData.type === 'official' ? 'Hexis Team' : 'Community')}</span>
+            </div>
           </div>
         </div>
 
