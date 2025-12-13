@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { signIn, signUp } from "./AuthEmail";
 
 const MockUser = {
   email: "naufalabbad26@gmail.com",
@@ -24,19 +25,22 @@ export const useAuthLogic = (isRegister = false) => {
         alert("Passwords do not match!");
         return;
       }
+
+      signUp(formData.email, formData.password)
       console.log("Registering new user:", formData);
       alert("Account Created Successfully!");
     } else  {
-      if (
-        formData.email !== MockUser.email ||
-        formData.password !== MockUser.password
-      ) {
-        alert("Wrong Credentials (Git Gut)");
-      } else {
-        alert("Login Success (GoodJob)");
-        
-      }
+      signIn(formData.email, formData.password)
+      // if (
+      //   formData.email !== MockUser.email ||
+      //   formData.password !== MockUser.password
+      // ) {
+      //   alert("Wrong Credentials (Git Gut)");
+      // } else {
+      //   alert("Login Success (GoodJob)");
+      // }
     }
   };
+  
   return { formData, handleChange, handleSubmit };
 };
