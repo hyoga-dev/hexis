@@ -14,10 +14,11 @@ import {
     linkWithPopup, 
     unlink, 
     GoogleAuthProvider, 
-    deleteUser 
+    deleteUser,
+    sendPasswordResetEmail,
+    sendEmailVerification
 } from "firebase/auth";
 
-// --- IMPORT LOCAL ICONS ---
 import GoogleIcon from "../assets/Images/icon-google.png";
 import MailIcon from "../assets/Images/mail.png";
 
@@ -26,21 +27,18 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState("account");
   const navigate = useNavigate();
   
-  // Auth Data
   const { currentUser } = useAuth();
   const auth = getAuth();
   
-  // Form States
   const [displayName, setDisplayName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
   const [email, setEmail] = useState("");
   const [isAvatarOpen, setIsAvatarOpen] = useState(false); 
   
-  // Status States
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Load user data on mount
+  // Load Data
   useEffect(() => {
     if (currentUser) {
         setDisplayName(currentUser.displayName || "");
@@ -49,17 +47,19 @@ const Settings = () => {
     }
   }, [currentUser]);
 
-  // --- CHECK LINKED PROVIDERS ---
-  const isGoogleLinked = currentUser?.providerData.some(
-      (p) => p.providerId === "google.com"
-  );
-  
-  // Checks if user has a password set (EmailAuthProvider)
-  const isEmailLinked = currentUser?.providerData.some(
-      (p) => p.providerId === "password"
-  );
+  const isGoogleLinked = currentUser?.providerData.some(p => p.providerId === "google.com");
+  const isEmailLinked = currentUser?.providerData.some(p => p.providerId === "password");
 
   // --- HANDLERS ---
+
+  // 1. Generate Avatar (DiceBear)
+  const handleGenerateAvatar = () => {
+      const seed = displayName || "User";
+      const randomStyle = Math.floor(Math.random() * 1000); // Force refresh
+      const newAvatar = `https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9&random=${randomStyle}`;
+      setPhotoURL(newAvatar);
+  };
+
   const handleUpdateProfile = async () => {
     setIsLoading(true);
     setMessage({ type: "", text: "" });
@@ -74,6 +74,8 @@ const Settings = () => {
         }
 
         setMessage({ type: "success", text: "Profile updated successfully!" });
+        // Force reload to update other components
+        await currentUser.reload();
     } catch (error) {
         console.error("Update Error:", error);
         if (error.code === 'auth/requires-recent-login') {
@@ -85,6 +87,25 @@ const Settings = () => {
         setIsLoading(false);
         setIsAvatarOpen(false);
     }
+  };
+
+  const handlePasswordReset = async () => {
+      if (!email) return;
+      try {
+          await sendPasswordResetEmail(auth, email);
+          alert(`Password reset email sent to ${email}`);
+      } catch (error) {
+          alert("Error sending reset email: " + error.message);
+      }
+  };
+
+  const handleVerifyEmail = async () => {
+      try {
+          await sendEmailVerification(currentUser);
+          alert(`Verification email sent to ${email}`);
+      } catch (error) {
+          alert("Error: " + error.message);
+      }
   };
 
   const handleGoogleLink = async () => {
@@ -101,7 +122,6 @@ const Settings = () => {
               setMessage({ type: "success", text: "Google account connected!" });
           }
       } catch (error) {
-          console.error("Link Error:", error);
           setMessage({ type: "error", text: error.message });
       } finally {
           setIsLoading(false);
@@ -109,20 +129,14 @@ const Settings = () => {
   };
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("ARE YOU SURE? This will permanently delete your account and all local data. This cannot be undone.")) {
-        return;
-    }
+    if (!window.confirm("ARE YOU SURE? This will permanently delete your account.")) return;
 
     try {
         await deleteUser(currentUser);
-        localStorage.removeItem("habitDetail");
-        localStorage.removeItem("userStreak");
-        localStorage.removeItem("hexis_community_v2");
-        localStorage.removeItem("myCustomRoadmaps");
+        localStorage.clear();
         alert("Account deleted.");
         navigate("/login");
     } catch (error) {
-        console.error("Delete Error:", error);
         if (error.code === 'auth/requires-recent-login') {
             alert("Security Check: Please log out and log back in again to delete your account.");
         } else {
@@ -145,18 +159,8 @@ const Settings = () => {
         <h2>Settings</h2>
 
         <div className={Styles.navbar}>
-          <button
-            className={`${Styles.navItem} ${activeTab === 'account' ? Styles.active : ''}`}
-            onClick={() => setActiveTab('account')}
-          >
-            Account
-          </button>
-          <button
-            className={`${Styles.navItem} ${activeTab === 'appearance' ? Styles.active : ''}`}
-            onClick={() => setActiveTab('appearance')}
-          >
-            Appearance
-          </button>
+          <button className={`${Styles.navItem} ${activeTab === 'account' ? Styles.active : ''}`} onClick={() => setActiveTab('account')}>Account</button>
+          <button className={`${Styles.navItem} ${activeTab === 'appearance' ? Styles.active : ''}`} onClick={() => setActiveTab('appearance')}>Appearance</button>
         </div>
 
         <div className={Styles.contentArea}>
@@ -190,13 +194,25 @@ const Settings = () => {
 
               {isAvatarOpen && (
                   <div className={Styles.settingGroup} style={{marginBottom: '10px'}}>
-                      <label className={Styles.inputLabel}>New Avatar URL</label>
-                      <input 
-                          className={Styles.textInput} 
-                          value={photoURL} 
-                          onChange={(e) => setPhotoURL(e.target.value)}
-                          placeholder="https://example.com/my-photo.jpg" 
-                      />
+                      <label className={Styles.inputLabel}>Avatar Image</label>
+                      <div style={{display:'flex', gap:'10px'}}>
+                          <input 
+                              className={Styles.textInput} 
+                              value={photoURL} 
+                              onChange={(e) => setPhotoURL(e.target.value)}
+                              placeholder="https://example.com/my-photo.jpg" 
+                              style={{flex: 1}}
+                          />
+                          <button 
+                            onClick={handleGenerateAvatar}
+                            className={Styles.linkBtn}
+                            style={{fontSize:'1.2rem'}}
+                            title="Generate Random Avatar"
+                          >
+                             🎲
+                          </button>
+                      </div>
+                      <span className={Styles.hintText}>Enter a URL or click 🎲 to generate one based on your name.</span>
                   </div>
               )}
 
@@ -215,7 +231,20 @@ const Settings = () => {
                   </div>
 
                   <div className={Styles.inputGroup}>
-                      <label className={Styles.inputLabel}>Email Address</label>
+                      <div style={{display:'flex', justifyContent:'space-between'}}>
+                         <label className={Styles.inputLabel}>Email Address</label>
+                         {/* Email Verification Badge */}
+                         {currentUser?.emailVerified ? (
+                             <span style={{color:'#4caf50', fontSize:'0.8rem', fontWeight:'bold'}}>✓ Verified</span>
+                         ) : (
+                             <span 
+                                onClick={handleVerifyEmail}
+                                style={{color:'orange', fontSize:'0.8rem', fontWeight:'bold', cursor:'pointer', textDecoration:'underline'}}
+                             >
+                                ⚠ Verify Email
+                             </span>
+                         )}
+                      </div>
                       <input 
                         type="email" 
                         className={Styles.textInput} 
@@ -230,20 +259,30 @@ const Settings = () => {
                       </p>
                   )}
 
-                  <button 
-                    onClick={handleUpdateProfile} 
-                    className={Styles.applyBtn}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Saving..." : "Save Changes"}
-                  </button>
+                  <div style={{display:'flex', gap:'10px', marginTop: '10px'}}>
+                      <button 
+                        onClick={handleUpdateProfile} 
+                        className={Styles.applyBtn}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Saving..." : "Save Changes"}
+                      </button>
+                      
+                      {isEmailLinked && (
+                          <button 
+                            onClick={handlePasswordReset} 
+                            className={Styles.discardBtn}
+                          >
+                            Reset Password
+                          </button>
+                      )}
+                  </div>
               </div>
 
-              {/* --- UPDATED: CONNECTED ACCOUNTS --- */}
+              {/* Connected Accounts */}
               <div className={Styles.settingGroup}>
                   <h4>Connected Accounts</h4>
                   
-                  {/* 1. Email / Password Row */}
                   <div className={Styles.connectRow}>
                       <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
                           <img src={MailIcon} width="20" alt="Email" />
@@ -257,7 +296,6 @@ const Settings = () => {
                       </span>
                   </div>
 
-                  {/* 2. Google Row */}
                   <div className={Styles.connectRow}>
                       <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
                           <img src={GoogleIcon} width="20" alt="Google" />
@@ -276,10 +314,10 @@ const Settings = () => {
               <div className={`${Styles.settingGroup} ${Styles.dangerZone}`}>
                   <h4 className={Styles.dangerTitle}>Danger Zone</h4>
                   <p className={Styles.description}>
-                      Permanently delete your account and all local habit data.
+                      Permanently delete your account and all data.
                   </p>
                   <button onClick={handleDeleteAccount} className={Styles.deleteAccountBtn}>
-                      Delete Account & Data
+                      Delete Account
                   </button>
               </div>
 
