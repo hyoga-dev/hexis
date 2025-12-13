@@ -38,7 +38,6 @@ const Settings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Load Data
   useEffect(() => {
     if (currentUser) {
         setDisplayName(currentUser.displayName || "");
@@ -50,13 +49,11 @@ const Settings = () => {
   const isGoogleLinked = currentUser?.providerData.some(p => p.providerId === "google.com");
   const isEmailLinked = currentUser?.providerData.some(p => p.providerId === "password");
 
-  // --- HANDLERS ---
-
-  // 1. Generate Avatar (DiceBear)
+  // --- UPDATED: RANDOM AVATAR GENERATOR ---
   const handleGenerateAvatar = () => {
-      const seed = displayName || "User";
-      const randomStyle = Math.floor(Math.random() * 1000); // Force refresh
-      const newAvatar = `https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9&random=${randomStyle}`;
+      // Use a random string so every click gives a totally new face
+      const randomSeed = Math.random().toString(36).substring(7) + Date.now();
+      const newAvatar = `https://api.dicebear.com/9.x/avataaars/svg?seed=${randomSeed}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
       setPhotoURL(newAvatar);
   };
 
@@ -74,8 +71,10 @@ const Settings = () => {
         }
 
         setMessage({ type: "success", text: "Profile updated successfully!" });
-        // Force reload to update other components
-        await currentUser.reload();
+        // Force refresh user data
+        if (typeof currentUser.reload === 'function') {
+            await currentUser.reload();
+        }
     } catch (error) {
         console.error("Update Error:", error);
         if (error.code === 'auth/requires-recent-login') {
@@ -206,13 +205,13 @@ const Settings = () => {
                           <button 
                             onClick={handleGenerateAvatar}
                             className={Styles.linkBtn}
-                            style={{fontSize:'1.2rem'}}
+                            style={{fontSize:'1.2rem', padding: '0 15px'}}
                             title="Generate Random Avatar"
                           >
                              🎲
                           </button>
                       </div>
-                      <span className={Styles.hintText}>Enter a URL or click 🎲 to generate one based on your name.</span>
+                      <span className={Styles.hintText}>Enter a URL or click 🎲 to generate a random new look!</span>
                   </div>
               )}
 
@@ -233,7 +232,6 @@ const Settings = () => {
                   <div className={Styles.inputGroup}>
                       <div style={{display:'flex', justifyContent:'space-between'}}>
                          <label className={Styles.inputLabel}>Email Address</label>
-                         {/* Email Verification Badge */}
                          {currentUser?.emailVerified ? (
                              <span style={{color:'#4caf50', fontSize:'0.8rem', fontWeight:'bold'}}>✓ Verified</span>
                          ) : (
