@@ -1,6 +1,7 @@
 import Styles from "../assets/Styles/roadmap.module.css";
 import StarIcon from "../assets/Icon/StarIcon";
 import AddHabitIcon from "../assets/Icon/AddHabitIcon";
+import PenIcon from "../assets/Icon/PenIcon"; 
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import NavbarStyles from "../assets/Styles/navbar.module.css";
@@ -8,23 +9,23 @@ import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
 import SideBar from "./Components/SideBar";
 import { useHabitProvider } from "../data/habitData";
 import { useRoadmapProvider } from "../data/roadmapData";
+import { useAuth } from "../data/AuthProvider";
 
 const Roadmap = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("official");
 
   const navigate = useNavigate();
-  const { habit, setHabit } = useHabitProvider();
-
-  // Destructure upvoteRoadmap
+  const { habit, setHabit, updateHabitRoadmapDetails, roadmapProgress } = useHabitProvider(); 
   const { roadmaps, upvoteRoadmap } = useRoadmapProvider();
+  const { currentUser } = useAuth();
 
-  // Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
+  const [showMyCreations, setShowMyCreations] = useState(false); 
 
-  // --- 1. DERIVE MY ROADMAPS FROM HABIT CONTEXT ---
+  // --- DERIVE MY ROADMAPS ---
   const myRoadmaps = useMemo(() => {
     if (!habit || habit.length === 0) return [];
 
@@ -32,12 +33,15 @@ const Roadmap = () => {
     habit.forEach(h => {
       if (h.roadmapId) {
         if (!map.has(h.roadmapId)) {
+          const original = roadmaps.find(r => r.id === h.roadmapId);
           map.set(h.roadmapId, {
             id: h.roadmapId,
             habits: [],
-            title: h.roadmapTitle || "Untitled Roadmap",
+            title: h.roadmapTitle || original?.title || "Untitled Roadmap",
             category: h.area || "General",
-            description: "Your ongoing journey.",
+            description: h.roadmapDescription || original?.description || "Your ongoing journey.",
+            author: original?.author || "You",
+            days: original?.days || [],
             type: "personal"
           });
         }
@@ -46,20 +50,31 @@ const Roadmap = () => {
     });
 
     return Array.from(map.values()).map(joined => {
-      const original = roadmaps.find(r => r.id === joined.id);
+      if (!joined.days || joined.days.length === 0) {
+          const daysMap = new Map();
+          joined.habits.forEach(h => {
+              const dNum = h.dayNumber || 1;
+              if (!daysMap.has(dNum)) {
+                  daysMap.set(dNum, { dayNumber: dNum, focus: h.dayFocus || `Day ${dNum}`, habits: [] });
+              }
+              daysMap.get(dNum).habits.push(h);
+          });
+          joined.days = Array.from(daysMap.values()).sort((a, b) => a.dayNumber - b.dayNumber);
+      }
+
       const total = joined.habits.length;
-      const completed = joined.habits.filter(h => (h.goals.count || 0) >= (h.goals.target || 1)).length;
-      const progressPercent = total === 0 ? 0 : Math.round((completed / total) * 100);
+      const lastCompletedDay = roadmapProgress?.[joined.id] || 0;
+      const totalDays = joined.days.length || 1; 
+      const percent = Math.min(Math.round((lastCompletedDay / totalDays) * 100), 100);
 
       return {
         ...joined,
-        ...(original || {}),
-        type: "personal",
-        progress: `${progressPercent}%`,
+        progress: `${percent}%`,
+        currentDay: lastCompletedDay + 1,
         habitCount: total
       };
     });
-  }, [habit, roadmaps]);
+  }, [habit, roadmaps, roadmapProgress]);
 
   // --- HANDLERS ---
   const handleJoinRoadmap = (e, roadmapItem) => {
@@ -80,7 +95,7 @@ const Roadmap = () => {
           waktu: h.time || ["Morning"],
           repeatType: "daily",
           daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
-          goals: { count: 0, target: h.target || 1, satuan: h.unit || "times", ulangi: "per_day" },
+          goals: h.goals || { count: 0, target: h.target || 1, satuan: h.unit || "times", ulangi: "per_day" },
           waktuMulai: new Date().toISOString().split('T')[0],
           pengingat: "09:00",
           kondisihabis: "Never",
@@ -99,18 +114,34 @@ const Roadmap = () => {
     setHabit([...habit, ...uniqueHabits]);
   };
 
-  const handleUpvote = (e, item) => {
+  // --- EDIT HANDLER ---
+  const handleEdit = (e, item) => {
     e.stopPropagation();
-    // Only allow voting for community items in the community tab
-    if (activeTab === "community") {
-      upvoteRoadmap(item.id);
-    }
+    const isAuthor = currentUser && (item.author === currentUser.displayName || item.author === currentUser.email);
+    const isPersonalEdit = activeTab === "personal";
+
+    navigate("/CreateRoadmap", { 
+        state: { 
+            editData: item,
+            mode: isPersonalEdit ? 'personal' : 'global'
+        } 
+    });
   };
 
   // --- DATA FILTERING ---
   const tabData = activeTab === "personal"
     ? myRoadmaps
-    : roadmaps.filter((item) => item.type === activeTab);
+    : roadmaps.filter((item) => {
+        if (activeTab === "official") return item.type === "official";
+        if (activeTab === "community") {
+            if (showMyCreations) {
+                const myName = currentUser?.displayName || currentUser?.email;
+                return item.type === "community" && item.author === myName;
+            }
+            return item.type === "community";
+        }
+        return true;
+    });
 
   const categories = useMemo(() => {
     const cats = tabData.map(item => item.category);
@@ -128,11 +159,8 @@ const Roadmap = () => {
     });
 
     processedData.sort((a, b) => {
-      if (sortBy === "newest") {
-        return new Date(b.date || 0) - new Date(a.date || 0);
-      } else if (sortBy === "rating") {
-        return (b.rating || 0) - (a.rating || 0);
-      }
+      if (sortBy === "newest") return new Date(b.date || 0) - new Date(a.date || 0);
+      else if (sortBy === "rating") return (b.rating || 0) - (a.rating || 0);
       return 0;
     });
 
@@ -144,6 +172,7 @@ const Roadmap = () => {
     setSearchQuery("");
     setSelectedCategory("All");
     setSortBy("newest");
+    setShowMyCreations(false);
   };
 
   return (
@@ -153,10 +182,10 @@ const Roadmap = () => {
         <button onClick={() => setIsOpen(true)} className={NavbarStyles.menuBtn}>
           <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
         </button>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Roadmaps</h2>
       </div>
 
       <div className={Styles.container}>
-
         <div className={Styles.nav}>
           <button onClick={() => handleTabChange("official")} className={`${Styles.navItem} ${activeTab === "official" ? Styles.active : ""}`}>Official</button>
           <button onClick={() => handleTabChange("community")} className={`${Styles.navItem} ${activeTab === "community" ? Styles.active : ""}`}>Community</button>
@@ -172,9 +201,7 @@ const Roadmap = () => {
             className={Styles.searchInput}
           />
           <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={Styles.categorySelect}>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
-            ))}
+            {categories.map((cat) => <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>)}
           </select>
           {activeTab === "community" && (
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={Styles.categorySelect}>
@@ -182,43 +209,80 @@ const Roadmap = () => {
               <option value="rating">Top Rated</option>
             </select>
           )}
-          <button className={Styles.createBtn} onClick={() => navigate("/CreateRoadmap")}>
-            <AddHabitIcon className={Styles.btnIcon} />
-            <span className={Styles.btnText}>Create</span>
-          </button>
+          {activeTab === "community" && (
+            <button className={Styles.createBtn} onClick={() => navigate("/CreateRoadmap")}>
+              <AddHabitIcon className={Styles.btnIcon} />
+              <span className={Styles.btnText}>Create</span>
+            </button>
+          )}
         </div>
+
+        {activeTab === "community" && (
+            <div style={{marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10}}>
+                <label style={{display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.9rem', color: 'var(--secondary-font-color)'}}>
+                    <input type="checkbox" checked={showMyCreations} onChange={(e) => setShowMyCreations(e.target.checked)} style={{width: 16, height: 16, accentColor: 'var(--primary-color)'}}/>
+                    Show only my creations
+                </label>
+            </div>
+        )}
 
         <div>
           {finalDisplayData.length > 0 ? (
             finalDisplayData.map((item) => {
               const isJoined = habit.some(h => h.roadmapId === item.id);
+              const isAuthor = currentUser && (item.author === currentUser.displayName || item.author === currentUser.email);
+              const canEdit = activeTab === "personal" || (activeTab === "community" && isAuthor);
 
               return (
                 <div
                   key={item.id}
                   className={Styles.card}
+                  // --- FIX HERE: ALWAYS GO TO DETAIL PAGE ---
                   onClick={() => navigate("/roadmap-detail", { state: { roadmapItem: item } })}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <span className={Styles.categoryBadge}>{item.category}</span>
 
-                    {/* Join Button or Joined Badge */}
-                    {activeTab !== "personal" ? (
-                      isJoined ? (
-                        <span className={Styles.joinedBadge}>✓ Joined</span>
-                      ) : (
-                        <button
-                          onClick={(e) => handleJoinRoadmap(e, item)}
-                          className={Styles.joinBtn}
-                        >
-                          Join +
-                        </button>
-                      )
-                    ) : (
-                      <span style={{ fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '0.9rem' }}>
-                        {item.progress}
-                      </span>
-                    )}
+                    <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
+                        {canEdit && (
+                            <button 
+                                onClick={(e) => handleEdit(e, item)}
+                                style={{
+                                    background: 'none', 
+                                    border: '1px solid var(--secondary-font-color)', 
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    padding: '4px 8px',
+                                    color: 'var(--font-color)',
+                                    fontSize: '0.8rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    zIndex: 10
+                                }}
+                            >
+                                <PenIcon width="0.8rem" height="0.8rem" color="var(--font-color)" />
+                                <span>Edit</span>
+                            </button>
+                        )}
+
+                        {activeTab !== "personal" ? (
+                          isJoined ? (
+                              <span className={Styles.joinedBadge}>✓ Joined</span>
+                          ) : (
+                              <button
+                              onClick={(e) => handleJoinRoadmap(e, item)}
+                              className={Styles.joinBtn}
+                              >
+                              Join +
+                              </button>
+                          )
+                        ) : (
+                          <span style={{ fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '0.9rem' }}>
+                              Current: Day {item.currentDay}
+                          </span>
+                        )}
+                    </div>
                   </div>
 
                   <h2>{item.title}</h2>
@@ -227,18 +291,11 @@ const Roadmap = () => {
                   <div className={Styles.cardFooter}>
                     <div style={{ display: 'flex', gap: '15px', color: 'var(--secondary-font-color)', fontSize: '0.8rem' }}>
                       <span>📅 {item.days ? item.days.length : 0} Days</span>
-                      {/* Display Author Name */}
-                      {item.author && (
-                        <span>👤 {item.author}</span>
-                      )}
+                      {item.author && <span>👤 {item.author}</span>}
                     </div>
 
-                    {/* Interactive Rating */}
                     {(activeTab === "community" || activeTab === "official") && (
-                      <div
-                        className={Styles.star}
-                        title="Rating"
-                      >
+                      <div className={Styles.star} title="Rating">
                         <StarIcon />
                         <span>{item.rating || 0}</span>
                       </div>
@@ -255,19 +312,7 @@ const Roadmap = () => {
             })
           ) : (
             <div style={{ textAlign: 'center', marginTop: '40px', color: 'gray' }}>
-              {activeTab === "personal" ? (
-                <>
-                  <p>You haven't joined any roadmaps yet.</p>
-                  <button
-                    onClick={() => handleTabChange("official")}
-                    className={Styles.linkBtn}
-                  >
-                    Browse Official Plans →
-                  </button>
-                </>
-              ) : (
-                <p>No roadmaps found.</p>
-              )}
+              <p>No roadmaps found.</p>
             </div>
           )}
         </div>

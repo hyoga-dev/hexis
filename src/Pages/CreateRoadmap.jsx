@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Styles from "../assets/Styles/createRoadmap.module.css";
 import AddHabitStyles from "../assets/Styles/addhabit.module.css"; 
 import { useHabitProvider } from "../data/habitData";
@@ -7,17 +7,23 @@ import { useRoadmapProvider } from "../data/roadmapData";
 import { useAuth } from "../data/AuthProvider"; 
 import AddHabit from "./AddHabit"; 
 
-//Icon 
 import DeleteIcon from "../assets/Icon/DeleteIcon";
 import CopyIcon from "../assets/Icon/CopyIcon";
 
 export default function CreateRoadmap() {
   const navigate = useNavigate();
-  const { habit } = useHabitProvider(); 
-  const { addRoadmap } = useRoadmapProvider(); 
+  const location = useLocation(); 
+  
+  // Get data contexts
+  const { habit, setHabit, updatePersonalRoadmap } = useHabitProvider(); 
+  const { addRoadmap, updateRoadmap } = useRoadmapProvider(); 
   const { currentUser } = useAuth(); 
 
-  // --- STATE ---
+  // --- DETERMINE MODE ---
+  const editData = location.state?.editData;
+  // If editData exists, use the mode passed, otherwise default to 'global' (template edit) or 'create'
+  const mode = location.state?.mode || (editData ? 'global' : 'create'); 
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -29,16 +35,34 @@ export default function CreateRoadmap() {
     { id: 1, dayNumber: 1, description: "", habits: [] }
   ]);
 
+  // --- INITIALIZE DATA ---
+  useEffect(() => {
+    if (editData) {
+        setFormData({
+            title: editData.title || "",
+            description: editData.description || "",
+            category: editData.category || "Productivity",
+            privacy: editData.privacy || "public",
+        });
+
+        // Load existing days/habits into the editor
+        if (editData.days && editData.days.length > 0) {
+            setDays(editData.days.map(d => ({
+                ...d,
+                id: Date.now() + Math.random(), 
+                habits: d.habits.map(h => ({ ...h, id: Date.now() + Math.random() }))
+            })));
+        }
+    }
+  }, [editData]);
+
   const [activeDayIndex, setActiveDayIndex] = useState(0);
-  
-  // Modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  
   const [habitToEdit, setHabitToEdit] = useState(null); 
   const [editingIndex, setEditingIndex] = useState(null); 
 
-  // --- HANDLERS (Timeline) ---
+  // ... (Keep handleInputChange, addDay, deleteDay, handleDayDescChange as is) ...
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -66,7 +90,7 @@ export default function CreateRoadmap() {
     setDays(updatedDays);
   };
 
-  // --- HANDLERS (Habits) ---
+  // ... (Keep Modal Handlers as is) ...
   const openCreateModal = () => {
     setHabitToEdit(null); 
     setEditingIndex(null);
@@ -82,19 +106,13 @@ export default function CreateRoadmap() {
   const duplicateHabit = (e, habitData) => {
     e.stopPropagation();
     const updatedDays = [...days];
-    updatedDays[activeDayIndex].habits.push({
-        ...habitData,
-        id: Date.now() 
-    });
+    updatedDays[activeDayIndex].habits.push({ ...habitData, id: Date.now() });
     setDays(updatedDays);
   };
 
   const importHabit = (habitTemplate) => {
     const updatedDays = [...days];
-    updatedDays[activeDayIndex].habits.push({
-        ...habitTemplate,
-        id: Date.now()
-    });
+    updatedDays[activeDayIndex].habits.push({ ...habitTemplate, id: Date.now() });
     setDays(updatedDays);
     setIsImportModalOpen(false);
   };
@@ -102,13 +120,11 @@ export default function CreateRoadmap() {
   const handleSaveHabit = (data) => {
     const updatedDays = [...days];
     const targetDay = updatedDays[activeDayIndex];
-
     if (editingIndex !== null) {
         targetDay.habits[editingIndex] = { ...data, id: targetDay.habits[editingIndex].id };
     } else {
         targetDay.habits.push({ ...data, id: Date.now() });
     }
-
     setDays(updatedDays);
     setIsModalOpen(false);
   };
@@ -120,11 +136,11 @@ export default function CreateRoadmap() {
     setDays(updatedDays);
   };
 
-  // --- SAVE HANDLER ---
+  // --- SAVE LOGIC ---
   const handleSaveRoadmap = () => {
     if (!formData.title) return alert("Please enter a Roadmap Title");
     
-    // Transform 'days' into the structure Roadmap.jsx expects
+    // 1. Prepare Standard Structure
     const cleanedDays = days.map(d => ({
         dayNumber: d.dayNumber,
         focus: d.description || `Day ${d.dayNumber}`,
@@ -132,17 +148,95 @@ export default function CreateRoadmap() {
             title: h.title,
             target: h.goals?.target || h.target || 1,
             unit: h.goals?.satuan || h.unit || "times",
-            time: h.waktu || h.time || ["Morning"]
+            time: h.waktu || h.time || ["Morning"],
+            description: h.description,
+            goals: h.goals,
+            waktu: h.waktu
         }))
     }));
 
+    const authorName = currentUser?.displayName || currentUser?.email || "Anonymous";
+
+    // --- MODE: PERSONAL EDIT (Joined Roadmap) ---
+    // User wants to edit their LOCAL copy (habits), not the public template.
+    if (mode === 'personal') {
+        const habitTemplates = [];
+        
+        // Flatten the days into a list of habit objects
+        cleanedDays.forEach(day => {
+            day.habits.forEach(h => {
+                habitTemplates.push({
+                    title: h.title,
+                    description: h.description || `Day ${day.dayNumber}: ${day.focus}`,
+                    repeatType: "daily",
+                    daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
+                    goals: h.goals || { target: h.target, count: 0, satuan: h.unit, ulangi: "per_day" },
+                    waktu: h.waktu || h.time || ["Morning"],
+                    waktuMulai: new Date().toISOString().split('T')[0],
+                    pengingat: "09:00",
+                    area: formData.category,
+                    dayNumber: day.dayNumber,
+                    dayFocus: day.focus,
+                });
+            });
+        });
+
+        // Call smart update in HabitData
+        updatePersonalRoadmap(editData.id, habitTemplates, formData);
+        alert("Your personal plan has been updated!");
+        navigate("/roadmap");
+        return;
+    }
+
+    // --- MODE: GLOBAL EDIT (Creator) ---
+    // User created this template and wants to update it for everyone.
+    if (mode === 'global') {
+        const updatedRoadmap = {
+            ...formData,
+            days: cleanedDays,
+        };
+        updateRoadmap(editData.id, updatedRoadmap);
+        alert("Roadmap Template Updated!");
+        navigate("/roadmap");
+        return;
+    }
+
+    // --- MODE: CREATE NEW ---
+    const newRoadmapId = Date.now();
     const finalRoadmap = {
         ...formData,
-        author: currentUser?.displayName || "Anonymous", 
+        id: newRoadmapId,
+        author: authorName, 
         days: cleanedDays,
     };
 
     addRoadmap(finalRoadmap); 
+
+    if (window.confirm("Roadmap created! Do you want to start it now?")) {
+        const newHabits = [];
+        cleanedDays.forEach(day => {
+            day.habits.forEach(h => {
+                newHabits.push({
+                    id: Date.now() + Math.random(),
+                    title: h.title,
+                    description: h.description || `Day ${day.dayNumber}: ${day.focus}`,
+                    repeatType: "daily",
+                    daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
+                    goals: h.goals || { target: h.target, count: 0, satuan: h.unit, ulangi: "per_day" },
+                    waktu: h.waktu || h.time || ["Morning"],
+                    waktuMulai: new Date().toISOString().split('T')[0],
+                    pengingat: "09:00",
+                    area: formData.category,
+                    roadmapId: newRoadmapId,
+                    roadmapTitle: formData.title,
+                    dayNumber: day.dayNumber,
+                    dayFocus: day.focus,
+                    completedTimeSlots: []
+                });
+            });
+        });
+        setHabit([...habit, ...newHabits]);
+    }
     navigate("/roadmap");
   };
 
@@ -160,10 +254,17 @@ export default function CreateRoadmap() {
   return (
     <div className={Styles.pageWrapper}>
       
-      {/* --- LEFT PANEL --- */}
+      {/* LEFT PANEL */}
       <div className={Styles.leftPanel}>
         <div className={Styles.leftContent}>
             
+            {/* Header Title */}
+            <div style={{marginBottom: 15}}>
+                <h3 style={{margin: 0, color: 'var(--primary-color)'}}>
+                    {mode === 'personal' ? "Editing My Plan" : (mode === 'global' ? "Editing Template" : "Create Roadmap")}
+                </h3>
+            </div>
+
             <input 
                 name="title" 
                 className={Styles.headerInput} 
@@ -172,23 +273,28 @@ export default function CreateRoadmap() {
                 onChange={handleInputChange}
             />
 
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px', marginBottom: '5px' }}>
-                <label className={Styles.formLabel} style={{ flex: 1 }}>Category</label>
-                <label className={Styles.formLabel} style={{ flex: 1 }}>Privacy</label>
-            </div>
+            {/* HIDE PRIVACY FOR PERSONAL EDIT (It's always private/local) */}
+            {mode !== 'personal' && (
+                <div style={{ display: 'flex', gap: '10px', marginTop: '10px', marginBottom: '5px' }}>
+                    <label className={Styles.formLabel} style={{ flex: 1 }}>Category</label>
+                    <label className={Styles.formLabel} style={{ flex: 1 }}>Privacy</label>
+                </div>
+            )}
 
-            <div className={Styles.selectGroup}>
-                <select name="category" className={Styles.selectInput} value={formData.category} onChange={handleInputChange}>
-                    <option value="Productivity">Productivity</option>
-                    <option value="Health">Health</option>
-                    <option value="Fitness">Fitness</option>
-                    <option value="Learning">Learning</option>
-                </select>
-                <select name="privacy" className={Styles.selectInput} value={formData.privacy} onChange={handleInputChange}>
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                </select>
-            </div>
+            {mode !== 'personal' && (
+                <div className={Styles.selectGroup}>
+                    <select name="category" className={Styles.selectInput} value={formData.category} onChange={handleInputChange}>
+                        <option value="Productivity">Productivity</option>
+                        <option value="Health">Health</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Learning">Learning</option>
+                    </select>
+                    <select name="privacy" className={Styles.selectInput} value={formData.privacy} onChange={handleInputChange}>
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
+                    </select>
+                </div>
+            )}
 
             <label className={Styles.formLabel} style={{ display: 'block', marginTop: '15px', marginBottom: '5px' }}>Description</label>
             <textarea 
@@ -222,11 +328,13 @@ export default function CreateRoadmap() {
         
         <div className={Styles.footer}>
             <button className={Styles.cancelBtn} onClick={() => navigate("/roadmap")}>Cancel</button>
-            <button className={Styles.saveBtn} onClick={handleSaveRoadmap}>Save</button>
+            <button className={Styles.saveBtn} onClick={handleSaveRoadmap}>
+                {mode === 'personal' ? "Update My Plan" : (mode === 'global' ? "Update Template" : "Create")}
+            </button>
         </div>
       </div>
 
-      {/* --- RIGHT PANEL --- */}
+      {/* RIGHT PANEL (Editor) */}
       <div className={Styles.rightPanel}>
          <div className={Styles.editorHeader}>
             <h2 className={Styles.dayHeading}>Day {activeDay.dayNumber} Content</h2>
@@ -284,7 +392,7 @@ export default function CreateRoadmap() {
          </div>
       </div>
 
-      {/* --- ADD/EDIT MODAL --- */}
+      {/* ... (Keep the Modals: isModalOpen, isImportModalOpen) ... */}
       {isModalOpen && (
         <div className={Styles.modalOverlay} style={{zIndex: 200}}>
            <div style={{width: '500px', maxHeight: '90vh', overflowY: 'auto', background: 'var(--surface-color)', borderRadius: '8px', boxShadow: '0 10px 40px rgba(0,0,0,0.3)'}}>
@@ -292,13 +400,12 @@ export default function CreateRoadmap() {
                  onSave={handleSaveHabit} 
                  onCancel={() => setIsModalOpen(false)} 
                  habitToEdit={habitToEdit}
-                 isTemplate={true} // <--- PASS TRUE TO HIDE REPEAT/START/END
+                 isTemplate={true} 
               />
            </div>
         </div>
       )}
 
-      {/* --- IMPORT MODAL --- */}
       {isImportModalOpen && (
         <div className={Styles.modalOverlay} style={{zIndex: 200}}>
             <div className={AddHabitStyles.container} style={{ margin: 0, height: 'auto', maxHeight: '70vh', width: '400px', overflowY: 'auto' }}>
