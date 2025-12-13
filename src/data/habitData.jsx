@@ -9,39 +9,7 @@ export const useHabitProvider = () => {
 };
 
 // --- INITIAL DATA ---
-const initialHabits = [
-    {
-        id: "p1",
-        title: "Walk the Dog",
-        description: "Fresh air for Bruno and me.",
-        repeatType: "daily",
-        daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
-        goals: { count: 0, target: 2, satuan: "times", ulangi: "per_day" },
-        waktu: ["Morning", "Evening"],
-        waktuMulai: "2024-01-01",
-        pengingat: "07:00",
-        area: "Chores",
-        roadmapId: null,
-        completedTimeSlots: []
-    },
-     {
-        id: "r2-1",
-        title: "Run / Walk Intervals",
-        description: "Week 1: Run 1 min, Walk 90 sec.",
-        repeatType: "daily",
-        daySet: ["senin", "rabu", "jumat"], 
-        goals: { count: 0, target: 3, satuan: "km", ulangi: "per_day" },
-        waktu: ["Afternoon"],
-        waktuMulai: "2024-03-10",
-        pengingat: "17:00",
-        area: "Fitness",
-        roadmapId: 2,
-        roadmapTitle: "Couch to 5K",
-        dayNumber: 1,
-        dayFocus: "The First Run", 
-        completedTimeSlots: []
-    }
-];
+const initialHabits = [];
 
 export function HabitProvider({ children }) {
     const { currentUser } = useAuth();
