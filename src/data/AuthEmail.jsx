@@ -34,3 +34,28 @@ export function signIn(email, password) {
         alert("Password atau email salah")
       });
 }
+
+export function resetPassword() {
+  const emailPengguna = "user@example.com"; 
+
+  sendPasswordResetEmail(auth, emailPengguna)
+    .then(() => {
+      // Email reset password berhasil terkirim!
+      console.log("Email Reset Password Terkirim!");
+      
+      // ***Tindakan KRUSIAL***: Beri tahu pengguna
+      alert(`Tautan reset password telah dikirim ke ${emailPengguna}. Silakan cek kotak masuk Anda.`);
+      
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error("Gagal Mengirim Email Reset:", errorCode, errorMessage);
+      
+      if (errorCode === 'auth/user-not-found') {
+        alert("Jika email Anda terdaftar, tautan reset password akan dikirimkan.");
+      } else {
+        alert(`Gagal mengirim email reset: ${errorMessage}`);
+      }
+    });
+}

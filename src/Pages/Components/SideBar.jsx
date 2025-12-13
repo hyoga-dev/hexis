@@ -22,6 +22,18 @@ const navLinks = [
 const SideBar = ({ isOpen, onClose }) => {
   const user = auth.currentUser;
 
+  function userName() {
+
+    console.log(user);
+    if (user == null) {
+      return "guest"
+    } else if (user.displayName !== null) {
+      return user.displayName
+    } else {
+      return "udins"
+    }
+  }
+
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -65,7 +77,7 @@ const SideBar = ({ isOpen, onClose }) => {
         <div className={Styles.footer}>
           <div className={Styles.profile} onClick={() => window.location.href = '/settings'}>
             <AccountIcon width="2rem" height="2rem" />
-            <span>{`${user ? user.displayName : "Guest"}`}</span>
+            <span>{`${userName()}`}</span>
           </div>
 
 
