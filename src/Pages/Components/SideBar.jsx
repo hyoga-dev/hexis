@@ -24,6 +24,17 @@ const SideBar = ({ isOpen, onClose }) => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
+  function userName() {
+    console.log(user);
+    if (user == null) {
+      return "guest"
+    } else if (user.displayName !== null) {
+      return user.displayName
+    } else {
+      return "udins"
+    }
+  }
+
   const handleSignOut = async () => {
     try {
       await logout();
