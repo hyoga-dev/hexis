@@ -16,7 +16,6 @@ import MorningIcon from "../assets/Icon/SunHoleIcon";
 import AfternoonIcon from "../assets/Icon/SunIcon";
 import NightIcon from "../assets/Icon/MoonIcon";
 
-// --- TIMER COMPONENT ---
 const TimerInterface = ({ habit, onSave, onClose }) => {
   const [isActive, setIsActive] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -60,18 +59,15 @@ const TimerInterface = ({ habit, onSave, onClose }) => {
   );
 };
 
-// --- MAIN COMPONENT ---
 const Habit = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
 
-  // Filters
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterTime, setFilterTime] = useState("all");
   const [activeRoadmapId, setActiveRoadmapId] = useState(null);
   const [activeDay, setActiveDay] = useState(1);
 
-  // Modals
   const [isAddHabitOpen, setIsAddHabitOpen] = useState(false);
   const [isRoadmapSelectorOpen, setIsRoadmapSelectorOpen] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState(null);
@@ -79,11 +75,17 @@ const Habit = () => {
   const [popUpContent, setPopUpContent] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(null);
 
-  // --- GET STREAK DATA ---
-  const { habit, setHabit, userStreak, updateStreak } = useHabitProvider();
+  const { 
+    habit, 
+    setHabit, 
+    userStreak, 
+    logActivity, 
+    roadmapProgress, 
+    checkRoadmapCompletion 
+  } = useHabitProvider();
+  
   const navigate = useNavigate();
 
-  // --- 1. EXTRACT ROADMAPS ---
   const joinedRoadmaps = useMemo(() => {
     const map = new Map();
     habit.forEach(h => {
@@ -99,7 +101,6 @@ const Habit = () => {
         map.get(h.roadmapId).habits.push(h);
       }
     });
-
     return Array.from(map.values()).map(roadmap => {
       const total = roadmap.habits.length;
       const completed = roadmap.habits.filter(h => (h.goals.count || 0) >= (h.goals.target || 1)).length;
@@ -108,22 +109,26 @@ const Habit = () => {
     });
   }, [habit]);
 
-  // --- 2. AUTO-SELECT ---
   useEffect(() => {
     if (activeTab === "roadmap" && joinedRoadmaps.length > 0) {
-      const exists = joinedRoadmaps.some(r => r.id === activeRoadmapId);
-      if (!activeRoadmapId || !exists) {
-        setActiveRoadmapId(joinedRoadmaps[0].id);
-        setActiveDay(1);
+      if (!activeRoadmapId || !joinedRoadmaps.some(r => r.id === activeRoadmapId)) {
+        const defaultRoadmapId = joinedRoadmaps[0].id;
+        setActiveRoadmapId(defaultRoadmapId);
+        const completedDay = roadmapProgress?.[defaultRoadmapId] || 0;
+        setActiveDay(completedDay + 1);
+      } else {
+        const completedDay = roadmapProgress?.[activeRoadmapId] || 0;
+        if (activeDay <= completedDay) {
+            setActiveDay(completedDay + 1);
+        }
       }
     }
-  }, [activeTab, joinedRoadmaps, activeRoadmapId]);
+  }, [activeTab, joinedRoadmaps, activeRoadmapId, roadmapProgress]);
 
   const activeRoadmapData = useMemo(() =>
     joinedRoadmaps.find(r => r.id === activeRoadmapId),
     [activeRoadmapId, joinedRoadmaps]);
 
-  // --- 3. AVAILABLE DAYS ---
   const availableDays = useMemo(() => {
     if (!activeRoadmapId) return [];
     const roadmapHabits = habit.filter(h => h.roadmapId === activeRoadmapId);
@@ -131,7 +136,6 @@ const Habit = () => {
     return Array.from(days).sort((a, b) => a - b);
   }, [habit, activeRoadmapId]);
 
-  // --- 4. FILTERING ---
   const filteredHabits = useMemo(() => {
     if (!habit) return [];
     return habit.filter((item) => {
@@ -163,7 +167,6 @@ const Habit = () => {
     return habitWithFocus ? habitWithFocus.dayFocus : null;
   }, [filteredHabits, activeTab, activeRoadmapId]);
 
-  // --- HANDLERS ---
   const handleCardClick = (clickedHabit) => {
     const realIndex = habit.findIndex(h => h.id === clickedHabit.id);
     setPopUpContent({ ...clickedHabit });
@@ -186,15 +189,37 @@ const Habit = () => {
     setHabitToEdit(null);
   };
 
+  // --- UPDATED SAVE HANDLER (BINARY LOGIC) ---
   const saveHabitProgress = (newCount) => {
     if (currentIndex !== null && popUpContent) {
+      const oldHabit = habit[currentIndex];
+      const oldCount = oldHabit.goals.count || 0;
+      const target = oldHabit.goals.target || 1;
+
+      // 1. Determine "Completion Status" BEFORE update
+      const wasCompleted = oldCount >= target;
+      
+      // 2. Determine "Completion Status" AFTER update
+      const isCompleted = newCount >= target;
+
       const updated = [...habit];
-      updated[currentIndex] = { ...popUpContent, goals: { ...popUpContent.goals, count: newCount } };
+      const updatedHabit = { ...popUpContent, goals: { ...popUpContent.goals, count: newCount } };
+      updated[currentIndex] = updatedHabit;
       setHabit(updated);
 
-      // --- TRIGGER STREAK UPDATE ---
-      if (newCount > (habit[currentIndex].goals.count || 0)) {
-        updateStreak();
+      // 3. Log History based on COMPLETION change
+      if (!wasCompleted && isCompleted) {
+          logActivity(1); // Task Finished! (+1)
+      } else if (wasCompleted && !isCompleted) {
+          logActivity(-1); // Task Un-finished (-1)
+      }
+      // If I go from 1/3 to 2/3, I get 0 points.
+      // This ensures "Total Done" = "Total Habits Finished".
+
+      if (updatedHabit.roadmapId && updatedHabit.dayNumber) {
+        setTimeout(() => {
+             checkRoadmapCompletion(updatedHabit.roadmapId, updatedHabit.dayNumber);
+        }, 50);
       }
     }
     setIsProgressOpen(false);
@@ -266,7 +291,8 @@ const Habit = () => {
                   className={`${style.selectorCard} ${activeRoadmapId === rm.id ? style.active : ''}`}
                   onClick={() => {
                     setActiveRoadmapId(rm.id);
-                    setActiveDay(1);
+                    const completedDay = roadmapProgress?.[rm.id] || 0;
+                    setActiveDay(completedDay + 1);
                     setIsRoadmapSelectorOpen(false);
                   }}
                 >
@@ -297,7 +323,6 @@ const Habit = () => {
           <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
         </button>
 
-        {/* --- DYNAMIC STREAK --- */}
         <div className={NavbarStyles.streak}>
           <BasilFireOutline width="2rem" height="2rem" />
           <span>{userStreak ? userStreak.count : 0}</span>
@@ -350,7 +375,6 @@ const Habit = () => {
           </select>
         </div>
 
-        {/* --- RESTORED DROPDOWN DAY SELECTOR --- */}
         {activeTab === "roadmap" && activeRoadmapId && availableDays.length > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "15px" }}>
             <span style={{
@@ -404,6 +428,7 @@ const Habit = () => {
                       onDelete={(idx) => handleDelete(groupHabits[idx])}
                       habits={groupHabits}
                       timeContext={group.label}
+                      ignoreSchedule={activeTab === "roadmap"}
                     />
                   </div>
                 );
@@ -418,6 +443,7 @@ const Habit = () => {
                       onEdit={(idx) => handleEditHabit(anytime[idx])}
                       onDelete={(idx) => handleDelete(anytime[idx])}
                       habits={anytime}
+                      ignoreSchedule={activeTab === "roadmap"}
                     />
                   </div>
                 );

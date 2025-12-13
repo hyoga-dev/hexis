@@ -4,7 +4,7 @@ import Styles from "../assets/Styles/createRoadmap.module.css";
 import AddHabitStyles from "../assets/Styles/addhabit.module.css"; 
 import { useHabitProvider } from "../data/habitData";
 import { useRoadmapProvider } from "../data/roadmapData"; 
-import { useAuth } from "../data/AuthProvider"; // <--- 1. Import useAuth
+import { useAuth } from "../data/AuthProvider"; 
 import AddHabit from "./AddHabit"; 
 
 //Icon 
@@ -15,7 +15,7 @@ export default function CreateRoadmap() {
   const navigate = useNavigate();
   const { habit } = useHabitProvider(); 
   const { addRoadmap } = useRoadmapProvider(); 
-  const { currentUser } = useAuth(); // <--- 2. Get the current user
+  const { currentUser } = useAuth(); 
 
   // --- STATE ---
   const [formData, setFormData] = useState({
@@ -120,7 +120,7 @@ export default function CreateRoadmap() {
     setDays(updatedDays);
   };
 
-  // --- UPDATED SAVE HANDLER ---
+  // --- SAVE HANDLER ---
   const handleSaveRoadmap = () => {
     if (!formData.title) return alert("Please enter a Roadmap Title");
     
@@ -138,7 +138,7 @@ export default function CreateRoadmap() {
 
     const finalRoadmap = {
         ...formData,
-        author: currentUser?.displayName || "Anonymous", // <--- 3. Add Author Name
+        author: currentUser?.displayName || "Anonymous", 
         days: cleanedDays,
     };
 
@@ -164,7 +164,6 @@ export default function CreateRoadmap() {
       <div className={Styles.leftPanel}>
         <div className={Styles.leftContent}>
             
-            {/* Title Input */}
             <input 
                 name="title" 
                 className={Styles.headerInput} 
@@ -173,13 +172,11 @@ export default function CreateRoadmap() {
                 onChange={handleInputChange}
             />
 
-            {/* Category & Privacy Labels */}
             <div style={{ display: 'flex', gap: '10px', marginTop: '10px', marginBottom: '5px' }}>
                 <label className={Styles.formLabel} style={{ flex: 1 }}>Category</label>
                 <label className={Styles.formLabel} style={{ flex: 1 }}>Privacy</label>
             </div>
 
-            {/* Category & Privacy Dropdowns */}
             <div className={Styles.selectGroup}>
                 <select name="category" className={Styles.selectInput} value={formData.category} onChange={handleInputChange}>
                     <option value="Productivity">Productivity</option>
@@ -193,7 +190,6 @@ export default function CreateRoadmap() {
                 </select>
             </div>
 
-            {/* Description Label & Input */}
             <label className={Styles.formLabel} style={{ display: 'block', marginTop: '15px', marginBottom: '5px' }}>Description</label>
             <textarea 
                 name="description" 
@@ -206,7 +202,6 @@ export default function CreateRoadmap() {
 
             <hr style={{borderColor: 'var(--border-color)', opacity: 0.5, margin: '20px 0'}}/>
             
-            {/* Day List */}
             <div className={Styles.dayList}>
                 {days.map((day, index) => (
                     <div 
@@ -296,7 +291,8 @@ export default function CreateRoadmap() {
               <AddHabit 
                  onSave={handleSaveHabit} 
                  onCancel={() => setIsModalOpen(false)} 
-                 habitToEdit={habitToEdit} 
+                 habitToEdit={habitToEdit}
+                 isTemplate={true} // <--- PASS TRUE TO HIDE REPEAT/START/END
               />
            </div>
         </div>

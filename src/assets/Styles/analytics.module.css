@@ -203,8 +203,7 @@
   transform: scale(1.1);
   z-index: 5;
 }
-
-/* --- NEW: TOOLTIP STYLE --- */
+/* --- UPDATED TOOLTIP --- */
 .tooltip {
   position: fixed;
   background-color: rgba(30, 30, 30, 0.95);
@@ -213,35 +212,61 @@
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 500;
-  pointer-events: none; /* Allows clicks to pass through if needed */
+  pointer-events: none;
   z-index: 1000;
-  transform: translate(-50%, -140%); /* Center horizontally, move above cell */
   white-space: nowrap;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
   animation: fadeIn 0.2s ease-in-out;
+  /* Removed the default transform here to let modifiers handle X-axis */
 }
 
-/* Little arrow pointing down */
+/* Arrow Base Style */
 .tooltip::after {
   content: "";
   position: absolute;
   top: 100%;
-  left: 50%;
-  margin-left: -5px;
   border-width: 5px;
   border-style: solid;
   border-color: rgba(30, 30, 30, 0.95) transparent transparent transparent;
 }
 
+/* --- ALIGNMENT MODIFIERS --- */
+
+/* 1. Center (Default) */
+.tooltipCenter {
+  transform: translate(-50%, -140%);
+}
+.tooltipCenter::after {
+  left: 50%;
+  margin-left: -5px;
+}
+
+/* 2. Left Align (For cells on the far left) */
+.tooltipLeft {
+  transform: translate(-10%, -140%); /* Shift slightly left */
+}
+.tooltipLeft::after {
+  left: 15px; /* Arrow stays on the left side */
+}
+
+/* 3. Right Align (For cells on the far right) */
+.tooltipRight {
+  transform: translate(-90%, -140%); /* Shift mostly left */
+}
+.tooltipRight::after {
+  left: auto;
+  right: 15px; /* Arrow moves to the right side */
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translate(-50%, -130%);
+    margin-top: 10px;
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -140%);
+    margin-top: 0;
   }
 }
 

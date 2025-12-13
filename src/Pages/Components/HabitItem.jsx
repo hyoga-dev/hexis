@@ -6,7 +6,6 @@ import UncheckedIcon from "../../assets/Icon/UncheckedIcon";
 import CheckedIcon from "../../assets/Icon/CheckedIcon";
 
 import Icon from "../../assets/Images/goal.png";
-// import CheckedIcon from "../../assets/Images/checklist.png";
 
 // Helpers
 const getDayName = () => {
@@ -25,7 +24,8 @@ const isToday = (dayset) => {
     return dayset.includes(getDayName());
 }
 
-const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
+// Added 'ignoreSchedule' prop
+const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext, ignoreSchedule }) => {
     const [openMenuIndex, setOpenMenuIndex] = useState(null);
 
     const toggleMenu = (e, index) => {
@@ -58,25 +58,19 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
     return (
         <>
             {habits.map((item, index) => {
-                const scheduledForToday = isToday(item.daySet) || isTodayDate(item.daySet);
+                // --- UPDATED LOGIC ---
+                // If ignoreSchedule is true (Roadmap Mode), we show it regardless of the day.
+                // Otherwise, we check if it is scheduled for today.
+                const scheduledForToday = ignoreSchedule || isToday(item.daySet) || isTodayDate(item.daySet);
 
                 // --- PROGRESS LOGIC ---
                 const current = item.goals.count || 0;
                 const target = item.goals.target || 1;
-                // Calculate percentage (max 100%)
                 const percent = Math.min((current / target) * 100, 100);
                 const isCompleted = current >= target;
 
-                // Status Text
                 let statusText = `${current} / ${target} ${item.goals.satuan}`;
                 let visualPercent = percent;
-
-                // If in a time slot (Morning/etc), show simplified status if preferred, 
-                // OR just show the global progress bar which is usually better.
-                if (timeContext) {
-                    const isSlotDone = item.completedTimeSlots && item.completedTimeSlots.includes(timeContext);
-                    // Optionally override status text here if you want "Done" instead of numbers
-                }
 
                 if (scheduledForToday) {
                     return (
@@ -86,7 +80,7 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
 
                                 <div className={Styles.cardHeader}>
                                     <div className={Styles.titleSection}>
-                                        {isCompleted ? <CheckedIcon color="var(--primary-color)"  /> : <UncheckedIcon color="var(--secondary-color)" />}
+                                        {isCompleted ? <CheckedIcon color="var(--primary-color)" /> : <UncheckedIcon color="var(--secondary-color)" />}
                                         <div>
                                             <h3 className={Styles.habitTitle} style={{ textDecoration: isCompleted ? 'line-through' : 'none' }}>
                                                 {item.title}
@@ -94,8 +88,6 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
                                         </div>
                                     </div>
 
-                                    {/* --- FIX: ONLY SHOW MENU FOR PERSONAL HABITS --- */}
-                                    {/* If roadmapId exists, this button will NOT render */}
                                     {!item.roadmapId && (
                                         <button className={Styles.menuBtn} onClick={(e) => toggleMenu(e, index)}>
                                             ⋮
@@ -107,7 +99,6 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
                                     <p className={Styles.habitDesc}>"{item.description}"</p>
                                 )}
 
-                                {/* PROGRESS BAR SECTION */}
                                 <div className={Styles.progressSection}>
                                     <div className={Styles.progressInfo}>
                                         <span>Progress</span>
@@ -118,7 +109,6 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
                                             className={Styles.progressBarFill}
                                             style={{
                                                 width: `${visualPercent}%`,
-                                                // Green if complete, Primary Blue if in progress
                                                 backgroundColor: isCompleted ? '#4caf50' : 'var(--primary-color)'
                                             }}
                                         />
@@ -126,7 +116,6 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext }) => {
                                 </div>
                             </div>
 
-                            {/* Dropdown Menu - Only renders if menu was clicked (impossible for roadmap items now) */}
                             {openMenuIndex === index && (
                                 <div className={Styles.menuDropdown}>
                                     <button className={Styles.menuItem} onClick={(e) => handleEditClick(e, index)}>
