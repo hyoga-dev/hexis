@@ -1,7 +1,8 @@
 import Styles from "../assets/Styles/roadmap.module.css";
 import StarIcon from "../assets/Icon/StarIcon";
 import AddHabitIcon from "../assets/Icon/AddHabitIcon";
-import PenIcon from "../assets/Icon/PenIcon"; 
+import PenIcon from "../assets/Icon/PenIcon";
+import DeleteIcon from "../assets/Icon/DeleteIcon";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import NavbarStyles from "../assets/Styles/navbar.module.css";
@@ -16,8 +17,8 @@ const Roadmap = () => {
   const [activeTab, setActiveTab] = useState("official");
 
   const navigate = useNavigate();
-  const { habit, setHabit, updateHabitRoadmapDetails, roadmapProgress } = useHabitProvider(); 
-  const { roadmaps, upvoteRoadmap } = useRoadmapProvider();
+  const { habit, setHabit, updateHabitRoadmapDetails, roadmapProgress } = useHabitProvider();
+  const { roadmaps, upvoteRoadmap, deleteRoadmap } = useRoadmapProvider();
   const { currentUser } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -112,6 +113,13 @@ const Roadmap = () => {
 
     const uniqueHabits = Array.from(new Map(allNewHabits.map(item => [item.title, item])).values());
     setHabit([...habit, ...uniqueHabits]);
+  };
+
+  const handleDelete = (e, item) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to permanently delete the "${item.title}" roadmap? This cannot be undone.`)) {
+        deleteRoadmap(item.id);
+    }
   };
 
   // --- EDIT HANDLER ---
@@ -232,6 +240,7 @@ const Roadmap = () => {
               const isJoined = habit.some(h => h.roadmapId === item.id);
               const isAuthor = currentUser && (item.author === currentUser.displayName || item.author === currentUser.email);
               const canEdit = activeTab === "personal" || (activeTab === "community" && isAuthor);
+              const canDelete = activeTab === "community" && isAuthor;
 
               return (
                 <div
@@ -263,6 +272,27 @@ const Roadmap = () => {
                             >
                                 <PenIcon width="0.8rem" height="0.8rem" color="var(--font-color)" />
                                 <span>Edit</span>
+                            </button>
+                        )}
+                        {canDelete && (
+                            <button
+                                onClick={(e) => handleDelete(e, item)}
+                                style={{
+                                    background: 'none',
+                                    border: '1px solid #ff4d4d',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    padding: '4px 8px',
+                                    color: '#ff4d4d',
+                                    fontSize: '0.8rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    zIndex: 10
+                                }}
+                            >
+                                <DeleteIcon width="0.8rem" height="0.8rem" color="#ff4d4d" />
+                                <span>Delete</span>
                             </button>
                         )}
 

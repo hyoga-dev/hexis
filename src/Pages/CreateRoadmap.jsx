@@ -16,7 +16,7 @@ export default function CreateRoadmap() {
 
     // Get data contexts
     const { habit, setHabit, updatePersonalRoadmap } = useHabitProvider();
-    const { addRoadmap, updateRoadmap } = useRoadmapProvider();
+    const { addRoadmap, updateRoadmap, deleteRoadmap } = useRoadmapProvider();
     const { currentUser } = useAuth();
 
     // --- DETERMINE MODE ---
@@ -134,6 +134,16 @@ export default function CreateRoadmap() {
         const updatedDays = [...days];
         updatedDays[activeDayIndex].habits.splice(index, 1);
         setDays(updatedDays);
+    };
+
+    const handleDeleteRoadmap = () => {
+        if (mode === 'global' && editData?.id) {
+            if (window.confirm(`Are you sure you want to permanently delete the "${formData.title}" roadmap? This cannot be undone.`)) {
+                deleteRoadmap(editData.id);
+                alert("Roadmap template deleted successfully.");
+                navigate("/roadmap");
+            }
+        }
     };
 
     // --- SAVE LOGIC ---
@@ -261,10 +271,20 @@ export default function CreateRoadmap() {
                 <div className={Styles.leftContent}>
 
                     {/* Header Title */}
-                    <div style={{ marginBottom: 15 }}>
+                    <div className={Styles.header} style={{ marginBottom: 15 }}>
+
                         <h3 style={{ margin: 0, color: 'var(--primary-color)' }}>
                             {mode === 'personal' ? "Editing My Plan" : (mode === 'global' ? "Editing Template" : "Create Roadmap")}
                         </h3>
+
+                        {mode === 'global' && (
+                            <button
+                                onClick={handleDeleteRoadmap}
+
+                            >
+                                <DeleteIcon color="red" background-color="transparent" />
+                            </button>
+                        )}
                     </div>
 
                     <input
