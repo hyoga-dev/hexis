@@ -8,6 +8,12 @@
   color: var(--font-color);
 }
 
+@media (min-width: 768px) {
+  .wrapper {
+    padding-left: var(--sidebar-width);
+  }
+}
+
 .container {
   padding: 20px;
   padding-bottom: 100px;
