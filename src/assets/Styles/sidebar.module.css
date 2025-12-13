@@ -101,25 +101,54 @@
   margin-top: auto;
   display: flex;
   align-items: center;
-  padding: 19px;
+  padding: 15px;
   justify-content: space-between;
   border-top: solid 0.1rem var(--border-color);
+  background-color: rgba(0,0,0,0.02); /* Slight contrast for footer */
 }
 
+/* PROFILE SECTION */
 .profile {
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.profile:hover {
+  gap: 10px; /* Space between image and text */
   cursor: pointer;
+  flex: 1; /* Take up remaining space */
+  overflow: hidden; /* Hide overflow for long names */
 }
 
-.profile span {
-  margin-left: 0.5rem;
+/* New Avatar Style */
+.avatarImage {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color);
+}
+
+.userName {
   font-weight: bold;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ... if name is too long */
+  color: var(--font-color);
+}
+
+/* Logout Button Reset */
+.logoutBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.logoutBtn:hover {
+  transform: scale(1.1);
 }
 
 @media (min-width: 768px) {

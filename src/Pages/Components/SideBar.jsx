@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "../../assets/Styles/global.css";
 import Styles from "../../assets/Styles/sidebar.module.css";
 import Logo from "../../assets//Icon/HexisLogoRight.jsx";
@@ -7,10 +7,10 @@ import RoadMapIcon from "../../assets/Icon/SideBar/RoadMapIcon";
 import HabitIcon from "../../assets/Icon/SideBar/HabitIcon";
 import SettingIcon from "../../assets/Icon/SideBar/SettingIcon";
 import AnalyticsIcon from "../../assets/Icon/SideBar/AnalyticsIcon";
-import LogoutIcon from "../../assets/Icon/SideBar/LogoutIcon.jsx"
-import AccountIcon from "../../assets/Icon/SideBar/AccountIcon.jsx"
-import { signInWithPopup, signOut, getAuth } from 'firebase/auth';
-import { auth, googleProvider } from '../../firebase.js';
+import LogoutIcon from "../../assets/Icon/SideBar/LogoutIcon.jsx";
+import AccountIcon from "../../assets/Icon/SideBar/AccountIcon.jsx";
+// 1. Import useAuth for reactive user data
+import { useAuth } from "../../data/AuthProvider"; 
 
 const navLinks = [
   { name: "Habit", path: "/habit", icon: HabitIcon },
@@ -20,18 +20,23 @@ const navLinks = [
 ];
 
 const SideBar = ({ isOpen, onClose }) => {
-  const user = auth.currentUser;
+  // 2. Get real-time user data and logout function
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
-      window.location.href = '/';
-
+      await logout();
+      navigate('/login'); // Use navigate instead of window.location for smoother transition
       console.log('Signed out successfully!');
     } catch (error) {
       console.error('Sign-Out Error:', error.message);
     }
   };
+
+  // 3. Helpers to display Name and Avatar
+  const displayName = currentUser?.displayName || "Guest";
+  const avatarUrl = currentUser?.photoURL;
 
   return (
     <>
@@ -63,16 +68,22 @@ const SideBar = ({ isOpen, onClose }) => {
         </nav>
 
         <div className={Styles.footer}>
-          <div className={Styles.profile} onClick={() => window.location.href = '/settings'}>
-            <AccountIcon width="2rem" height="2rem" />
-            <span>{`${user ? user.displayName : "Guest"}`}</span>
+          {/* 4. UPDATED PROFILE SECTION */}
+          <div className={Styles.profile} onClick={() => navigate('/settings')}>
+            {avatarUrl ? (
+                // Show real avatar if available
+                <img src={avatarUrl} alt="Profile" className={Styles.avatarImage} />
+            ) : (
+                // Fallback to Icon if no photo
+                <AccountIcon width="2rem" height="2rem" />
+            )}
+            <span className={Styles.userName}>{displayName}</span>
           </div>
 
-
           <div className={Styles.logout}>
-            <NavLink onClick={handleSignOut} to="/login" className={Styles.logout}>
+            <button onClick={handleSignOut} className={Styles.logoutBtn}>
               <LogoutIcon color="var(--primary-color)" width="2rem" height="2rem" />
-            </NavLink>
+            </button>
           </div>
 
         </div>

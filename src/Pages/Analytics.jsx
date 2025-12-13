@@ -1,89 +1,162 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Styles from "../assets/Styles/analytics.module.css";
 import NavbarStyle from "../assets/Styles/navbar.module.css";
 import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
 import SideBar from "./Components/SideBar";
-import { useHabitProvider } from "../data/habitData";
+import { useHabitProvider } from "../data/habitData"; 
 import { useAuth } from "../data/AuthProvider";
 
 const Analytics = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { habit, userStreak } = useHabitProvider();
-  const { currentUser } = useAuth();
+  const { habit, userStreak } = useHabitProvider(); 
+  const { currentUser } = useAuth(); 
+
+  const [selectedData, setSelectedData] = useState(null);
+  const [daysToShow, setDaysToShow] = useState(window.innerWidth > 768 ? 182 : 91);
+
+  useEffect(() => {
+    const handleResize = () => {
+        setDaysToShow(window.innerWidth > 768 ? 182 : 91);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const firstName = currentUser?.displayName 
     ? currentUser.displayName.split(' ')[0] 
     : "There";
 
-  // --- 1. REAL TIME DATA ---
   const stats = useMemo(() => {
     if (!habit || habit.length === 0) return { total: 0, completed: 0, rate: 0, reps: 0 };
-    
     const total = habit.length;
     const completed = habit.filter(h => (h.goals.count || 0) >= (h.goals.target || 1)).length;
     const rate = Math.round((completed / total) * 100);
-    
-    // Sum of all repetitions (goals.count) across all habits today
     const reps = habit.reduce((acc, h) => acc + (h.goals.count || 0), 0);
-
     return { total, completed, rate, reps };
   }, [habit]);
 
-  // --- 2. MOCK DATA FOR VISUALS (Since we don't have DB History) ---
-  
-  // Contribution Data: 12 Weeks (Columns) x 7 Days (Rows)
-  const contributionData = useMemo(() => {
-    return Array.from({ length: 360 }).map(() => Math.floor(Math.random() * 5)); // 0-4 intensity
-  }, []);
+  const consistencyData = useMemo(() => {
+    const data = [];
+    const today = new Date();
+    
+    // Find start date
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - daysToShow);
 
-  // Trend Data: Last 7 Days
-  const trendData = [30, 45, 60, 50, 70, 85, stats.rate]; 
+    // Adjust to previous Sunday (so row 0 is always Sunday)
+    const dayOfWeek = startDate.getDay(); 
+    const alignedStartDate = new Date(startDate);
+    alignedStartDate.setDate(startDate.getDate() - dayOfWeek);
 
-  // Comparison Data
-  const periodComparison = {
-    thisWeek: 24, // Total habits done this week
-    lastWeek: 18,
-    diff: "+33%"
+    const totalDaysToRender = daysToShow + dayOfWeek;
+
+    for (let i = 0; i <= totalDaysToRender; i++) {
+        const date = new Date(alignedStartDate);
+        date.setDate(alignedStartDate.getDate() + i);
+        
+        if (date > today) break;
+
+        const dateString = date.toLocaleDateString("en-US", { 
+            month: 'short', 
+            day: 'numeric',
+            year: 'numeric'
+        });
+
+        const rand = Math.random();
+        let level = 0;
+        let count = 0;
+        if (rand > 0.9) { level = 4; count = Math.floor(Math.random() * 5) + 8; }
+        else if (rand > 0.7) { level = 3; count = Math.floor(Math.random() * 3) + 5; }
+        else if (rand > 0.5) { level = 2; count = Math.floor(Math.random() * 3) + 2; }
+        else if (rand > 0.3) { level = 1; count = 1; }
+
+        data.push({ id: i, date: dateString, level, count });
+    }
+    return data;
+  }, [daysToShow]);
+
+  const monthLabels = useMemo(() => {
+      const labels = [];
+      let lastMonth = "";
+      const weeks = Math.ceil(consistencyData.length / 7);
+
+      for (let w = 0; w < weeks; w++) {
+          const dayIndex = w * 7;
+          if (dayIndex >= consistencyData.length) break;
+
+          const dateStr = consistencyData[dayIndex].date; 
+          const currentMonth = dateStr.split(" ")[0]; 
+
+          if (currentMonth !== lastMonth) {
+              labels.push(currentMonth);
+              lastMonth = currentMonth;
+          } else {
+              labels.push(""); 
+          }
+      }
+      return labels;
+  }, [consistencyData]);
+
+  const periodComparison = [
+    { label: "Vs Last Week", value: "+12%", type: "positive" },
+    { label: "Vs Last Month", value: "+33%", type: "positive" },
+    { label: "Completion Avg", value: "78%", type: "neutral" }
+  ];
+
+  const topStats = {
+      longestStreak: Math.max((userStreak?.count || 0), 14), 
+      totalCompletions: 142 + stats.completed, 
+      dailyAverage: "85%" 
   };
 
   return (
     <div className={Styles.wrapper}>
       <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
-      {/* Header */}
       <div className={NavbarStyle.header}>
         <button onClick={() => setIsOpen(true)} className={NavbarStyle.menuBtn}>
           <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
         </button>
         <div style={{textAlign: 'right'}}>
-            <span style={{fontSize: '0.8rem', color: 'var(--secondary-font-color)'}}>Overview</span>
-            <div style={{fontWeight: 'bold', fontSize: '1rem'}}>Analytics</div>
+            <span style={{fontSize: '0.8rem', color: 'var(--secondary-font-color)', display: 'block'}}>Welcome back,</span>
+            <span style={{fontWeight: 'bold', fontSize: '1rem'}}>{firstName} 👋</span>
         </div>
       </div>
 
       <div className={Styles.container}>
         
-        <h2 style={{marginBottom: '20px'}}>Hi, {firstName} 👋</h2>
+        {/* Top Stats Banner */}
+        <div className={Styles.topStats}>
+            <div className={Styles.statBox}>
+                <h4>Longest Streak</h4>
+                <span>{topStats.longestStreak} Days</span>
+            </div>
+            <div className={Styles.statBox}>
+                <h4>Total Done</h4>
+                <span>{topStats.totalCompletions}</span>
+            </div>
+            <div className={Styles.statBox}>
+                <h4>Daily Avg</h4>
+                <span>{topStats.dailyAverage}</span>
+            </div>
+        </div>
 
-        {/* 1, 2, 3: KEY METRICS */}
+        {/* Metrics Grid */}
         <div className={Styles.statsGrid}>
-          {/* Current Streak */}
           <div className={Styles.card}>
             <span className={Styles.cardTitle}>Current Streak</span>
             <span className={Styles.cardValue}>
                {userStreak ? userStreak.count : 0} <span style={{fontSize:'1rem'}}>days</span>
             </span>
-            <span className={Styles.cardFooter}>Personal Best: {Math.max((userStreak?.count || 0), 5)} days</span>
+            <span className={Styles.cardFooter}>Keep the fire burning! 🔥</span>
           </div>
 
-          {/* Completion Rate */}
           <div className={Styles.card}>
             <span className={Styles.cardTitle}>Completion Rate</span>
             <span className={Styles.cardValue}>{stats.rate}%</span>
-            <span className={Styles.cardFooter}>Today's Progress</span>
+            <span className={Styles.cardFooter}>{stats.completed} of {stats.total} habits finished</span>
           </div>
 
-          {/* Total Repetitions */}
           <div className={Styles.card}>
             <span className={Styles.cardTitle}>Total Repetitions</span>
             <span className={Styles.cardValue}>{stats.reps}</span>
@@ -91,89 +164,87 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* 7. TOP STATS (HIGHLIGHT) */}
-        <div className={Styles.topStats} style={{marginBottom: '25px'}}>
-            <div className={Styles.statBox}>
-                <h4>Longest Streak</h4>
-                <span>{Math.max((userStreak?.count || 0), 12)}d</span>
-            </div>
-            <div className={Styles.statBox}>
-                <h4>Total Done</h4>
-                <span>{142 + stats.completed}</span> {/* Mock lifetime total */}
-            </div>
-            <div className={Styles.statBox}>
-                <h4>Daily Avg</h4>
-                <span>85%</span>
-            </div>
-        </div>
-
-        {/* 4. CONTRIBUTION GRAPH */}
-        <div className={Styles.heatmapSection}>
-            <h3 style={{fontSize:'1.1rem', marginBottom:'15px'}}>Contribution Graph (Last 3 Months)</h3>
-            <div className={Styles.heatmapGrid}>
-                {contributionData.map((level, i) => (
-                    <div 
-                        key={i} 
-                        className={`${Styles.heatmapCell} ${Styles[`level${level}`]}`}
-                        title={`Activity Level: ${level}`}
-                    ></div>
-                ))}
-            </div>
-        </div>
-
-        {/* 5 & 6: TREND & COMPARISON */}
+        {/* --- CONSISTENCY GRAPH --- */}
         <div className={Styles.splitSection}>
             
-            {/* 5. Trend Line Chart */}
-            <div className={Styles.chartCard}>
-                <h3 style={{fontSize:'1.1rem'}}>Weekly Trend</h3>
-                <div style={{flex: 1, padding: '10px 0'}}>
-                   {/* Simple SVG Line Chart */}
-                   <svg className={Styles.trendChart} viewBox="0 0 100 50" preserveAspectRatio="none">
-                      {/* Grid Lines */}
-                      <line x1="0" y1="10" x2="100" y2="10" stroke="var(--border-color)" strokeWidth="0.1" />
-                      <line x1="0" y1="25" x2="100" y2="25" stroke="var(--border-color)" strokeWidth="0.1" />
-                      <line x1="0" y1="40" x2="100" y2="40" stroke="var(--border-color)" strokeWidth="0.1" />
-                      
-                      {/* The Line */}
-                      <polyline 
-                         points={trendData.map((val, i) => `${(i / (trendData.length - 1)) * 100},${50 - (val / 2)}`).join(" ")}
-                         className={Styles.chartLine}
-                      />
-                      {/* Dots */}
-                      {trendData.map((val, i) => (
-                          <circle 
-                            key={i} 
-                            cx={(i / (trendData.length - 1)) * 100} 
-                            cy={50 - (val / 2)} 
-                            className={Styles.chartDot} 
-                          />
-                      ))}
-                   </svg>
+            <div className={Styles.heatmapSection}>
+                <div style={{display:'flex', justifyContent:'space-between', marginBottom:'10px', alignItems:'center'}}>
+                    <h3 style={{fontSize:'1.1rem', margin:0, fontWeight:'bold'}}>Consistency</h3>
+                    <span style={{fontSize:'0.9rem', color:'var(--primary-color)', fontWeight: 'bold'}}>
+                        {selectedData 
+                            ? `${selectedData.count} habits on ${selectedData.date}` 
+                            : `Last ${daysToShow > 100 ? '6' : '3'} Months`
+                        }
+                    </span>
                 </div>
-                <div style={{display:'flex', justifyContent:'space-between', fontSize:'0.8rem', color:'gray'}}>
-                    <span>Mon</span><span>Sun</span>
+                
+                {/* Graph Container with Side Labels */}
+                <div className={Styles.graphContainer}>
+                    
+                    {/* LEFT COLUMN: Day Labels */}
+                    <div className={Styles.dayCol}>
+                        <span className={Styles.dayLabel}></span>    {/* Sun */}
+                        <span className={Styles.dayLabel}>Mon</span>
+                        <span className={Styles.dayLabel}></span>    {/* Tue */}
+                        <span className={Styles.dayLabel}>Wed</span>
+                        <span className={Styles.dayLabel}></span>    {/* Thu */}
+                        <span className={Styles.dayLabel}>Fri</span>
+                        <span className={Styles.dayLabel}></span>    {/* Sat */}
+                    </div>
+
+                    {/* RIGHT COLUMN: Month + Grid */}
+                    <div className={Styles.gridCol}>
+                        {/* Month Labels */}
+                        <div 
+                            className={Styles.monthRow} 
+                            style={{gridTemplateColumns: `repeat(${Math.ceil(consistencyData.length / 7)}, 17px)`}}
+                        >
+                            {monthLabels.map((month, i) => (
+                                <span key={i} className={Styles.monthLabel}>{month}</span>
+                            ))}
+                        </div>
+
+                        {/* Grid */}
+                        <div className={Styles.heatmapGrid}>
+                            {consistencyData.map((day) => (
+                                <div 
+                                    key={day.id} 
+                                    onClick={() => setSelectedData(day)} 
+                                    className={`
+                                        ${Styles.heatmapCell} 
+                                        ${Styles[`level${day.level}`]} 
+                                        ${selectedData?.id === day.id ? Styles.selectedCell : ''}
+                                    `}
+                                    title={`${day.count} habits on ${day.date}`}
+                                ></div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Legend */}
+                <div style={{display:'flex', alignItems:'center', gap:'4px', marginTop:'auto', paddingTop: '15px', fontSize:'0.7rem', color:'gray', justifyContent:'center'}}>
+                    <span>Less</span>
+                    <div className={`${Styles.heatmapCell} ${Styles.level0}`}></div>
+                    <div className={`${Styles.heatmapCell} ${Styles.level2}`}></div>
+                    <div className={`${Styles.heatmapCell} ${Styles.level4}`}></div>
+                    <span>More</span>
                 </div>
             </div>
 
-            {/* 6. Period Comparison */}
             <div className={Styles.chartCard}>
-                <h3 style={{fontSize:'1.1rem'}}>Performance</h3>
+                <h3 style={{fontSize:'1.1rem', fontWeight:'bold'}}>Performance</h3>
                 <div className={Styles.comparisonList}>
-                    <div className={Styles.compareItem}>
-                        <div className={Styles.compareLabel}>Vs Last Week</div>
-                        <div className={`${Styles.compareDiff} ${Styles.positive}`}>+12%</div>
-                    </div>
-                    <div className={Styles.compareItem}>
-                        <div className={Styles.compareLabel}>Vs Last Month</div>
-                        <div className={`${Styles.compareDiff} ${Styles.positive}`}>+5%</div>
-                    </div>
-                    <div className={Styles.compareItem}>
-                        <div className={Styles.compareLabel}>Completion Avg</div>
-                        <div className={Styles.compareDiff}>78%</div>
-                    </div>
-                    <div style={{marginTop: 'auto', fontSize:'0.8rem', color:'gray', textAlign:'center'}}>
-                        Keep pushing! You're doing better than 65% of users.
+                    {periodComparison.map((item, index) => (
+                        <div key={index} className={Styles.compareItem}>
+                            <div className={Styles.compareLabel}>{item.label}</div>
+                            <div className={`${Styles.compareDiff} ${item.type === 'positive' ? Styles.positive : ''}`}>
+                                {item.value}
+                            </div>
+                        </div>
+                    ))}
+                    <div style={{marginTop: 'auto', fontSize:'0.85rem', color:'var(--secondary-font-color)', textAlign:'center', paddingTop: '20px', fontStyle:'italic'}}>
+                        "Small progress is still progress."
                     </div>
                 </div>
             </div>
