@@ -17,8 +17,8 @@ const Roadmap = () => {
   const [activeTab, setActiveTab] = useState("official");
 
   const navigate = useNavigate();
-  const { habit, setHabit, updateHabitRoadmapDetails, roadmapProgress } = useHabitProvider();
-  const { roadmaps, upvoteRoadmap, deleteRoadmap } = useRoadmapProvider();
+  const { habit, addHabitsBatch, roadmapProgress } = useHabitProvider();
+  const { roadmaps, deleteRoadmap, loading } = useRoadmapProvider();
   const { currentUser } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,7 +78,7 @@ const Roadmap = () => {
   }, [habit, roadmaps, roadmapProgress]);
 
   // --- HANDLERS ---
-  const handleJoinRoadmap = (e, roadmapItem) => {
+  const handleJoinRoadmap = async (e, roadmapItem) => {
     e.stopPropagation();
     const isJoined = habit.some(h => h.roadmapId === roadmapItem.id);
     if (isJoined) return;
@@ -106,13 +106,12 @@ const Roadmap = () => {
           roadmapTitle: roadmapItem.title,
           dayNumber: day.dayNumber,
           dayFocus: day.focus,
-          completedTimeSlots: []
+          completion: {}
         });
       });
     });
 
-    const uniqueHabits = Array.from(new Map(allNewHabits.map(item => [item.title, item])).values());
-    setHabit([...habit, ...uniqueHabits]);
+    await addHabitsBatch(allNewHabits);
   };
 
   const handleDelete = (e, item) => {

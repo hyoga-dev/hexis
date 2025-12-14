@@ -15,7 +15,7 @@ export default function CreateRoadmap() {
     const location = useLocation();
 
     // Get data contexts
-    const { habit, setHabit, updatePersonalRoadmap } = useHabitProvider();
+    const { habit, addHabitsBatch, updatePersonalRoadmap } = useHabitProvider();
     const { addRoadmap, updateRoadmap, deleteRoadmap } = useRoadmapProvider();
     const { currentUser } = useAuth();
 
@@ -147,7 +147,7 @@ export default function CreateRoadmap() {
     };
 
     // --- SAVE LOGIC ---
-    const handleSaveRoadmap = () => {
+    const handleSaveRoadmap = async () => {
         if (!formData.title) return alert("Please enter a Roadmap Title");
 
         // 1. Prepare Standard Structure
@@ -212,19 +212,16 @@ export default function CreateRoadmap() {
         }
 
         // --- MODE: CREATE NEW ---
-        const newRoadmapId = Date.now();
-        const finalRoadmap = {
+        const roadmapDataForDb = {
             ...formData,
-            id: newRoadmapId,
             author: authorName,
             authorPhotoURL: currentUser?.photoURL || null,
             days: cleanedDays,
-
         };
 
-        addRoadmap(finalRoadmap);
+        const newRoadmap = await addRoadmap(roadmapDataForDb);
 
-        if (window.confirm("Roadmap created! Do you want to start it now?")) {
+        if (newRoadmap && window.confirm("Roadmap created! Do you want to start it now?")) {
             const newHabits = [];
             cleanedDays.forEach(day => {
                 day.habits.forEach(h => {
@@ -238,16 +235,16 @@ export default function CreateRoadmap() {
                         waktu: h.waktu || h.time || ["Morning"],
                         waktuMulai: new Date().toISOString().split('T')[0],
                         pengingat: "09:00",
-                        area: formData.category,
-                        roadmapId: newRoadmapId,
-                        roadmapTitle: formData.title,
+                        area: newRoadmap.category,
+                        roadmapId: newRoadmap.id,
+                        roadmapTitle: newRoadmap.title,
                         dayNumber: day.dayNumber,
                         dayFocus: day.focus,
-                        completedTimeSlots: []
+                        completion: {}
                     });
                 });
             });
-            setHabit([...habit, ...newHabits]);
+            await addHabitsBatch(newHabits);
         }
         navigate("/roadmap");
     };

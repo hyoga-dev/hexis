@@ -7,11 +7,13 @@ const HabitProgressModal = ({ popUpContent, onClose, onSave, setPopUpContent }) 
     if (!popUpContent) return null;
 
     // 2. Safe Access: Use ?. to prevent crash if goals or satuan is missing
+    const timeContext = popUpContent.timeContext || "Anytime";
     const satuan = popUpContent.goals?.satuan || "";
     const isTimer = ["minutes", "hours"].includes(satuan);
 
     // Default values for counters
-    const currentCount = popUpContent.goals?.count || 0;
+    // Get the count for the specific time slot, fallback to global count for older data
+    const currentCount = popUpContent.completion?.[timeContext] || 0;
     const targetCount = popUpContent.goals?.target || 1;
 
     return (
@@ -33,7 +35,10 @@ const HabitProgressModal = ({ popUpContent, onClose, onSave, setPopUpContent }) 
                             <button
                                 onClick={() => setPopUpContent(p => ({
                                     ...p,
-                                    goals: { ...p.goals, count: Math.max(0, (p.goals?.count || 0) - 1) }
+                                    completion: {
+                                        ...(p.completion || {}),
+                                        [timeContext]: Math.max(0, (p.completion?.[timeContext] || 0) - 1)
+                                    }
                                 }))}
                                 className={style.counterBtn}
                             >
@@ -45,7 +50,10 @@ const HabitProgressModal = ({ popUpContent, onClose, onSave, setPopUpContent }) 
                             <button
                                 onClick={() => setPopUpContent(p => ({
                                     ...p,
-                                    goals: { ...p.goals, count: (p.goals?.count || 0) + 1 }
+                                    completion: {
+                                        ...(p.completion || {}),
+                                        [timeContext]: (p.completion?.[timeContext] || 0) + 1
+                                    }
                                 }))}
                                 className={style.counterBtn}
                             >

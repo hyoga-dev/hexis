@@ -6,6 +6,9 @@ const TimerInterface = ({ habit, onSave, onClose }) => {
     const [seconds, setSeconds] = useState(0);
     const intervalRef = useRef(null);
 
+    const timeContext = habit.timeContext || "Anytime";
+    const currentProgress = habit.completion?.[timeContext] || 0;
+
     const formatTime = (totalSeconds) => {
         const h = Math.floor(totalSeconds / 3600);
         const m = Math.floor((totalSeconds % 3600) / 60);
@@ -31,7 +34,7 @@ const TimerInterface = ({ habit, onSave, onClose }) => {
 
         // Calculate new total and save
         if (added > 0) {
-            onSave((habit.goals.count || 0) + added);
+            onSave(currentProgress + added);
         } else {
             onClose();
         }
@@ -42,8 +45,8 @@ const TimerInterface = ({ habit, onSave, onClose }) => {
     return (
         <div className={style.counterWrapper}>
             <div className={style.timerDisplay}>{formatTime(seconds)}</div>
-            <div className={style.timerProgressInfo}>
-                Current Progress: {habit.goals.count} / {habit.goals.target} {habit.goals.satuan}
+            <div className={style.timerProgressInfo} >
+                Current Progress: {currentProgress} / {habit.goals.target} {habit.goals.satuan}
             </div>
             <div className={style.timerControls}>
                 {!isActive && seconds > 0 && (

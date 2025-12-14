@@ -1,18 +1,24 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../assets/Styles/global.css";
 import Styles from "../assets/Styles/login.module.css";
 import Logo from "../assets/Icon/HexisLogoBottom.jsx";
 import FormBox from "./Components/FormBox";
 import AltLogin from "./Components/AltLogin";
 import { useAuthLogic } from "../data/userAuth";
-import { useAuthLogin } from "../data/useAuthLogin";
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase.js';
+import { useAuth } from "../data/AuthProvider.jsx";
 
 export default function Login() {
   const { formData, handleChange, handleSubmit } = useAuthLogic(false);
-  // const {currentUser, loading} = useAuthLogin();
+  const { loginAsGuest } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGuestLogin = () => {
+    loginAsGuest();
+    navigate('/habit');
+  };
 
 
   return (
@@ -37,6 +43,9 @@ export default function Login() {
         </div>
         <p>-Or sign in with-</p>
         <AltLogin />
+        <button onClick={handleGuestLogin} className={Styles.link} style={{ background: 'none', border: 'none', cursor: 'pointer', marginTop: '10px', fontSize: '0.9rem' }}>
+          Continue as Guest
+        </button>
         <p>
           Don't have an account?
           <Link to="/register" className={Styles.link}>

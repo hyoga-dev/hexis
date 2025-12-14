@@ -1,5 +1,14 @@
-import { createContext, useContext, useMemo } from "react";
-import useLocalStorage from "./useLocalStorage";
+import { createContext, useContext, useMemo, useState, useEffect } from "react";
+import { db } from "../firebase";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { useAuth } from "./AuthProvider";
 
 const RoadmapContext = createContext();
 
@@ -8,126 +17,112 @@ export const useRoadmapProvider = () => {
 };
 
 // ... (Keep existing OFFICIAL_DATA and INITIAL_COMMUNITY_DATA) ...
-const OFFICIAL_DATA = [
-  {
-    id: 101,
-    type: "official",
-    category: "Health",
-    title: "30-Day Morning Reset",
-    description: "Build a powerful morning routine with hydration, movement, and mindfulness.",
-    author: "Hexis Team",
-    rating: 4.8,
-    date: "2024-01-01",
-    days: [
-      {
-        dayNumber: 1,
-        focus: "Hydration First",
-        habits: [
-          {
-            title: "Drink Water",
-            description: "Start with 500ml of water.",
-            waktu: ["Morning"],
-            goals: { target: 1, satuan: "glass", ulangi: "per_day" }
-          }
-        ]
-      },
-      // ... (truncated for brevity, keep original data)
-      {
-        dayNumber: 2,
-        focus: "Move Your Body",
-        habits: [
-          { title: "Drink Water", waktu: ["Morning"], goals: { target: 1, satuan: "glass", ulangi: "per_day" } },
-          { title: "Light Stretch", description: "Wake up your muscles.", waktu: ["Morning"], goals: { target: 5, satuan: "mins", ulangi: "per_day" } }
-        ]
-      },
-      {
-        dayNumber: 3,
-        focus: "Mental Clarity",
-        habits: [
-          { title: "Drink Water", waktu: ["Morning"], goals: { target: 1, satuan: "glass", ulangi: "per_day" } },
-          { title: "Light Stretch", waktu: ["Morning"], goals: { target: 5, satuan: "mins", ulangi: "per_day" } },
-          { title: "Mindful Breathing", description: "Box breathing technique.", waktu: ["Morning"], goals: { target: 3, satuan: "mins", ulangi: "per_day" } }
-        ]
-      }
-    ]
-  },
-  {
-    id: 102,
-    type: "official",
-    category: "Productivity",
-    title: "Deep Work Protocol",
-    description: "A 7-day challenge to reclaim your focus and eliminate distractions.",
-    author: "Hexis Team",
-    rating: 4.9,
-    date: "2024-02-15",
-    days: [
-      {
-        dayNumber: 1,
-        focus: "Eliminate Noise",
-        habits: [
-          { title: "Phone Free Hour", description: "No phone for first hour of day.", waktu: ["Morning"], goals: { target: 60, satuan: "mins", ulangi: "per_day" } },
-          { title: "Plan Tomorrow", waktu: ["Evening"], goals: { target: 1, satuan: "times", ulangi: "per_day" } }
-        ]
-      },
-      {
-        dayNumber: 2,
-        focus: "Single Tasking",
-        habits: [
-          { title: "Focus Block", description: "One task, no switching.", waktu: ["Morning", "Afternoon"], goals: { target: 90, satuan: "mins", ulangi: "per_day" } },
-          { title: "Phone Free Hour", waktu: ["Morning"], goals: { target: 60, satuan: "mins", ulangi: "per_day" } }
-        ]
-      }
-    ]
-  }
-];
+const OFFICIAL_DATA = [];
 
 const INITIAL_COMMUNITY_DATA = [];
 
 export function RoadmapProvider({ children }) {
-  const [customRoadmaps, setCustomRoadmaps] = useLocalStorage("hexis_community_v2", INITIAL_COMMUNITY_DATA);
+  const { currentUser, isGuest } = useAuth();
+  const [communityRoadmaps, setCommunityRoadmaps] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRoadmaps = async () => {
+      setLoading(true);
+      try {
+        const roadmapsCollectionRef = collection(db, "roadmaps");
+        const roadmapsSnapshot = await getDocs(roadmapsCollectionRef);
+        const allRoadmaps = roadmapsSnapshot.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }));
+        setCommunityRoadmaps(allRoadmaps);
+      } catch (error) {
+        console.error("Error fetching roadmaps:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoadmaps();
+  }, []);
 
   const roadmaps = useMemo(() => {
-    return [...OFFICIAL_DATA, ...customRoadmaps];
-  }, [customRoadmaps]);
+    return [...OFFICIAL_DATA, ...communityRoadmaps];
+  }, [communityRoadmaps]);
 
-  const addRoadmap = (newRoadmap) => {
+  const addRoadmap = async (newRoadmap) => {
+    if (!currentUser || isGuest) {
+      alert("You must be logged in to create a roadmap.");
+      return null;
+    }
+
     const roadmapWithMeta = {
       ...newRoadmap,
-      id: Date.now(),
       type: "community",
       rating: 0,
       ratings: {},
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString(),
+      authorId: currentUser.uid,
+      author: currentUser.displayName || currentUser.email,
+      authorPhotoURL: currentUser.photoURL || null,
     };
-    setCustomRoadmaps([...customRoadmaps, roadmapWithMeta]);
+
+    const roadmapsCollectionRef = collection(db, "roadmaps");
+    const newDocRef = await addDoc(roadmapsCollectionRef, roadmapWithMeta);
+    const newRoadmapWithId = { ...roadmapWithMeta, id: newDocRef.id };
+    setCommunityRoadmaps((prev) => [...prev, newRoadmapWithId]);
+    return newRoadmapWithId;
   };
 
   // --- NEW: Update Existing Roadmap ---
-  const updateRoadmap = (id, updatedData) => {
-    setCustomRoadmaps(prev => prev.map(r => r.id === id ? { ...r, ...updatedData } : r));
+  const updateRoadmap = async (id, updatedData) => {
+    if (!currentUser || isGuest) {
+      alert("You must be logged in to edit a roadmap.");
+      return;
+    }
+    const roadmapDocRef = doc(db, "roadmaps", id);
+    await updateDoc(roadmapDocRef, updatedData);
+    setCommunityRoadmaps((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, ...updatedData } : r))
+    );
   };
 
-  const rateRoadmap = (roadmapId, userId, score) => {
-    const updated = customRoadmaps.map(map => {
-      if (map.id === roadmapId) {
-        const currentRatings = map.ratings || {};
-        const newRatings = { ...currentRatings, [userId]: score };
-        const scores = Object.values(newRatings);
-        const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  const rateRoadmap = async (roadmapId, userId, score) => {
+    if (!currentUser || isGuest) {
+      alert("You must be logged in to rate a roadmap.");
+      return;
+    }
+    const roadmapToUpdate = communityRoadmaps.find((r) => r.id === roadmapId);
+    if (!roadmapToUpdate) return;
 
-        return {
-          ...map,
-          ratings: newRatings,
-          rating: parseFloat(avg.toFixed(1))
-        };
+    const currentRatings = roadmapToUpdate.ratings || {};
+    const newRatings = { ...currentRatings, [userId]: score };
+    const scores = Object.values(newRatings);
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const newAvgRating = parseFloat(avg.toFixed(1));
+
+    const updatedFields = { ratings: newRatings, rating: newAvgRating };
+
+    const roadmapDocRef = doc(db, "roadmaps", roadmapId);
+    await updateDoc(roadmapDocRef, updatedFields);
+
+    setCommunityRoadmaps((prev) => prev.map((map) => {
+      if (map.id === roadmapId) {
+        return { ...map, ...updatedFields };
       }
       return map;
-    });
-    setCustomRoadmaps(updated);
+    }));
   };
 
-  const deleteRoadmap = (id) => {
-    setCustomRoadmaps(customRoadmaps.filter(r => r.id !== id));
+  const deleteRoadmap = async (id) => {
+    if (!currentUser || isGuest) {
+      alert("You must be logged in to delete a roadmap.");
+      return;
+    }
+    const roadmapDocRef = doc(db, "roadmaps", id);
+    await deleteDoc(roadmapDocRef);
+    setCommunityRoadmaps((prev) => prev.filter((r) => r.id !== id));
   };
 
   const value = {
@@ -135,7 +130,8 @@ export function RoadmapProvider({ children }) {
     addRoadmap,
     updateRoadmap, // Exported
     deleteRoadmap,
-    rateRoadmap
+    rateRoadmap,
+    loading,
   };
 
   return (

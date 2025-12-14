@@ -24,7 +24,7 @@
 @media (min-width: 768px) {
   .container {
     width: 500px;
-     height: fit-content;
+    height: fit-content;
   }
 }
 
@@ -131,11 +131,20 @@ p {
   align-items: center;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
-.alt-login img {
-  width: 4rem;
-  height: auto;
+.google-btn {
+  background-color: var(--font-color);
+  width: 100%;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.google-btn:hover {
+  opacity: 0.9;
 }
 
 .icon {

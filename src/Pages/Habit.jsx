@@ -35,12 +35,15 @@ const Habit = () => {
   const [currentIndex, setCurrentIndex] = useState(null);
 
   const {
-    habit,
-    setHabit,
+    habit,    
     userStreak,
     logActivity,
     roadmapProgress,
-    checkRoadmapCompletion
+    checkRoadmapCompletion,
+    addHabit,
+    updateHabit,
+    deleteHabit,
+    loading
   } = useHabitProvider();
 
   const navigate = useNavigate();
@@ -102,16 +105,9 @@ const Habit = () => {
       if (activeTab === "personal") {
         if (item.roadmapId) return false;
       } else {
-        if (!item.roadmapId) return false;
         if (item.roadmapId !== activeRoadmapId) return false;
         if (item.dayNumber && item.dayNumber !== activeDay) return false;
       }
-
-      const current = item.goals.count || 0;
-      const target = item.goals.target || 1;
-      const isCompleted = current >= target;
-      if (filterStatus === "completed" && !isCompleted) return false;
-      if (filterStatus === "incomplete" && isCompleted) return false;
 
       if (filterTime !== "all") {
         if (filterTime === "Anytime") { if (item.waktu && item.waktu.length > 0) return false; }
@@ -119,7 +115,7 @@ const Habit = () => {
       }
       return true;
     });
-  }, [habit, activeTab, activeRoadmapId, activeDay, filterStatus, filterTime]);
+  }, [habit, activeTab, activeRoadmapId, activeDay, filterTime]);
 
   const activeDayFocus = useMemo(() => {
     if (activeTab !== "roadmap" || !activeRoadmapId) return null;
@@ -130,15 +126,31 @@ const Habit = () => {
   const handleTabChange = (tab) => setActiveTab(tab);
 
   // --- Handlers ---
-  const handleCardClick = (clickedHabit) => {
+  const handleCardClick = (clickedHabit, timeContext) => {
 
     if (!clickedHabit) {
       console.error("Clicked habit is undefined");
       return;
     }
 
-    const realIndex = habit.findIndex(h => h.id === clickedHabit.id);
-    setPopUpContent({ ...clickedHabit });
+    let habitToOpen = { ...clickedHabit };
+
+    // One-time data migration for legacy habits before opening the modal
+    if (!habitToOpen.completion) {
+      const newCompletion = {};
+      const oldCount = habitToOpen.goals?.count || 0;
+
+      // If it's a simple habit, migrate the old total count to its single slot.
+      if (oldCount > 0 && (!habitToOpen.waktu || habitToOpen.waktu.length <= 1)) {
+        const slot = habitToOpen.waktu?.[0] || "Anytime";
+        newCompletion[slot] = oldCount;
+      }
+      habitToOpen.completion = newCompletion;
+    }
+
+    const time = timeContext || (clickedHabit.waktu?.length > 0 ? clickedHabit.waktu[0] : "Anytime");
+    const realIndex = habit.findIndex(h => h.id === habitToOpen.id);
+    setPopUpContent({ ...habitToOpen, timeContext: time });
     setCurrentIndex(realIndex);
     setIsProgressOpen(true);
   };
@@ -150,31 +162,40 @@ const Habit = () => {
 
   const handleSaveHabit = (data) => {
     if (habitToEdit) {
-      setHabit(habit.map(h => h.id === habitToEdit.id ? data : h));
+      updateHabit(habitToEdit.id, data);
     } else {
-      setHabit([...habit, { ...data, id: Date.now() }]);
+      addHabit(data);
     }
     setIsAddHabitOpen(false);
     setHabitToEdit(null);
   };
 
-  const saveHabitProgress = (newCount) => {
+  const saveHabitProgress = (newSlotCount) => {
     if (currentIndex !== null && popUpContent) {
-      const oldHabit = habit[currentIndex];
-      const oldCount = oldHabit.goals.count || 0;
-      const target = oldHabit.goals.target || 1;
+      const habitToUpdate = habit[currentIndex];
+      const timeContext = popUpContent.timeContext;
+      const targetPerSlot = habitToUpdate.goals.target || 1;
 
-      const wasCompleted = oldCount >= target;
-      const isCompleted = newCount >= target;
+      // --- Per-Slot Completion Logic ---
+      const oldSlotCount = habitToUpdate.completion?.[timeContext] || 0;
+      const wasSlotCompleted = oldSlotCount >= targetPerSlot;
+      const isSlotCompleted = newSlotCount >= targetPerSlot;
 
-      const updated = [...habit];
-      const updatedHabit = { ...popUpContent, goals: { ...popUpContent.goals, count: newCount } };
-      updated[currentIndex] = updatedHabit;
-      setHabit(updated);
+      // Update the completion object for the specific time slot
+      const newCompletion = { ...(habitToUpdate.completion || {}), [timeContext]: newSlotCount };
 
-      if (!wasCompleted && isCompleted) {
+      // Recalculate the total count for the habit (sum of all reps)
+      const newTotalCount = Object.values(newCompletion).reduce((sum, val) => sum + val, 0);
+
+      const updatedHabit = {
+        ...habitToUpdate,
+        completion: newCompletion,
+        goals: { ...habitToUpdate.goals, count: newTotalCount } // Update total count to sum of reps
+      };
+      updateHabit(updatedHabit.id, updatedHabit).then(() => {
+        if (isSlotCompleted && !wasSlotCompleted) {
         logActivity(1);
-      } else if (wasCompleted && !isCompleted) {
+      } else if (!isSlotCompleted && wasSlotCompleted) {
         logActivity(-1);
       }
 
@@ -183,14 +204,14 @@ const Habit = () => {
           checkRoadmapCompletion(updatedHabit.roadmapId, updatedHabit.dayNumber);
         }, 50);
       }
+      });
     }
     setIsProgressOpen(false);
     setCurrentIndex(null);
   };
 
   const handleDelete = (clickedHabit) => {
-    const realIndex = habit.findIndex(h => h.id === clickedHabit.id);
-    if (realIndex !== -1) setHabit(habit.filter((_, i) => i !== realIndex));
+    if (clickedHabit?.id) deleteHabit(clickedHabit.id);
   };
 
   return (
@@ -274,6 +295,13 @@ const Habit = () => {
           </div>
         )}
 
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '50px', color: 'gray' }}>
+            <h4>Loading your habits...</h4>
+          </div>
+        )}
+
+        {!loading && (
         <HabitList
           habits={filteredHabits}
           onHabitClick={handleCardClick}
@@ -281,7 +309,9 @@ const Habit = () => {
           onDeleteHabit={handleDelete}
           filterTime={filterTime}
           ignoreSchedule={activeTab === "roadmap"}
+          filterStatus={filterStatus}
         />
+        )}
 
         {activeTab === "personal" && (
           <button className={style.addHabitBtn} onClick={() => { setHabitToEdit(null); setIsAddHabitOpen(true); }}>
