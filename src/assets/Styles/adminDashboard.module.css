@@ -1,0 +1,227 @@
+.wrapper {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  color: var(--font-color);
+}
+
+.deniedContainer {
+  padding: 50px;
+  text-align: center;
+  color: var(--error-color);
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  margin-top: 50px;
+}
+
+.deniedTitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.deniedText {
+  margin-bottom: 20px;
+  color: var(--secondary-font-color);
+}
+
+.homeButton {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.homeButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.welcomeMessage {
+  color: var(--secondary-font-color);
+}
+
+.divider {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.section {
+  background-color: var(--surface-color);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px var(--shadow-color);
+}
+
+.sectionTitle {
+  margin-top: 0;
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input,
+.textarea,
+.jsonTextarea {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background-color: var(--background-color);
+  color: var(--font-color);
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.jsonTextarea {
+  height: 150px;
+  font-family: monospace;
+  resize: vertical;
+}
+
+.formHint {
+  font-size: 0.8rem;
+  color: var(--secondary-font-color);
+  margin-top: -10px;
+}
+
+.submitButton {
+  padding: 12px;
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.moderationList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roadmapItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  background: var(--background-color);
+  border-radius: 5px;
+}
+
+.roadmapInfo strong {
+  font-size: 1.1rem;
+}
+
+.roadmapType {
+  font-size: 0.8rem;
+  margin-left: 10px;
+}
+
+.roadmapTypeOfficial {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.roadmapTypeCommunity {
+  color: var(--secondary-font-color);
+}
+
+.roadmapAuthor {
+  font-size: 0.8rem;
+  color: var(--secondary-font-color);
+}
+
+.deleteButton {
+  background-color: var(--error-color);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.categoryForm {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.categoryInput {
+  flex: 1;
+}
+
+.addCategoryButton {
+  background-color: #4caf50; /* Success Green */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.addCategoryButton:hover {
+  background-color: #45a049;
+}
+
+.categoryList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.categoryPill {
+  background: var(--background-color);
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.deleteCategoryBtn {
+  color: var(--error-color);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.deleteCategoryBtn:hover {
+  opacity: 0.8;
+}

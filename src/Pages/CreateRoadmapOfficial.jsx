@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Styles from "../assets/Styles/createRoadmap.module.css";
 import AddHabitStyles from "../assets/Styles/addhabit.module.css";
 import { useHabitProvider } from "../data/habitData";
@@ -10,39 +10,33 @@ import AddHabit from "./AddHabit";
 import DeleteIcon from "../assets/Icon/DeleteIcon";
 import CopyIcon from "../assets/Icon/CopyIcon";
 
-export default function CreateRoadmap() {
+const ADMIN_EMAILS = ["fadilcrown1@gmail.com"]; // Keep this in sync with AdminDashboard
+
+export default function CreateRoadmapOfficial() {
     const navigate = useNavigate();
-    const location = useLocation();
 
     // Get data contexts
-    const { habit, addHabitsBatch, updatePersonalRoadmap } = useHabitProvider();
-    const {
-        addRoadmap,
-        updateRoadmap,
-        deleteRoadmap,
-        categories // <--- 1. Get the dynamic list from the database
-    } = useRoadmapProvider();
+    const { habit } = useHabitProvider();
+    const { addRoadmap, categories } = useRoadmapProvider();
 
-    // Get isGuest status
+    // Get user status for auth check
     const { currentUser, isGuest } = useAuth();
 
-    // Redirect Guest
+    // --- ACCESS CONTROL ---
     useEffect(() => {
         if (isGuest) {
-            alert("Guest accounts cannot create or edit roadmaps. Please sign in.");
+            alert("Guest accounts cannot perform this action. Please sign in.");
             navigate("/roadmap");
+        } else if (!currentUser || !ADMIN_EMAILS.includes(currentUser.email)) {
+            alert("You do not have permission to access this page.");
+            navigate("/admin"); // Or home, or wherever non-admins should go
         }
-    }, [isGuest, navigate]);
-
-    // --- DETERMINE MODE ---
-    const editData = location.state?.editData;
-    const mode = location.state?.mode || (editData ? 'global' : 'create');
+    }, [isGuest, currentUser, navigate]);
 
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        category: "", // Will be set when categories load or editData loads
-        privacy: "public",
+        category: "", // Will be set when categories load
     });
 
     const [days, setDays] = useState([
@@ -51,29 +45,11 @@ export default function CreateRoadmap() {
 
     // --- INITIALIZE DATA ---
     useEffect(() => {
-        // If we are editing, load the existing data
-        if (editData) {
-            setFormData({
-                title: editData.title || "",
-                description: editData.description || "",
-                category: editData.category || (categories.length > 0 ? categories[0] : "Productivity"),
-                privacy: editData.privacy || "public",
-            });
-
-            if (editData.days && editData.days.length > 0) {
-                setDays(editData.days.map(d => ({
-                    ...d,
-                    id: Date.now() + Math.random(),
-                    habits: d.habits.map(h => ({ ...h, id: Date.now() + Math.random() }))
-                })));
-            }
-        } else {
-            // If creating new, ensure category defaults to the first available one
-            if (categories.length > 0 && !formData.category) {
-                setFormData(prev => ({ ...prev, category: categories[0] }));
-            }
+        // Set default category to the first available one
+        if (categories.length > 0 && !formData.category) {
+            setFormData(prev => ({ ...prev, category: categories[0] }));
         }
-    }, [editData, categories]);
+    }, [categories]);
 
     const [activeDayIndex, setActiveDayIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -153,16 +129,6 @@ export default function CreateRoadmap() {
         setDays(updatedDays);
     };
 
-    const handleDeleteRoadmap = () => {
-        if (mode === 'global' && editData?.id) {
-            if (window.confirm(`Are you sure you want to permanently delete the "${formData.title}" roadmap? This cannot be undone.`)) {
-                deleteRoadmap(editData.id);
-                alert("Roadmap template deleted successfully.");
-                navigate("/roadmap");
-            }
-        }
-    };
-
     const handleSaveRoadmap = async () => {
         if (!formData.title) return alert("Please enter a Roadmap Title");
         if (!formData.category) return alert("Please select a Category");
@@ -181,80 +147,17 @@ export default function CreateRoadmap() {
             }))
         }));
 
-        const authorName = currentUser?.displayName || currentUser?.email || "Anonymous";
-
-        if (mode === 'personal') {
-            const habitTemplates = [];
-            cleanedDays.forEach(day => {
-                day.habits.forEach(h => {
-                    habitTemplates.push({
-                        title: h.title,
-                        description: h.description || `Day ${day.dayNumber}: ${day.focus}`,
-                        repeatType: "daily",
-                        daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
-                        goals: h.goals || { target: h.target, count: 0, satuan: h.unit, ulangi: "per_day" },
-                        waktu: h.waktu || h.time || ["Morning"],
-                        waktuMulai: new Date().toISOString().split('T')[0],
-                        pengingat: "09:00",
-                        area: formData.category,
-                        dayNumber: day.dayNumber,
-                        dayFocus: day.focus,
-                    });
-                });
-            });
-
-            updatePersonalRoadmap(editData.id, habitTemplates, formData);
-            alert("Your personal plan has been updated!");
-            navigate("/roadmap");
-            return;
-        }
-
-        if (mode === 'global') {
-            const updatedRoadmap = {
-                ...formData,
-                days: cleanedDays,
-            };
-            updateRoadmap(editData.id, updatedRoadmap);
-            alert("Roadmap Template Updated!");
-            navigate("/roadmap");
-            return;
-        }
-
         const roadmapDataForDb = {
             ...formData,
-            author: authorName,
-            authorPhotoURL: currentUser?.photoURL || null,
+            author: "Hexis Team", // Official roadmaps are from the team
+            authorPhotoURL: null, // No specific user photo
             days: cleanedDays,
+            privacy: 'public', // Official roadmaps are always public
         };
 
-        const newRoadmap = await addRoadmap(roadmapDataForDb);
-
-        if (newRoadmap && window.confirm("Roadmap created! Do you want to start it now?")) {
-            const newHabits = [];
-            cleanedDays.forEach(day => {
-                day.habits.forEach(h => {
-                    newHabits.push({
-                        id: Date.now() + Math.random(),
-                        title: h.title,
-                        description: h.description || `Day ${day.dayNumber}: ${day.focus}`,
-                        repeatType: "daily",
-                        daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
-                        goals: h.goals || { target: h.target, count: 0, satuan: h.unit, ulangi: "per_day" },
-                        waktu: h.waktu || h.time || ["Morning"],
-                        waktuMulai: new Date().toISOString().split('T')[0],
-                        pengingat: "09:00",
-                        area: newRoadmap.category,
-                        roadmapId: newRoadmap.id,
-                        roadmapTitle: newRoadmap.title,
-                        dayNumber: day.dayNumber,
-                        dayFocus: day.focus,
-                        completion: {}
-                    });
-                });
-            });
-            await addHabitsBatch(newHabits);
-        }
-        navigate("/roadmap");
+        await addRoadmap(roadmapDataForDb, "official");
+        alert("Official Roadmap Created!");
+        navigate('/admin'); // Redirect back to the admin dashboard
     };
 
     const availableHabits = useMemo(() => {
@@ -266,7 +169,10 @@ export default function CreateRoadmap() {
         return Array.from(map.values());
     }, [days, habit]);
 
-    if (isGuest) return null;
+    if (isGuest || !currentUser || !ADMIN_EMAILS.includes(currentUser.email)) {
+        // Render nothing or a loading spinner while the redirect is happening
+        return null;
+    }
 
     const activeDay = days[activeDayIndex];
 
@@ -276,14 +182,8 @@ export default function CreateRoadmap() {
                 <div className={Styles.leftContent}>
                     <div className={Styles.header} style={{ marginBottom: 15 }}>
                         <h3 style={{ margin: 0, color: 'var(--primary-color)' }}>
-                            {mode === 'personal' ? "Editing My Plan" : (mode === 'global' ? "Editing Template" : "Create Roadmap")}
+                            Create Official Roadmap
                         </h3>
-
-                        {mode === 'global' && (
-                            <button onClick={handleDeleteRoadmap}>
-                                <DeleteIcon color="red" background-color="transparent" />
-                            </button>
-                        )}
                     </div>
 
                     <input
@@ -294,33 +194,17 @@ export default function CreateRoadmap() {
                         onChange={handleInputChange}
                     />
 
-                    {mode !== 'personal' && (
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px', marginBottom: '5px' }}>
-                            <label className={Styles.formLabel} style={{ flex: 1 }}>Category</label>
-                            <label className={Styles.formLabel} style={{ flex: 1 }}>Privacy</label>
-                        </div>
-                    )}
-
-                    {mode !== 'personal' && (
-                        <div className={Styles.selectGroup}>
-                            {/* 2. DYNAMIC DROPDOWN (No "Other" option) */}
-                            <select
-                                name="category"
-                                className={Styles.selectInput}
-                                value={formData.category}
-                                onChange={handleInputChange} // Just use standard input change
-                            >
-                                {categories.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-
-                            <select name="privacy" className={Styles.selectInput} value={formData.privacy} onChange={handleInputChange}>
-                                <option value="public">Public</option>
-                                <option value="private">Private</option>
-                            </select>
-                        </div>
-                    )}
+                    <label className={Styles.formLabel} style={{ display: 'block', marginTop: '15px', marginBottom: '5px' }}>Category</label>
+                    <select
+                        name="category"
+                        className={Styles.selectInput}
+                        value={formData.category}
+                        onChange={handleInputChange}
+                    >
+                        {categories.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
 
                     <label className={Styles.formLabel} style={{ display: 'block', marginTop: '15px', marginBottom: '5px' }}>Description</label>
                     <textarea
@@ -353,9 +237,9 @@ export default function CreateRoadmap() {
                 </div>
 
                 <div className={Styles.footer}>
-                    <button className={Styles.cancelBtn} onClick={() => navigate("/roadmap")}>Cancel</button>
+                    <button className={Styles.cancelBtn} onClick={() => navigate("/admin")}>Cancel</button>
                     <button className={Styles.saveBtn} onClick={handleSaveRoadmap}>
-                        {mode === 'personal' ? "Update My Plan" : (mode === 'global' ? "Update Template" : "Create")}
+                        Publish Official Roadmap
                     </button>
                 </div>
             </div>

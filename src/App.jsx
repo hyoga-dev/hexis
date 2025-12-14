@@ -19,6 +19,8 @@ import LoadingScreen from "./Pages/LoadingScreen";
 import HabitLogic from "./Pages/Components/habitLogic";
 import useTheme from "./data/useTheme";
 import DbTest from "./data/DbTest";
+import AdminDashboard from "./Pages/AdminDashboard";
+import CreateRoadmapOfficial from "./Pages/CreateRoadmapOfficial";
 
 
 function App() {
@@ -45,6 +47,8 @@ function App() {
           <Route path="/Analytics" element={<Analytics />} />
           <Route path="/dbtest" element={<DbTest />} />
           <Route path="/habitLogic" element={<HabitLogic />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/createroadmapofficial" element={<CreateRoadmapOfficial />} />
         </Routes>
       </BrowserRouter>
     </>
