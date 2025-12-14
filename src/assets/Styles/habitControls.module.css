@@ -1,0 +1,90 @@
+/* src/assets/Styles/habitControls.module.css */
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--font-color);
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+.roadmapSelectorContainer {
+  flex: 1;
+  margin-right: auto;
+}
+
+.selectorTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-width: 200px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--font-color);
+}
+
+.selectorTrigger:hover {
+  border-color: var(--primary-color);
+}
+
+.triggerLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.triggerTitle {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.triggerSubtitle {
+  font-size: 0.75rem;
+  color: var(--secondary-font-color);
+}
+
+.selectorTriggerIcon {
+  color: var(--primary-color);
+}
+
+.exploreRoadmapsBtn {
+  width: auto;
+  padding: 0 15px;
+}
+
+.iconBtnSmall {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--primary-color);
+  height: 36px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.iconBtnSmall:hover {
+  background-color: var(--primary-color);
+  color: white;
+}

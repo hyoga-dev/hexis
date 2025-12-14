@@ -24,7 +24,7 @@ const Roadmap = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
-  const [showMyCreations, setShowMyCreations] = useState(false); 
+  const [showMyCreations, setShowMyCreations] = useState(false);
 
   // --- DERIVE MY ROADMAPS ---
   const myRoadmaps = useMemo(() => {
@@ -52,20 +52,20 @@ const Roadmap = () => {
 
     return Array.from(map.values()).map(joined => {
       if (!joined.days || joined.days.length === 0) {
-          const daysMap = new Map();
-          joined.habits.forEach(h => {
-              const dNum = h.dayNumber || 1;
-              if (!daysMap.has(dNum)) {
-                  daysMap.set(dNum, { dayNumber: dNum, focus: h.dayFocus || `Day ${dNum}`, habits: [] });
-              }
-              daysMap.get(dNum).habits.push(h);
-          });
-          joined.days = Array.from(daysMap.values()).sort((a, b) => a.dayNumber - b.dayNumber);
+        const daysMap = new Map();
+        joined.habits.forEach(h => {
+          const dNum = h.dayNumber || 1;
+          if (!daysMap.has(dNum)) {
+            daysMap.set(dNum, { dayNumber: dNum, focus: h.dayFocus || `Day ${dNum}`, habits: [] });
+          }
+          daysMap.get(dNum).habits.push(h);
+        });
+        joined.days = Array.from(daysMap.values()).sort((a, b) => a.dayNumber - b.dayNumber);
       }
 
       const total = joined.habits.length;
       const lastCompletedDay = roadmapProgress?.[joined.id] || 0;
-      const totalDays = joined.days.length || 1; 
+      const totalDays = joined.days.length || 1;
       const percent = Math.min(Math.round((lastCompletedDay / totalDays) * 100), 100);
 
       return {
@@ -118,7 +118,7 @@ const Roadmap = () => {
   const handleDelete = (e, item) => {
     e.stopPropagation();
     if (window.confirm(`Are you sure you want to permanently delete the "${item.title}" roadmap? This cannot be undone.`)) {
-        deleteRoadmap(item.id);
+      deleteRoadmap(item.id);
     }
   };
 
@@ -128,11 +128,11 @@ const Roadmap = () => {
     const isAuthor = currentUser && (item.author === currentUser.displayName || item.author === currentUser.email);
     const isPersonalEdit = activeTab === "personal";
 
-    navigate("/CreateRoadmap", { 
-        state: { 
-            editData: item,
-            mode: isPersonalEdit ? 'personal' : 'global'
-        } 
+    navigate("/CreateRoadmap", {
+      state: {
+        editData: item,
+        mode: isPersonalEdit ? 'personal' : 'global'
+      }
     });
   };
 
@@ -140,15 +140,15 @@ const Roadmap = () => {
   const tabData = activeTab === "personal"
     ? myRoadmaps
     : roadmaps.filter((item) => {
-        if (activeTab === "official") return item.type === "official";
-        if (activeTab === "community") {
-            if (showMyCreations) {
-                const myName = currentUser?.displayName || currentUser?.email;
-                return item.type === "community" && item.author === myName;
-            }
-            return item.type === "community";
+      if (activeTab === "official") return item.type === "official";
+      if (activeTab === "community") {
+        if (showMyCreations) {
+          const myName = currentUser?.displayName || currentUser?.email;
+          return item.type === "community" && item.author === myName;
         }
-        return true;
+        return item.type === "community";
+      }
+      return true;
     });
 
   const categories = useMemo(() => {
@@ -190,7 +190,6 @@ const Roadmap = () => {
         <button onClick={() => setIsOpen(true)} className={NavbarStyles.menuBtn}>
           <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
         </button>
-        <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Roadmaps</h2>
       </div>
 
       <div className={Styles.container}>
@@ -226,12 +225,12 @@ const Roadmap = () => {
         </div>
 
         {activeTab === "community" && (
-            <div style={{marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10}}>
-                <label style={{display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.9rem', color: 'var(--secondary-font-color)'}}>
-                    <input type="checkbox" checked={showMyCreations} onChange={(e) => setShowMyCreations(e.target.checked)} style={{width: 16, height: 16, accentColor: 'var(--primary-color)'}}/>
-                    Show only my creations
-                </label>
-            </div>
+          <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.9rem', color: 'var(--secondary-font-color)' }}>
+              <input type="checkbox" checked={showMyCreations} onChange={(e) => setShowMyCreations(e.target.checked)} style={{ width: 16, height: 16, accentColor: 'var(--primary-color)' }} />
+              Show only my creations
+            </label>
+          </div>
         )}
 
         <div>
@@ -252,66 +251,66 @@ const Roadmap = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                     <span className={Styles.categoryBadge}>{item.category}</span>
 
-                    <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
-                        {canEdit && (
-                            <button 
-                                onClick={(e) => handleEdit(e, item)}
-                                style={{
-                                    background: 'none', 
-                                    border: '1px solid var(--secondary-font-color)', 
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    padding: '4px 8px',
-                                    color: 'var(--font-color)',
-                                    fontSize: '0.8rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    zIndex: 10
-                                }}
-                            >
-                                <PenIcon width="0.8rem" height="0.8rem" color="var(--font-color)" />
-                                <span>Edit</span>
-                            </button>
-                        )}
-                        {canDelete && (
-                            <button
-                                onClick={(e) => handleDelete(e, item)}
-                                style={{
-                                    background: 'none',
-                                    border: '1px solid #ff4d4d',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    padding: '4px 8px',
-                                    color: '#ff4d4d',
-                                    fontSize: '0.8rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    zIndex: 10
-                                }}
-                            >
-                                <DeleteIcon width="0.8rem" height="0.8rem" color="#ff4d4d" />
-                                <span>Delete</span>
-                            </button>
-                        )}
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      {canEdit && (
+                        <button
+                          onClick={(e) => handleEdit(e, item)}
+                          style={{
+                            background: 'none',
+                            border: '1px solid var(--secondary-font-color)',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            color: 'var(--font-color)',
+                            fontSize: '0.8rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            zIndex: 10
+                          }}
+                        >
+                          <PenIcon width="0.8rem" height="0.8rem" color="var(--font-color)" />
+                          <span>Edit</span>
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button
+                          onClick={(e) => handleDelete(e, item)}
+                          style={{
+                            background: 'none',
+                            border: '1px solid #ff4d4d',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            color: '#ff4d4d',
+                            fontSize: '0.8rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            zIndex: 10
+                          }}
+                        >
+                          <DeleteIcon width="0.8rem" height="0.8rem" color="#ff4d4d" />
+                          <span>Delete</span>
+                        </button>
+                      )}
 
-                        {activeTab !== "personal" ? (
-                          isJoined ? (
-                              <span className={Styles.joinedBadge}>✓ Joined</span>
-                          ) : (
-                              <button
-                              onClick={(e) => handleJoinRoadmap(e, item)}
-                              className={Styles.joinBtn}
-                              >
-                              Join +
-                              </button>
-                          )
+                      {activeTab !== "personal" ? (
+                        isJoined ? (
+                          <span className={Styles.joinedBadge}>✓ Joined</span>
                         ) : (
-                          <span style={{ fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '0.9rem' }}>
-                              Current: Day {item.currentDay}
-                          </span>
-                        )}
+                          <button
+                            onClick={(e) => handleJoinRoadmap(e, item)}
+                            className={Styles.joinBtn}
+                          >
+                            Join +
+                          </button>
+                        )
+                      ) : (
+                        <span style={{ fontWeight: 'bold', color: 'var(--primary-color)', fontSize: '0.9rem' }}>
+                          Current: Day {item.currentDay}
+                        </span>
+                      )}
                     </div>
                   </div>
 

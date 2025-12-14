@@ -178,10 +178,6 @@ const Analytics = () => {
         <button onClick={() => setIsOpen(true)} className={NavbarStyle.menuBtn}>
           <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
         </button>
-        <div style={{textAlign: 'right'}}>
-            <span style={{fontSize: '0.8rem', color: 'var(--secondary-font-color)', display: 'block'}}>Welcome back,</span>
-            <span style={{fontWeight: 'bold', fontSize: '1rem'}}>{firstName} 👋</span>
-        </div>
       </div>
 
       <div className={Styles.container}>

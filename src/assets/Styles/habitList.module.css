@@ -1,0 +1,24 @@
+/* src/assets/Styles/habitList.module.css */
+.timeSection {
+  margin-bottom: 25px;
+}
+
+.timeHeader {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+.noHabits {
+  text-align: center;
+  color: gray;
+  margin-top: 40px;
+}
