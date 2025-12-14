@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth } from '../firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth'; // 1. Import signOut
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 const AuthContext = createContext();
 
@@ -10,34 +10,33 @@ export const useAuth = () => {
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
-  const [isGuest, setIsGuest] = useState(() => sessionStorage.getItem("isGuest") === "true");
+  // Default to true. We assume Guest until Firebase tells us otherwise.
+  const [isGuest, setIsGuest] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  // 2. Define the logout function
   function logout() {
-    sessionStorage.removeItem("isGuest");
-    setIsGuest(false);
+    // Signing out now effectively returns you to the default state (Guest)
     return signOut(auth);
   }
 
   function loginAsGuest() {
+    // This function is technically redundant now since it's the default,
+    // but we keep it for compatibility.
     if (currentUser) signOut(auth);
-    setCurrentUser(null);
     setIsGuest(true);
-    sessionStorage.setItem("isGuest", "true");
   }
 
   useEffect(() => {
-    // Updated to standard Firebase v9 modular syntax
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-
-      // Only disable guest mode if a real user is detected
       if (user) {
+        // 1. User Logged In
+        setCurrentUser(user);
         setIsGuest(false);
-        sessionStorage.removeItem("isGuest");
+      } else {
+        // 2. User Logged Out / Not Found -> Force Guest Mode
+        setCurrentUser(null);
+        setIsGuest(true);
       }
-
       setLoading(false);
     });
 
