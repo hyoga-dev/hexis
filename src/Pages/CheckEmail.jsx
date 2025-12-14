@@ -8,7 +8,7 @@ export default function CheckEmail() {
     <>
       <div className={Styles["container-check-email"]}>
         <div className={Styles["btn-back"]}>
-          <Link to="/reset" className={Styles["link-check"]}>
+          <Link onClick={() => window.location.href = "mailto:"} to="/reset" className={Styles["link-check"]}>
             <img src="src/assets/Images/btn-back.png" alt="" />
           </Link>
         </div>

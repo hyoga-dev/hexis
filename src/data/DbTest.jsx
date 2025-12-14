@@ -7,7 +7,6 @@ const dumydata = {
     age: 300
 }
 
-
 async function addData() {
     try {
         const data = collection(db, "test")
