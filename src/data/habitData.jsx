@@ -5,12 +5,11 @@ import { db } from "../firebase";
 import {
     doc,
     collection,
-    getDocs,
     writeBatch,
-    getDoc,
     setDoc,
     deleteDoc,
     updateDoc,
+    onSnapshot // <--- IMPORT THIS
 } from "firebase/firestore";
 
 const habitContext = createContext();
@@ -38,8 +37,11 @@ export function HabitProvider({ children }) {
     const [localHistory, setLocalHistory] = useLocalStorage("guest_history", {});
     const [localRoadmapProgress, setLocalRoadmapProgress] = useLocalStorage("guest_roadmap_progress", {});
 
-    // --- EFFECT: Fetch data ---
+    // --- EFFECT: Real-time Listeners ---
     useEffect(() => {
+        let unsubscribeHabits;
+        let unsubscribeUser;
+
         if (isGuest) {
             setHabit(localHabit);
             setUserStreak(localStreak);
@@ -49,40 +51,37 @@ export function HabitProvider({ children }) {
         }
         else if (currentUser) {
             setLoading(true);
-            const fetchData = async () => {
-                try {
-                    const userDocRef = doc(db, "users", currentUser.uid);
-                    // Reads from offline cache first (if enabled in firebase.js)
-                    const userDocSnap = await getDoc(userDocRef);
-
-                    if (userDocSnap.exists()) {
-                        const userData = userDocSnap.data();
-                        setUserStreak(userData.streak || { count: 0, lastActiveDate: null });
-                        setHabitHistory(userData.habitHistory || {});
-                        setRoadmapProgress(userData.roadmapProgress || {});
-                    } else {
-                        // Create user doc if it doesn't exist
-                        await setDoc(userDocRef, {
-                            streak: { count: 0, lastActiveDate: null },
-                            habitHistory: {},
-                            roadmapProgress: {},
-                            email: currentUser.email,
-                            name: currentUser.displayName
-                        });
-                    }
-
-                    const habitsCollectionRef = collection(db, "users", currentUser.uid, "habits");
-                    const habitsSnapshot = await getDocs(habitsCollectionRef);
-                    const userHabits = habitsSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                    setHabit(userHabits);
-
-                } catch (error) {
-                    console.error("Error fetching user data:", error);
-                } finally {
-                    setLoading(false);
+            
+            // 1. Listen to User Profile (Streak, History, Progress)
+            const userDocRef = doc(db, "users", currentUser.uid);
+            unsubscribeUser = onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    setUserStreak(data.streak || { count: 0, lastActiveDate: null });
+                    setHabitHistory(data.habitHistory || {});
+                    setRoadmapProgress(data.roadmapProgress || {});
+                } else {
+                    // Create profile if it doesn't exist
+                    setDoc(userDocRef, {
+                        streak: { count: 0, lastActiveDate: null },
+                        habitHistory: {},
+                        roadmapProgress: {},
+                        email: currentUser.email,
+                        name: currentUser.displayName
+                    }, { merge: true });
                 }
-            };
-            fetchData();
+            });
+
+            // 2. Listen to Habits Collection (The List)
+            const habitsCollectionRef = collection(db, "users", currentUser.uid, "habits");
+            unsubscribeHabits = onSnapshot(habitsCollectionRef, (snapshot) => {
+                const userHabits = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                setHabit(userHabits);
+                setLoading(false);
+            }, (error) => {
+                console.error("Error listening to habits:", error);
+                setLoading(false);
+            });
         } else {
             setHabit([]);
             setUserStreak({ count: 0, lastActiveDate: null });
@@ -90,9 +89,18 @@ export function HabitProvider({ children }) {
             setRoadmapProgress({});
             setLoading(false);
         }
+
+        // Cleanup listeners when unmounting or switching users
+        return () => {
+            if (unsubscribeHabits) unsubscribeHabits();
+            if (unsubscribeUser) unsubscribeUser();
+        };
     }, [currentUser, isGuest]);
 
-    // --- CRUD OPERATIONS ---
+    // --- CRUD OPERATIONS (Simplified) ---
+    // Note: We removed the manual 'setHabit' calls because the onSnapshot listener 
+    // above will detect these changes instantly (even offline) and update the UI.
+
     const addHabit = async (newHabitData) => {
         if (isGuest) {
             const newHabit = { ...newHabitData, id: Date.now().toString() };
@@ -103,17 +111,12 @@ export function HabitProvider({ children }) {
         }
 
         if (!currentUser) return;
-        
-        // 1. Generate ID immediately (Synchronous)
         const habitsCollectionRef = collection(db, "users", currentUser.uid, "habits");
         const newHabitRef = doc(habitsCollectionRef);
         const habitWithId = { ...newHabitData, id: newHabitRef.id };
 
-        // 2. OPTIMISTIC UPDATE: Update UI immediately
-        setHabit(prev => [...prev, habitWithId]);
-
-        // 3. Sync to DB (Background)
-        await setDoc(newHabitRef, newHabitData).catch(err => console.error("Sync error:", err));
+        // Just write to DB. The listener handles the UI update.
+        await setDoc(newHabitRef, newHabitData);
     };
 
     const updateHabit = async (habitId, updatedData) => {
@@ -125,15 +128,10 @@ export function HabitProvider({ children }) {
         }
 
         if (!currentUser) return;
-
-        // 1. OPTIMISTIC UPDATE
-        setHabit(prev => prev.map(h => h.id === habitId ? updatedData : h));
-
-        // 2. Sync to DB
         const habitDocRef = doc(db, "users", currentUser.uid, "habits", habitId);
         const { id, ...dataToUpdate } = updatedData;
 
-        await updateDoc(habitDocRef, dataToUpdate).catch(err => console.error("Sync error:", err));
+        await updateDoc(habitDocRef, dataToUpdate);
     };
 
     const deleteHabit = async (habitId) => {
@@ -145,16 +143,10 @@ export function HabitProvider({ children }) {
         }
 
         if (!currentUser) return;
-
-        // 1. OPTIMISTIC UPDATE
-        setHabit(prev => prev.filter(h => h.id !== habitId));
-
-        // 2. Sync to DB
         const habitDocRef = doc(db, "users", currentUser.uid, "habits", habitId);
-        await deleteDoc(habitDocRef).catch(err => console.error("Sync error:", err));
+        await deleteDoc(habitDocRef);
     };
 
-    // --- BATCH DELETE ---
     const deleteHabits = async (habitIds) => {
         if (!habitIds || habitIds.length === 0) return;
 
@@ -167,28 +159,23 @@ export function HabitProvider({ children }) {
 
         if (!currentUser) return;
 
-        // 1. OPTIMISTIC UPDATE
-        setHabit(prev => prev.filter(h => !habitIds.includes(h.id)));
-
-        // 2. Sync to DB
         const batch = writeBatch(db);
         habitIds.forEach(id => {
             const habitDocRef = doc(db, "users", currentUser.uid, "habits", id);
             batch.delete(habitDocRef);
         });
 
-        await batch.commit().catch(err => console.error("Sync error:", err));
+        await batch.commit();
     };
 
-    // --- ACTIVITY LOGGING ---
     const logActivity = useCallback(async (amount = 1) => {
         if (!currentUser && !isGuest) return;
 
+        // Calculate locally to ensure responsiveness, but write to DB to trigger listener
         const today = new Date().toLocaleDateString("en-CA");
         const newDailyTotal = Math.max(0, (habitHistory[today] || 0) + amount);
         const newHistory = { ...habitHistory, [today]: newDailyTotal };
 
-        // Calculate Streak Locally
         let newStreak = { ...userStreak };
         if (newDailyTotal > 0) {
             if (userStreak.lastActiveDate !== today) {
@@ -210,24 +197,20 @@ export function HabitProvider({ children }) {
             newStreak = { count: newCount, lastActiveDate: newCount > 0 ? yesterdayString : null };
         }
         
-        // 1. OPTIMISTIC UPDATE
-        setHabitHistory(newHistory);
-        setUserStreak(newStreak);
-
         if (isGuest) {
+            setHabitHistory(newHistory);
+            setUserStreak(newStreak);
             setLocalHistory(newHistory);
             setLocalStreak(newStreak);
         } else if (currentUser) {
-            // 2. Sync to DB
             const userDocRef = doc(db, "users", currentUser.uid);
             updateDoc(userDocRef, {
                 habitHistory: newHistory,
                 streak: newStreak
-            }).catch(err => console.error("Sync error:", err));
+            });
         }
     }, [currentUser, isGuest, habitHistory, userStreak]);
 
-    // --- ROADMAP COMPLETION ---
     const checkRoadmapCompletion = useCallback(async (roadmapId, currentDay) => {
         if ((!currentUser && !isGuest) || !roadmapId || !currentDay) return;
 
@@ -256,22 +239,18 @@ export function HabitProvider({ children }) {
                 }
 
                 const newProgress = { ...roadmapProgress, [roadmapId]: newProgressValue };
-                
-                // 1. OPTIMISTIC UPDATE
-                setRoadmapProgress(newProgress);
 
                 if (isGuest) {
+                    setRoadmapProgress(newProgress);
                     setLocalRoadmapProgress(newProgress);
                 } else if (currentUser) {
-                    // 2. Sync to DB
                     const userDocRef = doc(db, "users", currentUser.uid);
-                    updateDoc(userDocRef, { roadmapProgress: newProgress }).catch(err => console.error("Sync error:", err));
+                    updateDoc(userDocRef, { roadmapProgress: newProgress });
                 }
             }
         }
     }, [currentUser, isGuest, habit, roadmapProgress]);
 
-    // --- SMART UPDATE (BATCH) ---
     const updatePersonalRoadmap = async (roadmapId, newHabitTemplates, metaData) => {
         if (isGuest) {
             const otherHabits = habit.filter(h => String(h.roadmapId) !== String(roadmapId));
@@ -291,7 +270,6 @@ export function HabitProvider({ children }) {
         }
         if (!currentUser) return;
 
-        // Prepare BATCH logic synchronously
         const batch = writeBatch(db);
         const habitsCollectionRef = collection(db, "users", currentUser.uid, "habits");
 
@@ -299,11 +277,6 @@ export function HabitProvider({ children }) {
         const existingHabitsMap = new Map(existingHabits.map(h => [`${h.dayNumber}-${h.title}`, h]));
         const newHabitsMap = new Map(newHabitTemplates.map(t => [`${t.dayNumber}-${t.title}`, t]));
 
-        // Calculate final UI State locally first
-        let updatedHabitsList = habit.filter(h => String(h.roadmapId) !== String(roadmapId)); // Start with non-roadmap habits
-        const newRoadmapHabits = [];
-
-        // 1. Identify Deletions
         for (const existing of existingHabits) {
             if (!newHabitsMap.has(`${existing.dayNumber}-${existing.title}`)) {
                 const habitDocRef = doc(habitsCollectionRef, existing.id);
@@ -311,13 +284,11 @@ export function HabitProvider({ children }) {
             }
         }
 
-        // 2. Identify Updates & Adds
         for (const template of newHabitTemplates) {
             const key = `${template.dayNumber}-${template.title}`;
             const match = existingHabitsMap.get(key);
 
             if (match) {
-                // UPDATE
                 const habitDocRef = doc(habitsCollectionRef, match.id);
                 const { id, ...dataToUpdate } = {
                     ...template,
@@ -327,10 +298,8 @@ export function HabitProvider({ children }) {
                     area: metaData.category
                 };
                 batch.update(habitDocRef, dataToUpdate);
-                newRoadmapHabits.push({ ...dataToUpdate, id: match.id }); // Add to local list
             } else {
-                // ADD
-                const newHabitRef = doc(habitsCollectionRef); // Sync ID
+                const newHabitRef = doc(habitsCollectionRef);
                 const { id, ...dataToAdd } = {
                     ...template,
                     id: newHabitRef.id,
@@ -341,15 +310,9 @@ export function HabitProvider({ children }) {
                     completion: {}
                 };
                 batch.set(newHabitRef, dataToAdd);
-                newRoadmapHabits.push({ ...dataToAdd, id: newHabitRef.id }); // Add to local list
             }
         }
-
-        // 3. OPTIMISTIC UPDATE
-        setHabit([...updatedHabitsList, ...newRoadmapHabits]);
-
-        // 4. Sync to DB
-        await batch.commit().catch(err => console.error("Sync error:", err));
+        await batch.commit();
     };
 
     const addHabitsBatch = async (habitsToAdd) => {
@@ -364,20 +327,14 @@ export function HabitProvider({ children }) {
 
         const batch = writeBatch(db);
         const habitsCollectionRef = collection(db, "users", currentUser.uid, "habits");
-        const newHabitsWithIds = [];
 
         habitsToAdd.forEach(habitData => {
             const newHabitRef = doc(habitsCollectionRef);
             const { id, ...dataToAdd } = { ...habitData, id: newHabitRef.id };
             batch.set(newHabitRef, dataToAdd);
-            newHabitsWithIds.push({ ...habitData, id: newHabitRef.id });
         });
 
-        // 1. OPTIMISTIC UPDATE (Instant Join)
-        setHabit(prev => [...prev, ...newHabitsWithIds]);
-
-        // 2. Sync to DB
-        await batch.commit().catch(err => console.error("Sync error:", err));
+        await batch.commit();
     };
 
     const deleteHabitsByRoadmap = async (roadmapId) => {
@@ -389,10 +346,6 @@ export function HabitProvider({ children }) {
         }
         if (!currentUser) return;
 
-        // 1. OPTIMISTIC UPDATE (Instant Leave)
-        setHabit(prev => prev.filter(h => h.roadmapId !== roadmapId));
-
-        // 2. Sync to DB
         const habitsToDelete = habit.filter(h => h.roadmapId === roadmapId);
         if (habitsToDelete.length === 0) return;
 
@@ -403,7 +356,7 @@ export function HabitProvider({ children }) {
             batch.delete(habitDocRef);
         });
 
-        await batch.commit().catch(err => console.error("Sync error:", err));
+        await batch.commit();
     };
 
     const contextValue = {
@@ -411,7 +364,7 @@ export function HabitProvider({ children }) {
         addHabit,
         updateHabit,
         deleteHabit,
-        deleteHabits,
+        deleteHabits, 
         addHabitsBatch,
         deleteHabitsByRoadmap,
         userStreak,

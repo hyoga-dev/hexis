@@ -16,12 +16,17 @@ export default function CreateRoadmap() {
 
     // Get data contexts
     const { habit, addHabitsBatch, updatePersonalRoadmap } = useHabitProvider();
-    const { addRoadmap, updateRoadmap, deleteRoadmap } = useRoadmapProvider();
+    const { 
+        addRoadmap, 
+        updateRoadmap, 
+        deleteRoadmap,
+        categories // <--- 1. Get the dynamic list from the database
+    } = useRoadmapProvider();
     
-    // 1. Get isGuest status
+    // Get isGuest status
     const { currentUser, isGuest } = useAuth();
 
-    // 2. Redirect Guest
+    // Redirect Guest
     useEffect(() => {
         if (isGuest) {
             alert("Guest accounts cannot create or edit roadmaps. Please sign in.");
@@ -36,7 +41,7 @@ export default function CreateRoadmap() {
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        category: "Productivity",
+        category: "", // Will be set when categories load or editData loads
         privacy: "public",
     });
 
@@ -46,11 +51,12 @@ export default function CreateRoadmap() {
 
     // --- INITIALIZE DATA ---
     useEffect(() => {
+        // If we are editing, load the existing data
         if (editData) {
             setFormData({
                 title: editData.title || "",
                 description: editData.description || "",
-                category: editData.category || "Productivity",
+                category: editData.category || (categories.length > 0 ? categories[0] : "Productivity"),
                 privacy: editData.privacy || "public",
             });
 
@@ -61,8 +67,13 @@ export default function CreateRoadmap() {
                     habits: d.habits.map(h => ({ ...h, id: Date.now() + Math.random() }))
                 })));
             }
+        } else {
+            // If creating new, ensure category defaults to the first available one
+            if (categories.length > 0 && !formData.category) {
+                setFormData(prev => ({ ...prev, category: categories[0] }));
+            }
         }
-    }, [editData]);
+    }, [editData, categories]);
 
     const [activeDayIndex, setActiveDayIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -154,6 +165,7 @@ export default function CreateRoadmap() {
 
     const handleSaveRoadmap = async () => {
         if (!formData.title) return alert("Please enter a Roadmap Title");
+        if (!formData.category) return alert("Please select a Category");
 
         const cleanedDays = days.map(d => ({
             dayNumber: d.dayNumber,
@@ -254,7 +266,6 @@ export default function CreateRoadmap() {
         return Array.from(map.values());
     }, [days, habit]);
 
-    // 3. Prevent rendering if guest
     if (isGuest) return null;
 
     const activeDay = days[activeDayIndex];
@@ -292,12 +303,18 @@ export default function CreateRoadmap() {
 
                     {mode !== 'personal' && (
                         <div className={Styles.selectGroup}>
-                            <select name="category" className={Styles.selectInput} value={formData.category} onChange={handleInputChange}>
-                                <option value="Productivity">Productivity</option>
-                                <option value="Health">Health</option>
-                                <option value="Fitness">Fitness</option>
-                                <option value="Learning">Learning</option>
+                            {/* 2. DYNAMIC DROPDOWN (No "Other" option) */}
+                            <select 
+                                name="category" 
+                                className={Styles.selectInput} 
+                                value={formData.category} 
+                                onChange={handleInputChange} // Just use standard input change
+                            >
+                                {categories.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
                             </select>
+
                             <select name="privacy" className={Styles.selectInput} value={formData.privacy} onChange={handleInputChange}>
                                 <option value="public">Public</option>
                                 <option value="private">Private</option>
