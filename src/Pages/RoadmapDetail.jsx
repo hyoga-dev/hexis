@@ -12,7 +12,7 @@ const RoadmapDetail = () => {
   const navigate = useNavigate();
   const { habit, addHabitsBatch, deleteHabitsByRoadmap, roadmapProgress } = useHabitProvider();
   const { roadmaps, rateRoadmap } = useRoadmapProvider();
-  
+
   // 1. Get isGuest
   const { currentUser, isGuest } = useAuth();
 
@@ -43,6 +43,7 @@ const RoadmapDetail = () => {
           unit: h.unit || "times",
           roadmapId: roadmapData.id,
           roadmapTitle: roadmapData.title,
+          roadmapDescription: roadmapData.description, // <--- ADDED THIS
           area: roadmapData.category,
           waktu: h.time || ["Morning"],
           goals: { count: 0, target: h.target || 1, satuan: h.unit || "times", ulangi: "per_day" },
@@ -74,7 +75,7 @@ const RoadmapDetail = () => {
   const onRate = (score) => {
     // 2. Block Guest Rating
     if (isGuest) return alert("Guest users cannot rate roadmaps. Please sign in.");
-    
+
     if (roadmapData.type !== 'community') return alert("Official roadmaps cannot be rated.");
     rateRoadmap(roadmapData.id, userId, score);
   };

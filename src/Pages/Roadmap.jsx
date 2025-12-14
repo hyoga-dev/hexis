@@ -19,7 +19,7 @@ const Roadmap = () => {
   const navigate = useNavigate();
   const { habit, addHabitsBatch, roadmapProgress } = useHabitProvider();
   const { roadmaps, deleteRoadmap, loading } = useRoadmapProvider();
-  
+
   // 1. Get isGuest status
   const { currentUser, isGuest } = useAuth();
 
@@ -106,6 +106,7 @@ const Roadmap = () => {
           isGrouped: false,
           roadmapId: roadmapItem.id,
           roadmapTitle: roadmapItem.title,
+          roadmapDescription: roadmapItem.description,
           dayNumber: day.dayNumber,
           dayFocus: day.focus,
           completion: {}
@@ -128,7 +129,7 @@ const Roadmap = () => {
   const handleEdit = (e, item) => {
     e.stopPropagation();
     // 2. Prevent Guests from editing
-    if (isGuest) return; 
+    if (isGuest) return;
 
     const isAuthor = currentUser && (item.author === currentUser.displayName || item.author === currentUser.email);
     const isPersonalEdit = activeTab === "personal";
@@ -244,7 +245,7 @@ const Roadmap = () => {
             finalDisplayData.map((item) => {
               const isJoined = habit.some(h => h.roadmapId === item.id);
               const isAuthor = currentUser && (item.author === currentUser.displayName || item.author === currentUser.email);
-              
+
               // 4. Logic to hide Edit/Delete for Guests
               const canEdit = !isGuest && (activeTab === "personal" || (activeTab === "community" && isAuthor));
               const canDelete = !isGuest && (activeTab === "community" && isAuthor);

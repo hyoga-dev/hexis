@@ -1,26 +1,22 @@
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleProvider } from './firebase.js'; 
+import { auth, googleProvider } from './firebase.js';
 
 function Login() {
-  const user = auth.currentUser; 
+  const user = auth.currentUser;
 
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      
-      // The user info is available in result.user
       const user = result.user;
       console.log('Signed in successfully!', user.displayName);
 
     } catch (error) {
-      // Handle Errors 
       console.error('Google Sign-In Error:', error.code, error.message);
     }
   };
 
   const handleSignOut = async () => {
     try {
-      // 2. Call the sign-out function
       await signOut(auth);
       console.log('Signed out successfully!');
     } catch (error) {
@@ -30,8 +26,8 @@ function Login() {
 
   return (
     <div>
-        {console.log(user)}
-        
+      {console.log(user)}
+
       {user ? (
         <div>
           <h3>Welcome, **{user.displayName}**!</h3>
