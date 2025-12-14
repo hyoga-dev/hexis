@@ -6,11 +6,12 @@ import { useState, useMemo, useEffect } from "react";
 
 // Data & Icons
 import { useHabitProvider } from "../data/habitData";
+import { useRoadmapProvider } from "../data/roadmapData";
 import SideBar from "./Components/SideBar";
 import AddHabit from "./AddHabit";
 import AddHabitIcon from "../assets/Icon/AddHabitIcon";
 
-// New Components
+// Components
 import HabitProgressModal from "./Components/HabitProgressModal";
 import RoadmapSelectorModal from "./Components/RoadmapSelectorModal";
 import HabitPageHeader from "./Components/HabitPageHeader";
@@ -27,6 +28,10 @@ const Habit = () => {
   const [activeRoadmapId, setActiveRoadmapId] = useState(null);
   const [activeDay, setActiveDay] = useState(1);
 
+  // Selection Mode State
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedHabitIds, setSelectedHabitIds] = useState(new Set());
+
   const [isAddHabitOpen, setIsAddHabitOpen] = useState(false);
   const [isRoadmapSelectorOpen, setIsRoadmapSelectorOpen] = useState(false);
   const [habitToEdit, setHabitToEdit] = useState(null);
@@ -37,27 +42,31 @@ const Habit = () => {
   const {
     habit,    
     userStreak,
-    logActivity,
     roadmapProgress,
     checkRoadmapCompletion,
     addHabit,
     updateHabit,
     deleteHabit,
+    deleteHabits,
+    logActivity,
     loading
   } = useHabitProvider();
 
+  const { roadmaps } = useRoadmapProvider();
+
   const navigate = useNavigate();
 
-  // --- Memos & Derived State ---
+  // --- Memos ---
   const joinedRoadmaps = useMemo(() => {
     const map = new Map();
     habit.forEach(h => {
       if (h.roadmapId) {
         if (!map.has(h.roadmapId)) {
+          const original = roadmaps.find(r => r.id === h.roadmapId);
           map.set(h.roadmapId, {
             id: h.roadmapId,
-            title: h.roadmapTitle || `Roadmap ${h.roadmapId}`,
-            description: h.roadmapDescription || "Your journey continues...",
+            title: h.roadmapTitle || original?.title || `Roadmap ${h.roadmapId}`,
+            description: h.roadmapDescription || original?.description || "Your journey continues...",
             habits: []
           });
         }
@@ -70,7 +79,7 @@ const Habit = () => {
       const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
       return { ...roadmap, percent };
     });
-  }, [habit]);
+  }, [habit, roadmaps]);
 
   useEffect(() => {
     if (activeTab === "roadmap" && joinedRoadmaps.length > 0) {
@@ -102,6 +111,7 @@ const Habit = () => {
   const filteredHabits = useMemo(() => {
     if (!habit) return [];
     return habit.filter((item) => {
+      // 1. Tab Filtering
       if (activeTab === "personal") {
         if (item.roadmapId) return false;
       } else {
@@ -109,6 +119,9 @@ const Habit = () => {
         if (item.dayNumber && item.dayNumber !== activeDay) return false;
       }
 
+      // 2. Time Filtering
+      // Note: Even in selection mode (flat list), we respect the time filter 
+      // so users can say "Select all Morning habits" if they want.
       if (filterTime !== "all") {
         if (filterTime === "Anytime") { if (item.waktu && item.waktu.length > 0) return false; }
         else { if (!item.waktu || !item.waktu.includes(filterTime)) return false; }
@@ -123,24 +136,46 @@ const Habit = () => {
     return habitWithFocus ? habitWithFocus.dayFocus : null;
   }, [filteredHabits, activeTab, activeRoadmapId]);
 
-  const handleTabChange = (tab) => setActiveTab(tab);
+  const handleTabChange = (tab) => {
+      setActiveTab(tab);
+      setIsSelectionMode(false);
+      setSelectedHabitIds(new Set());
+  };
 
   // --- Handlers ---
-  const handleCardClick = (clickedHabit, timeContext) => {
+  const toggleSelectionMode = () => {
+      setIsSelectionMode(!isSelectionMode);
+      setSelectedHabitIds(new Set()); 
+  };
 
-    if (!clickedHabit) {
-      console.error("Clicked habit is undefined");
-      return;
+  const handleToggleSelectHabit = (id) => {
+      const newSelection = new Set(selectedHabitIds);
+      if (newSelection.has(id)) newSelection.delete(id);
+      else newSelection.add(id);
+      setSelectedHabitIds(newSelection);
+  };
+
+  const handleDeleteSelected = () => {
+      if (selectedHabitIds.size === 0) return;
+      if (window.confirm(`Delete ${selectedHabitIds.size} selected habit(s)?`)) {
+          deleteHabits(Array.from(selectedHabitIds));
+          setIsSelectionMode(false);
+          setSelectedHabitIds(new Set());
+      }
+  };
+
+  const handleCardClick = (clickedHabit, timeContext) => {
+    if (isSelectionMode) {
+        handleToggleSelectHabit(clickedHabit.id);
+        return;
     }
+    if (!clickedHabit) return;
 
     let habitToOpen = { ...clickedHabit };
 
-    // One-time data migration for legacy habits before opening the modal
     if (!habitToOpen.completion) {
       const newCompletion = {};
       const oldCount = habitToOpen.goals?.count || 0;
-
-      // If it's a simple habit, migrate the old total count to its single slot.
       if (oldCount > 0 && (!habitToOpen.waktu || habitToOpen.waktu.length <= 1)) {
         const slot = habitToOpen.waktu?.[0] || "Anytime";
         newCompletion[slot] = oldCount;
@@ -176,47 +211,39 @@ const Habit = () => {
       const timeContext = popUpContent.timeContext;
       const targetPerSlot = habitToUpdate.goals.target || 1;
 
-      // --- Per-Slot Completion Logic ---
       const oldSlotCount = habitToUpdate.completion?.[timeContext] || 0;
       const wasSlotCompleted = oldSlotCount >= targetPerSlot;
       const isSlotCompleted = newSlotCount >= targetPerSlot;
 
-      // Update the completion object for the specific time slot
       const newCompletion = { ...(habitToUpdate.completion || {}), [timeContext]: newSlotCount };
-
-      // Recalculate the total count for the habit (sum of all reps)
       const newTotalCount = Object.values(newCompletion).reduce((sum, val) => sum + val, 0);
 
       const updatedHabit = {
         ...habitToUpdate,
         completion: newCompletion,
-        goals: { ...habitToUpdate.goals, count: newTotalCount } // Update total count to sum of reps
+        goals: { ...habitToUpdate.goals, count: newTotalCount }
       };
+      
       updateHabit(updatedHabit.id, updatedHabit).then(() => {
         if (isSlotCompleted && !wasSlotCompleted) {
-        logActivity(1);
-      } else if (!isSlotCompleted && wasSlotCompleted) {
-        logActivity(-1);
-      }
+            logActivity(1);
+        } else if (!isSlotCompleted && wasSlotCompleted) {
+            logActivity(-1);
+        }
 
-      if (updatedHabit.roadmapId && updatedHabit.dayNumber) {
-        setTimeout(() => {
-          checkRoadmapCompletion(updatedHabit.roadmapId, updatedHabit.dayNumber);
-        }, 50);
-      }
+        if (updatedHabit.roadmapId && updatedHabit.dayNumber) {
+            setTimeout(() => {
+            checkRoadmapCompletion(updatedHabit.roadmapId, updatedHabit.dayNumber);
+            }, 50);
+        }
       });
     }
     setIsProgressOpen(false);
     setCurrentIndex(null);
   };
 
-  const handleDelete = (clickedHabit) => {
-    if (clickedHabit?.id) deleteHabit(clickedHabit.id);
-  };
-
   return (
     <div className={style.wrapper}>
-      {/* --- Refactored Components --- */}
       {isProgressOpen && (
         <HabitProgressModal
           popUpContent={popUpContent}
@@ -252,9 +279,7 @@ const Habit = () => {
         </div>
       )}
 
-      {/* --- Page Layout --- */}
       <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
-
       <HabitPageHeader onMenuClick={() => setIsOpen(true)} streak={userStreak ? userStreak.count : 0} />
 
       <div className={style.container}>
@@ -269,13 +294,15 @@ const Habit = () => {
           setFilterTime={setFilterTime}
           filterStatus={filterStatus}
           setFilterStatus={setFilterStatus}
+          isSelectionMode={isSelectionMode}
+          toggleSelectionMode={toggleSelectionMode}
+          selectedCount={selectedHabitIds.size}
+          onDeleteSelected={handleDeleteSelected}
         />
 
         {activeTab === "roadmap" && activeRoadmapId && availableDays.length > 0 && (
           <div className={style.daySelectorContainer}>
-            <span className={style.daySelectorLabel}>
-              Day :
-            </span>
+            <span className={style.daySelectorLabel}>Day :</span>
             <select
               value={activeDay}
               onChange={(e) => setActiveDay(Number(e.target.value))}
@@ -295,25 +322,24 @@ const Habit = () => {
           </div>
         )}
 
-        {loading && (
-          <div style={{ textAlign: 'center', padding: '50px', color: 'gray' }}>
-            <h4>Loading your habits...</h4>
-          </div>
-        )}
-
         {!loading && (
         <HabitList
           habits={filteredHabits}
           onHabitClick={handleCardClick}
           onEditHabit={handleEditHabit}
-          onDeleteHabit={handleDelete}
+          onDeleteHabit={(h) => { if(h?.id) deleteHabit(h.id); }}
           filterTime={filterTime}
           ignoreSchedule={activeTab === "roadmap"}
           filterStatus={filterStatus}
+          isSelectionMode={isSelectionMode}
+          selectedIds={selectedHabitIds}
+          // NEW PROP: Flatten list if in selection mode
+          isFlatList={isSelectionMode}
         />
         )}
-
-        {activeTab === "personal" && (
+        
+        {/* Add button hidden in selection mode */}
+        {activeTab === "personal" && !isSelectionMode && (
           <button className={style.addHabitBtn} onClick={() => { setHabitToEdit(null); setIsAddHabitOpen(true); }}>
             <AddHabitIcon width="2rem" height="2rem" />
           </button>

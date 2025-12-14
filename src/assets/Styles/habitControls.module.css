@@ -88,3 +88,39 @@
   background-color: var(--primary-color);
   color: white;
 }
+
+.select-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--primary-color);
+  background-color: transparent;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+.cancel-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--primary-color);
+  background-color: transparent;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+.delete-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--primary-color);
+  background-color: transparent;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 110px;
+}
