@@ -1,8 +1,12 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-// import { getStorage } from "firebase/storage";
-import { getFirestore } from "firebase/firestore";
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -12,7 +16,7 @@ const firebaseConfig = {
   storageBucket: "hexis-ca21c.firebasestorage.app",
   messagingSenderId: "671529564556",
   appId: "1:671529564556:web:c39de4386a6ed09d54fea9",
-  measurementId: "G-2H47L76FQG"
+  measurementId: "G-2H47L76FQG",
 };
 
 // Initialize Firebase
@@ -21,5 +25,11 @@ const app = initializeApp(firebaseConfig);
 // Export Auth and Provider services
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
-// export const storage = getStorage(app);
-export const db = getFirestore(app);
+
+// Initialize Firestore with offline persistence enabled
+// This replaces the standard `export const db = getFirestore(app);`
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
