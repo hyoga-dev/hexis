@@ -19,7 +19,9 @@ const Roadmap = () => {
   const navigate = useNavigate();
   const { habit, addHabitsBatch, roadmapProgress } = useHabitProvider();
   const { roadmaps, deleteRoadmap, loading } = useRoadmapProvider();
-  const { currentUser } = useAuth();
+  
+  // 1. Get isGuest status
+  const { currentUser, isGuest } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -111,6 +113,7 @@ const Roadmap = () => {
       });
     });
 
+    // This uses addHabitsBatch which automatically handles LocalStorage for guests
     await addHabitsBatch(allNewHabits);
   };
 
@@ -124,6 +127,9 @@ const Roadmap = () => {
   // --- EDIT HANDLER ---
   const handleEdit = (e, item) => {
     e.stopPropagation();
+    // 2. Prevent Guests from editing
+    if (isGuest) return; 
+
     const isAuthor = currentUser && (item.author === currentUser.displayName || item.author === currentUser.email);
     const isPersonalEdit = activeTab === "personal";
 
@@ -215,7 +221,8 @@ const Roadmap = () => {
               <option value="rating">Top Rated</option>
             </select>
           )}
-          {activeTab === "community" && (
+          {/* 3. Hide Create Button for Guests */}
+          {activeTab === "community" && !isGuest && (
             <button className={Styles.createBtn} onClick={() => navigate("/CreateRoadmap")}>
               <AddHabitIcon className={Styles.btnIcon} />
               <span className={Styles.btnText}>Create</span>
@@ -223,7 +230,7 @@ const Roadmap = () => {
           )}
         </div>
 
-        {activeTab === "community" && (
+        {activeTab === "community" && !isGuest && (
           <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.9rem', color: 'var(--secondary-font-color)' }}>
               <input type="checkbox" checked={showMyCreations} onChange={(e) => setShowMyCreations(e.target.checked)} style={{ width: 16, height: 16, accentColor: 'var(--primary-color)' }} />
@@ -237,14 +244,15 @@ const Roadmap = () => {
             finalDisplayData.map((item) => {
               const isJoined = habit.some(h => h.roadmapId === item.id);
               const isAuthor = currentUser && (item.author === currentUser.displayName || item.author === currentUser.email);
-              const canEdit = activeTab === "personal" || (activeTab === "community" && isAuthor);
-              const canDelete = activeTab === "community" && isAuthor;
+              
+              // 4. Logic to hide Edit/Delete for Guests
+              const canEdit = !isGuest && (activeTab === "personal" || (activeTab === "community" && isAuthor));
+              const canDelete = !isGuest && (activeTab === "community" && isAuthor);
 
               return (
                 <div
                   key={item.id}
                   className={Styles.card}
-                  // --- FIX HERE: ALWAYS GO TO DETAIL PAGE ---
                   onClick={() => navigate("/roadmap-detail", { state: { roadmapItem: item } })}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>

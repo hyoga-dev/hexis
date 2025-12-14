@@ -31,8 +31,13 @@ export function AuthProvider({ children }) {
     // Updated to standard Firebase v9 modular syntax
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      setIsGuest(false); // If auth state changes, it's not a guest session
-      sessionStorage.removeItem("isGuest");
+
+      // Only disable guest mode if a real user is detected
+      if (user) {
+        setIsGuest(false);
+        sessionStorage.removeItem("isGuest");
+      }
+
       setLoading(false);
     });
 

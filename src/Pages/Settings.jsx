@@ -27,7 +27,8 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState("account");
   const navigate = useNavigate();
   
-  const { currentUser } = useAuth();
+  // 1. Get isGuest
+  const { currentUser, isGuest } = useAuth();
   const auth = getAuth();
   
   const [displayName, setDisplayName] = useState("");
@@ -51,7 +52,6 @@ const Settings = () => {
 
   // --- UPDATED: RANDOM AVATAR GENERATOR ---
   const handleGenerateAvatar = () => {
-      // Use a random string so every click gives a totally new face
       const randomSeed = Math.random().toString(36).substring(7) + Date.now();
       const newAvatar = `https://api.dicebear.com/9.x/avataaars/svg?seed=${randomSeed}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
       setPhotoURL(newAvatar);
@@ -71,7 +71,6 @@ const Settings = () => {
         }
 
         setMessage({ type: "success", text: "Profile updated successfully!" });
-        // Force refresh user data
         if (typeof currentUser.reload === 'function') {
             await currentUser.reload();
         }
@@ -117,6 +116,7 @@ const Settings = () => {
               await unlink(currentUser, "google.com");
               setMessage({ type: "success", text: "Google account disconnected." });
           } else {
+              // 2. Guest connects account here
               await linkWithPopup(currentUser, provider);
               setMessage({ type: "success", text: "Google account connected!" });
           }
@@ -167,157 +167,193 @@ const Settings = () => {
           {activeTab === 'account' && (
             <div className={Styles.section}>
               
-              {/* Profile Header */}
-              <div className={Styles.profileHeader}>
-                 <div className={Styles.avatarWrapper}>
-                     {photoURL ? (
-                         <img src={photoURL} alt="Profile" className={Styles.avatarImage} />
-                     ) : (
-                         <div className={Styles.avatarCircle}>
-                            {displayName ? displayName.charAt(0).toUpperCase() : (currentUser?.email?.charAt(0).toUpperCase() || "U")}
-                         </div>
-                     )}
-                     <button 
-                        className={Styles.editAvatarBtn}
-                        onClick={() => setIsAvatarOpen(!isAvatarOpen)}
-                     >
-                        📷
-                     </button>
-                 </div>
-                 
-                 <div>
-                    <h3 style={{margin: 0}}>{displayName || "User"}</h3>
-                    <p className={Styles.description}>{currentUser?.email}</p>
-                 </div>
-              </div>
-
-              {isAvatarOpen && (
-                  <div className={Styles.settingGroup} style={{marginBottom: '10px'}}>
-                      <label className={Styles.inputLabel}>Avatar Image</label>
-                      <div style={{display:'flex', gap:'10px'}}>
-                          <input 
-                              className={Styles.textInput} 
-                              value={photoURL} 
-                              onChange={(e) => setPhotoURL(e.target.value)}
-                              placeholder="https://example.com/my-photo.jpg" 
-                              style={{flex: 1}}
-                          />
-                          <button 
-                            onClick={handleGenerateAvatar}
-                            className={Styles.linkBtn}
-                            style={{fontSize:'1.2rem', padding: '0 15px'}}
-                            title="Generate Random Avatar"
-                          >
-                             🎲
-                          </button>
-                      </div>
-                      <span className={Styles.hintText}>Enter a URL or click 🎲 to generate a random new look!</span>
-                  </div>
-              )}
-
-              <div className={Styles.settingGroup}>
-                  <h4>Profile Details</h4>
-                  
-                  <div className={Styles.inputGroup}>
-                      <label className={Styles.inputLabel}>Display Name</label>
-                      <input 
-                        type="text" 
-                        className={Styles.textInput} 
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        placeholder="Enter your name"
-                      />
-                  </div>
-
-                  <div className={Styles.inputGroup}>
-                      <div style={{display:'flex', justifyContent:'space-between'}}>
-                         <label className={Styles.inputLabel}>Email Address</label>
-                         {currentUser?.emailVerified ? (
-                             <span style={{color:'#4caf50', fontSize:'0.8rem', fontWeight:'bold'}}>✓ Verified</span>
-                         ) : (
-                             <span 
-                                onClick={handleVerifyEmail}
-                                style={{color:'orange', fontSize:'0.8rem', fontWeight:'bold', cursor:'pointer', textDecoration:'underline'}}
-                             >
-                                ⚠ Verify Email
-                             </span>
-                         )}
-                      </div>
-                      <input 
-                        type="email" 
-                        className={Styles.textInput} 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                  </div>
-
-                  {message.text && (
-                      <p className={message.type === 'error' ? Styles.errorMsg : Styles.successMsg}>
-                          {message.text}
+              {/* --- 3. GUEST MODE VIEW --- */}
+              {isGuest ? (
+                  <div style={{textAlign: 'center', padding: '20px'}}>
+                      <h3>Guest Mode</h3>
+                      <p className={Styles.description} style={{marginBottom:'30px'}}>
+                          You are currently using Hexis as a Guest. Your data is stored locally on this device.
+                          Connect a Google Account to sync your habits and unlock all features.
                       </p>
+
+                      <div className={Styles.settingGroup}>
+                        <h4>Sync & Upgrade</h4>
+                        <div className={Styles.connectRow} style={{justifyContent: 'center', marginTop: '15px'}}>
+                            <button 
+                                className={Styles.linkBtn}
+                                onClick={handleGoogleLink}
+                                disabled={isLoading}
+                                style={{width: '100%', maxWidth: '300px', padding: '12px'}}
+                            >
+                                <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'10px'}}>
+                                    <img src={GoogleIcon} width="20" alt="Google" />
+                                    <span>Connect Google Account</span>
+                                </div>
+                            </button>
+                        </div>
+                        {message.text && (
+                            <p className={message.type === 'error' ? Styles.errorMsg : Styles.successMsg}>
+                                {message.text}
+                            </p>
+                        )}
+                      </div>
+                  </div>
+              ) : (
+                /* --- AUTHENTICATED USER VIEW --- */
+                <>
+                  {/* Profile Header */}
+                  <div className={Styles.profileHeader}>
+                     <div className={Styles.avatarWrapper}>
+                         {photoURL ? (
+                             <img src={photoURL} alt="Profile" className={Styles.avatarImage} />
+                         ) : (
+                             <div className={Styles.avatarCircle}>
+                                {displayName ? displayName.charAt(0).toUpperCase() : (currentUser?.email?.charAt(0).toUpperCase() || "U")}
+                             </div>
+                         )}
+                         <button 
+                            className={Styles.editAvatarBtn}
+                            onClick={() => setIsAvatarOpen(!isAvatarOpen)}
+                         >
+                            📷
+                         </button>
+                     </div>
+                     
+                     <div>
+                        <h3 style={{margin: 0}}>{displayName || "User"}</h3>
+                        <p className={Styles.description}>{currentUser?.email}</p>
+                     </div>
+                  </div>
+
+                  {isAvatarOpen && (
+                      <div className={Styles.settingGroup} style={{marginBottom: '10px'}}>
+                          <label className={Styles.inputLabel}>Avatar Image</label>
+                          <div style={{display:'flex', gap:'10px'}}>
+                              <input 
+                                  className={Styles.textInput} 
+                                  value={photoURL} 
+                                  onChange={(e) => setPhotoURL(e.target.value)}
+                                  placeholder="https://example.com/my-photo.jpg" 
+                                  style={{flex: 1}}
+                              />
+                              <button 
+                                onClick={handleGenerateAvatar}
+                                className={Styles.linkBtn}
+                                style={{fontSize:'1.2rem', padding: '0 15px'}}
+                                title="Generate Random Avatar"
+                              >
+                                 🎲
+                              </button>
+                          </div>
+                          <span className={Styles.hintText}>Enter a URL or click 🎲 to generate a random new look!</span>
+                      </div>
                   )}
 
-                  <div style={{display:'flex', gap:'10px', marginTop: '10px'}}>
-                      <button 
-                        onClick={handleUpdateProfile} 
-                        className={Styles.applyBtn}
-                        disabled={isLoading}
-                      >
-                        {isLoading ? "Saving..." : "Save Changes"}
-                      </button>
+                  <div className={Styles.settingGroup}>
+                      <h4>Profile Details</h4>
                       
-                      {isEmailLinked && (
-                          <button 
-                            onClick={handlePasswordReset} 
-                            className={Styles.discardBtn}
-                          >
-                            Reset Password
-                          </button>
+                      <div className={Styles.inputGroup}>
+                          <label className={Styles.inputLabel}>Display Name</label>
+                          <input 
+                            type="text" 
+                            className={Styles.textInput} 
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            placeholder="Enter your name"
+                          />
+                      </div>
+
+                      <div className={Styles.inputGroup}>
+                          <div style={{display:'flex', justifyContent:'space-between'}}>
+                             <label className={Styles.inputLabel}>Email Address</label>
+                             {currentUser?.emailVerified ? (
+                                 <span style={{color:'#4caf50', fontSize:'0.8rem', fontWeight:'bold'}}>✓ Verified</span>
+                             ) : (
+                                 <span 
+                                    onClick={handleVerifyEmail}
+                                    style={{color:'orange', fontSize:'0.8rem', fontWeight:'bold', cursor:'pointer', textDecoration:'underline'}}
+                                 >
+                                    ⚠ Verify Email
+                                 </span>
+                             )}
+                          </div>
+                          <input 
+                            type="email" 
+                            className={Styles.textInput} 
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
+                      </div>
+
+                      {message.text && (
+                          <p className={message.type === 'error' ? Styles.errorMsg : Styles.successMsg}>
+                              {message.text}
+                          </p>
                       )}
-                  </div>
-              </div>
 
-              {/* Connected Accounts */}
-              <div className={Styles.settingGroup}>
-                  <h4>Connected Accounts</h4>
-                  
-                  <div className={Styles.connectRow}>
-                      <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                          <img src={MailIcon} width="20" alt="Email" />
-                          <span>Email Account</span>
+                      <div style={{display:'flex', gap:'10px', marginTop: '10px'}}>
+                          <button 
+                            onClick={handleUpdateProfile} 
+                            className={Styles.applyBtn}
+                            disabled={isLoading}
+                          >
+                            {isLoading ? "Saving..." : "Save Changes"}
+                          </button>
+                          
+                          {isEmailLinked && (
+                              <button 
+                                onClick={handlePasswordReset} 
+                                className={Styles.discardBtn}
+                              >
+                                Reset Password
+                              </button>
+                          )}
                       </div>
-                      <span className={Styles.statusBadge} style={{
-                          backgroundColor: isEmailLinked ? 'rgba(76, 175, 80, 0.1)' : 'rgba(0,0,0,0.05)',
-                          color: isEmailLinked ? '#4caf50' : 'gray'
-                      }}>
-                          {isEmailLinked ? "✓ Active" : "Not Set"}
-                      </span>
                   </div>
 
-                  <div className={Styles.connectRow}>
-                      <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                          <img src={GoogleIcon} width="20" alt="Google" />
-                          <span>Google</span>
+                  {/* Connected Accounts */}
+                  <div className={Styles.settingGroup}>
+                      <h4>Connected Accounts</h4>
+                      
+                      <div className={Styles.connectRow}>
+                          <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                              <img src={MailIcon} width="20" alt="Email" />
+                              <span>Email Account</span>
+                          </div>
+                          <span className={Styles.statusBadge} style={{
+                              backgroundColor: isEmailLinked ? 'rgba(76, 175, 80, 0.1)' : 'rgba(0,0,0,0.05)',
+                              color: isEmailLinked ? '#4caf50' : 'gray'
+                          }}>
+                              {isEmailLinked ? "✓ Active" : "Not Set"}
+                          </span>
                       </div>
-                      <button 
-                        className={isGoogleLinked ? Styles.unlinkBtn : Styles.linkBtn}
-                        onClick={handleGoogleLink}
-                        disabled={isLoading}
-                      >
-                          {isGoogleLinked ? "Disconnect" : "Connect"}
+
+                      <div className={Styles.connectRow}>
+                          <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                              <img src={GoogleIcon} width="20" alt="Google" />
+                              <span>Google</span>
+                          </div>
+                          <button 
+                            className={isGoogleLinked ? Styles.unlinkBtn : Styles.linkBtn}
+                            onClick={handleGoogleLink}
+                            disabled={isLoading}
+                          >
+                              {isGoogleLinked ? "Disconnect" : "Connect"}
+                          </button>
+                      </div>
+                  </div>
+
+                  <div className={`${Styles.settingGroup} ${Styles.dangerZone}`}>
+                      <h4 className={Styles.dangerTitle}>Danger Zone</h4>
+                      <p className={Styles.description}>
+                          Permanently delete your account and all data.
+                      </p>
+                      <button onClick={handleDeleteAccount} className={Styles.deleteAccountBtn}>
+                          Delete Account
                       </button>
                   </div>
-              </div>
-
-              <div className={`${Styles.settingGroup} ${Styles.dangerZone}`}>
-                  <h4 className={Styles.dangerTitle}>Danger Zone</h4>
-                  <p className={Styles.description}>
-                      Permanently delete your account and all data.
-                  </p>
-                  <button onClick={handleDeleteAccount} className={Styles.deleteAccountBtn}>
-                      Delete Account
-                  </button>
-              </div>
+                </>
+              )}
 
             </div>
           )}

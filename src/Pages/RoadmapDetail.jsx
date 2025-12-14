@@ -12,7 +12,9 @@ const RoadmapDetail = () => {
   const navigate = useNavigate();
   const { habit, addHabitsBatch, deleteHabitsByRoadmap, roadmapProgress } = useHabitProvider();
   const { roadmaps, rateRoadmap } = useRoadmapProvider();
-  const { currentUser } = useAuth();
+  
+  // 1. Get isGuest
+  const { currentUser, isGuest } = useAuth();
 
   const [selectedDay, setSelectedDay] = useState(null);
   const [hoverRating, setHoverRating] = useState(0);
@@ -70,6 +72,9 @@ const RoadmapDetail = () => {
   };
 
   const onRate = (score) => {
+    // 2. Block Guest Rating
+    if (isGuest) return alert("Guest users cannot rate roadmaps. Please sign in.");
+    
     if (roadmapData.type !== 'community') return alert("Official roadmaps cannot be rated.");
     rateRoadmap(roadmapData.id, userId, score);
   };
@@ -91,7 +96,7 @@ const RoadmapDetail = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
               {/* Rating UI */}
-              <div style={{ display: 'flex', gap: '5px', cursor: roadmapData.type === 'community' ? 'pointer' : 'default' }}>
+              <div style={{ display: 'flex', gap: '5px', cursor: (roadmapData.type === 'community' && !isGuest) ? 'pointer' : 'default' }}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <div
                     key={star}
@@ -109,14 +114,13 @@ const RoadmapDetail = () => {
                 ))}
               </div>
               <span style={{ fontSize: '0.8rem', color: 'gray', marginTop: '5px' }}>
-                {userRating ? `You rated: ${userRating}/5` : "Rate this roadmap"}
+                {userRating ? `You rated: ${userRating}/5` : (isGuest ? "Sign in to rate" : "Rate this roadmap")}
                 {' • '}
                 <strong style={{ color: 'var(--font-color)' }}>{roadmapData.rating || 0} Avg</strong>
               </span>
             </div>
           </div>
 
-          {/* --- NEW: AUTHOR AVATAR SECTION --- */}
           <div className={Styles.metaRow} style={{ marginTop: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               {roadmapData.authorPhotoURL ? (
