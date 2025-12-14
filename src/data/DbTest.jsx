@@ -6,8 +6,7 @@ const dumydata = {
     nama: "udines",
     age: 300
 }
-
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 qss
 async function addData() {
     try {
         const data = collection(db, "test")
