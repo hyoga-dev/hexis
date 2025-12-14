@@ -1,5 +1,5 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const auth = getAuth();
 // const navigate = useNavigate();
@@ -8,12 +8,14 @@ const auth = getAuth();
 // const password = "password_kuat_123";
 
 export function signUp(email, password) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   createUserWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
     const user = userCredential.user;
     // console.log("Pendaftaran Berhasil!", user);
-    navigate("/habit")
+    // navigate("/habit")
+    window.location.href = '/habit';
+
   })
   .catch((error) => {
     const errorCode = error.code;
@@ -23,11 +25,12 @@ export function signUp(email, password) {
 }
 
 export function signIn(email, password) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
-      navigate("/habit")
+      window.location.href = '/habit';
+
     })
     .catch((error) => {
       const errorCode = error.code;
