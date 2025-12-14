@@ -12,7 +12,7 @@ async function addData() {
     try {
         const data = collection(db, "test")
         
-        await addDoc(data, dumydata, "bambang")        
+        await addDoc(data, dumydata)        
     } catch (error) {
         console.log(error);
     }
