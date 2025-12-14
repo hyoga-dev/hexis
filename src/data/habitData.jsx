@@ -52,6 +52,7 @@ export function HabitProvider({ children }) {
             const fetchData = async () => {
                 try {
                     const userDocRef = doc(db, "users", currentUser.uid);
+                    // Reads from offline cache first (if enabled in firebase.js)
                     const userDocSnap = await getDoc(userDocRef);
 
                     if (userDocSnap.exists()) {
@@ -60,6 +61,7 @@ export function HabitProvider({ children }) {
                         setHabitHistory(userData.habitHistory || {});
                         setRoadmapProgress(userData.roadmapProgress || {});
                     } else {
+                        // Create user doc if it doesn't exist
                         await setDoc(userDocRef, {
                             streak: { count: 0, lastActiveDate: null },
                             habitHistory: {},
@@ -101,12 +103,17 @@ export function HabitProvider({ children }) {
         }
 
         if (!currentUser) return;
+        
+        // 1. Generate ID immediately (Synchronous)
         const habitsCollectionRef = collection(db, "users", currentUser.uid, "habits");
         const newHabitRef = doc(habitsCollectionRef);
         const habitWithId = { ...newHabitData, id: newHabitRef.id };
 
-        await setDoc(newHabitRef, newHabitData);
+        // 2. OPTIMISTIC UPDATE: Update UI immediately
         setHabit(prev => [...prev, habitWithId]);
+
+        // 3. Sync to DB (Background)
+        await setDoc(newHabitRef, newHabitData).catch(err => console.error("Sync error:", err));
     };
 
     const updateHabit = async (habitId, updatedData) => {
@@ -118,11 +125,15 @@ export function HabitProvider({ children }) {
         }
 
         if (!currentUser) return;
+
+        // 1. OPTIMISTIC UPDATE
+        setHabit(prev => prev.map(h => h.id === habitId ? updatedData : h));
+
+        // 2. Sync to DB
         const habitDocRef = doc(db, "users", currentUser.uid, "habits", habitId);
         const { id, ...dataToUpdate } = updatedData;
 
-        await updateDoc(habitDocRef, dataToUpdate);
-        setHabit(prev => prev.map(h => h.id === habitId ? updatedData : h));
+        await updateDoc(habitDocRef, dataToUpdate).catch(err => console.error("Sync error:", err));
     };
 
     const deleteHabit = async (habitId) => {
@@ -134,12 +145,16 @@ export function HabitProvider({ children }) {
         }
 
         if (!currentUser) return;
-        const habitDocRef = doc(db, "users", currentUser.uid, "habits", habitId);
-        await deleteDoc(habitDocRef);
+
+        // 1. OPTIMISTIC UPDATE
         setHabit(prev => prev.filter(h => h.id !== habitId));
+
+        // 2. Sync to DB
+        const habitDocRef = doc(db, "users", currentUser.uid, "habits", habitId);
+        await deleteDoc(habitDocRef).catch(err => console.error("Sync error:", err));
     };
 
-    // --- NEW: BATCH DELETE ---
+    // --- BATCH DELETE ---
     const deleteHabits = async (habitIds) => {
         if (!habitIds || habitIds.length === 0) return;
 
@@ -152,14 +167,17 @@ export function HabitProvider({ children }) {
 
         if (!currentUser) return;
 
+        // 1. OPTIMISTIC UPDATE
+        setHabit(prev => prev.filter(h => !habitIds.includes(h.id)));
+
+        // 2. Sync to DB
         const batch = writeBatch(db);
         habitIds.forEach(id => {
             const habitDocRef = doc(db, "users", currentUser.uid, "habits", id);
             batch.delete(habitDocRef);
         });
 
-        await batch.commit();
-        setHabit(prev => prev.filter(h => !habitIds.includes(h.id)));
+        await batch.commit().catch(err => console.error("Sync error:", err));
     };
 
     // --- ACTIVITY LOGGING ---
@@ -169,8 +187,8 @@ export function HabitProvider({ children }) {
         const today = new Date().toLocaleDateString("en-CA");
         const newDailyTotal = Math.max(0, (habitHistory[today] || 0) + amount);
         const newHistory = { ...habitHistory, [today]: newDailyTotal };
-        setHabitHistory(newHistory);
 
+        // Calculate Streak Locally
         let newStreak = { ...userStreak };
         if (newDailyTotal > 0) {
             if (userStreak.lastActiveDate !== today) {
@@ -192,17 +210,20 @@ export function HabitProvider({ children }) {
             newStreak = { count: newCount, lastActiveDate: newCount > 0 ? yesterdayString : null };
         }
         
+        // 1. OPTIMISTIC UPDATE
+        setHabitHistory(newHistory);
         setUserStreak(newStreak);
 
         if (isGuest) {
             setLocalHistory(newHistory);
             setLocalStreak(newStreak);
         } else if (currentUser) {
+            // 2. Sync to DB
             const userDocRef = doc(db, "users", currentUser.uid);
-            await updateDoc(userDocRef, {
+            updateDoc(userDocRef, {
                 habitHistory: newHistory,
                 streak: newStreak
-            });
+            }).catch(err => console.error("Sync error:", err));
         }
     }, [currentUser, isGuest, habitHistory, userStreak]);
 
@@ -213,7 +234,6 @@ export function HabitProvider({ children }) {
         const dayHabits = habit.filter(h => h.roadmapId === roadmapId && h.dayNumber === currentDay);
         if (dayHabits.length === 0) return;
 
-        // Multiply target by number of time slots if they exist
         const allComplete = dayHabits.every(h => {
              const targetPerSlot = h.goals.target || 1;
              const currentTotal = h.goals.count || 0;
@@ -236,13 +256,16 @@ export function HabitProvider({ children }) {
                 }
 
                 const newProgress = { ...roadmapProgress, [roadmapId]: newProgressValue };
+                
+                // 1. OPTIMISTIC UPDATE
                 setRoadmapProgress(newProgress);
 
                 if (isGuest) {
                     setLocalRoadmapProgress(newProgress);
                 } else if (currentUser) {
+                    // 2. Sync to DB
                     const userDocRef = doc(db, "users", currentUser.uid);
-                    await updateDoc(userDocRef, { roadmapProgress: newProgress });
+                    updateDoc(userDocRef, { roadmapProgress: newProgress }).catch(err => console.error("Sync error:", err));
                 }
             }
         }
@@ -268,6 +291,7 @@ export function HabitProvider({ children }) {
         }
         if (!currentUser) return;
 
+        // Prepare BATCH logic synchronously
         const batch = writeBatch(db);
         const habitsCollectionRef = collection(db, "users", currentUser.uid, "habits");
 
@@ -275,6 +299,11 @@ export function HabitProvider({ children }) {
         const existingHabitsMap = new Map(existingHabits.map(h => [`${h.dayNumber}-${h.title}`, h]));
         const newHabitsMap = new Map(newHabitTemplates.map(t => [`${t.dayNumber}-${t.title}`, t]));
 
+        // Calculate final UI State locally first
+        let updatedHabitsList = habit.filter(h => String(h.roadmapId) !== String(roadmapId)); // Start with non-roadmap habits
+        const newRoadmapHabits = [];
+
+        // 1. Identify Deletions
         for (const existing of existingHabits) {
             if (!newHabitsMap.has(`${existing.dayNumber}-${existing.title}`)) {
                 const habitDocRef = doc(habitsCollectionRef, existing.id);
@@ -282,11 +311,13 @@ export function HabitProvider({ children }) {
             }
         }
 
+        // 2. Identify Updates & Adds
         for (const template of newHabitTemplates) {
             const key = `${template.dayNumber}-${template.title}`;
             const match = existingHabitsMap.get(key);
 
             if (match) {
+                // UPDATE
                 const habitDocRef = doc(habitsCollectionRef, match.id);
                 const { id, ...dataToUpdate } = {
                     ...template,
@@ -296,8 +327,10 @@ export function HabitProvider({ children }) {
                     area: metaData.category
                 };
                 batch.update(habitDocRef, dataToUpdate);
+                newRoadmapHabits.push({ ...dataToUpdate, id: match.id }); // Add to local list
             } else {
-                const newHabitRef = doc(habitsCollectionRef);
+                // ADD
+                const newHabitRef = doc(habitsCollectionRef); // Sync ID
                 const { id, ...dataToAdd } = {
                     ...template,
                     id: newHabitRef.id,
@@ -308,15 +341,15 @@ export function HabitProvider({ children }) {
                     completion: {}
                 };
                 batch.set(newHabitRef, dataToAdd);
+                newRoadmapHabits.push({ ...dataToAdd, id: newHabitRef.id }); // Add to local list
             }
         }
 
-        await batch.commit();
+        // 3. OPTIMISTIC UPDATE
+        setHabit([...updatedHabitsList, ...newRoadmapHabits]);
 
-        const habitsSnapshot = await getDocs(habitsCollectionRef);
-        const allUserHabits = habitsSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        const otherHabits = habit.filter(h => String(h.roadmapId) !== String(roadmapId));
-        setHabit([...otherHabits, ...allUserHabits.filter(h => String(h.roadmapId) === String(roadmapId))]);
+        // 4. Sync to DB
+        await batch.commit().catch(err => console.error("Sync error:", err));
     };
 
     const addHabitsBatch = async (habitsToAdd) => {
@@ -340,8 +373,11 @@ export function HabitProvider({ children }) {
             newHabitsWithIds.push({ ...habitData, id: newHabitRef.id });
         });
 
-        await batch.commit();
+        // 1. OPTIMISTIC UPDATE (Instant Join)
         setHabit(prev => [...prev, ...newHabitsWithIds]);
+
+        // 2. Sync to DB
+        await batch.commit().catch(err => console.error("Sync error:", err));
     };
 
     const deleteHabitsByRoadmap = async (roadmapId) => {
@@ -353,6 +389,10 @@ export function HabitProvider({ children }) {
         }
         if (!currentUser) return;
 
+        // 1. OPTIMISTIC UPDATE (Instant Leave)
+        setHabit(prev => prev.filter(h => h.roadmapId !== roadmapId));
+
+        // 2. Sync to DB
         const habitsToDelete = habit.filter(h => h.roadmapId === roadmapId);
         if (habitsToDelete.length === 0) return;
 
@@ -363,8 +403,7 @@ export function HabitProvider({ children }) {
             batch.delete(habitDocRef);
         });
 
-        await batch.commit();
-        setHabit(prev => prev.filter(h => h.roadmapId !== roadmapId));
+        await batch.commit().catch(err => console.error("Sync error:", err));
     };
 
     const contextValue = {
@@ -372,7 +411,7 @@ export function HabitProvider({ children }) {
         addHabit,
         updateHabit,
         deleteHabit,
-        deleteHabits, // <--- Exported
+        deleteHabits,
         addHabitsBatch,
         deleteHabitsByRoadmap,
         userStreak,
