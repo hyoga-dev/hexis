@@ -1,0 +1,91 @@
+/* src/assets/Styles/roadmapSelectorModal.module.css */
+.roadmapSelectorModalCard {
+  max-width: 450px;
+}
+
+.selectorList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.selectorCard {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selectorCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
+}
+
+.selectorCard.active {
+  border: 2px solid var(--primary-color);
+  background-color: rgba(56, 172, 255, 0.05);
+}
+
+.roadmapMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.roadmapTitle {
+  font-weight: bold;
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.roadmapPercent {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  white-space: nowrap;
+  background-color: var(--surface-color);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.roadmapDesc {
+  font-size: 0.85rem;
+  color: var(--secondary-font-color);
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.miniProgress {
+  height: 6px;
+  width: 100%;
+  background-color: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.miniFill {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 3px;
+}
+
+.exploreRoadmapsBtn {
+  margin-top: 10px;
+}

@@ -64,7 +64,12 @@ const HabitItem = ({ onUpdate, onEdit, onDelete, habits, timeContext, ignoreSche
                 const scheduledForToday = ignoreSchedule || isToday(item.daySet) || isTodayDate(item.daySet);
 
                 // --- PROGRESS LOGIC ---
-                const current = item.goals.count || 0;
+                // Use the timeContext to get the count for this specific slot.
+                // This handles both new data with a `completion` object and provides a
+                // safe fallback for legacy data.
+                const current = item.completion
+                    ? (item.completion[timeContext] || 0)
+                    : ((!item.waktu || item.waktu.length <= 1) ? (item.goals?.count || 0) : 0);
                 const target = item.goals.target || 1;
                 const percent = Math.min((current / target) * 100, 100);
                 const isCompleted = current >= target;

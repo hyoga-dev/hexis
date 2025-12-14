@@ -29,11 +29,12 @@ export default function AddHabit({ onSave, onCancel, habitToEdit, isTemplate }) 
     goals: { target: 1, count: 0, satuan: "times", ulangi: "per_day" },
     waktu: ["Morning", "Afternoon", "Evening"],
     // Start Date defaults to today behind the scenes
-    waktuMulai: new Date().toISOString().split('T')[0], 
+    waktuMulai: new Date().toISOString().split('T')[0],
     pengingat: "09:00",
     area: "",
     checkList: "",
     isGrouped: false,
+    completion: {},
   };
 
   const [dataHabit, setDataHabit] = useState(defaultState);
@@ -140,50 +141,50 @@ export default function AddHabit({ onSave, onCancel, habitToEdit, isTemplate }) 
 
         {/* Repeat (ONLY VISIBLE FOR PERSONAL HABITS) */}
         {!isTemplate && (
-            <div className={Styles.row}>
+          <div className={Styles.row}>
             <div className={Styles.labelCol}>
-                <RepeatIcon color="var(--primary-color)" />
-                <span>Repeat</span>
+              <RepeatIcon color="var(--primary-color)" />
+              <span>Repeat</span>
             </div>
             <div className={Styles["inputCol-repeat"]}>
-                <select
+              <select
                 value={dataHabit.repeatType}
                 onChange={handleRepeatTypeChange}
                 className={Styles.fullWidthInput}
-                >
+              >
                 <option value="daily">Daily</option>
                 <option value="monthly">Monthly</option>
-                </select>
+              </select>
 
-                <div style={{ width: '100%', marginTop: '5px' }}>
+              <div style={{ width: '100%', marginTop: '5px' }}>
                 {dataHabit.repeatType === 'daily' && (
-                    <div className={Styles.daily}>
+                  <div className={Styles.daily}>
                     <label>
-                        <input type="checkbox" onChange={handleEverydayToggle} checked={Array.isArray(dataHabit.daySet) && dataHabit.daySet.length === 7} />
-                        Setiap Hari
+                      <input type="checkbox" onChange={handleEverydayToggle} checked={Array.isArray(dataHabit.daySet) && dataHabit.daySet.length === 7} />
+                      Setiap Hari
                     </label>
                     <hr />
                     {DAYS_OF_WEEK.map((day) => (
-                        <label key={day}>
+                      <label key={day}>
                         <input type="checkbox" value={day} checked={Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(day)} onChange={() => handleDayToggle(day)} />
                         {day}
-                        </label>
+                      </label>
                     ))}
-                    </div>
+                  </div>
                 )}
                 {dataHabit.repeatType === 'monthly' && (
-                    <div className={Styles.monthly}>
+                  <div className={Styles.monthly}>
                     {DATES_IN_MONTH.map((date) => (
-                        <div key={date} onClick={() => handleDateToggle(date)} className={Styles["input-monthly"]}
+                      <div key={date} onClick={() => handleDateToggle(date)} className={Styles["input-monthly"]}
                         style={{ backgroundColor: Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(date) ? '#38acff' : '#f0f0f0', color: Array.isArray(dataHabit.daySet) && dataHabit.daySet.includes(date) ? 'white' : 'black' }}>
                         {date}
-                        </div>
+                      </div>
                     ))}
-                    </div>
+                  </div>
                 )}
-                </div>
+              </div>
             </div>
-            </div>
+          </div>
         )}
 
         {/* Goal */}

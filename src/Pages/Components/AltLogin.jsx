@@ -1,20 +1,19 @@
 // import Icon from "../../assets/Images/icon.png";
 import Styles from "../../assets/Styles/login.module.css";
-import Google from "../../assets/Images/icon-google.png";
-import Facebook from "../../assets/Images/icon-facebook.png";
-import Github from "../../assets/Images/icon-github.png";
+import GoogleIcon from "../../assets/Icon/GoogleIcon.jsx";
+
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleProvider } from '../../firebase.js'; 
+import { auth, googleProvider } from '../../firebase.js';
 
 
 export default function AltLogin() {
 
   // const user = auth.currentUser; 
-    
+
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      
+
       const user = result.user;
       console.log('Signed in successfully!', user.displayName);
       window.location.href = '/habit';
@@ -26,9 +25,7 @@ export default function AltLogin() {
   return (
     <>
       <div className={Styles["alt-login"]}>
-        <img onClick={handleGoogleSignIn} src={Google} className={Styles.icon} />
-        <img src={Facebook} className={Styles.icon} />
-        <img src={Github} className={Styles.icon} />
+        <button className={Styles["google-btn"]} onClick={handleGoogleSignIn}> <GoogleIcon width="2.5rem" height="2.5rem" /></button>
       </div>
     </>
   );

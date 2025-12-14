@@ -28,7 +28,6 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-
           <Route path="/" element={<LoadingScreen />} />
           <Route path="/login" element={<Login />} />
           <Route path="/Register" element={<Register />} />

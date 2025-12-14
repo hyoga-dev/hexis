@@ -2,36 +2,38 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Styles from "../assets/Styles/roadmapDetail.module.css";
 import LeftArrow from "../assets/Icon/LeftArrow";
-import StarIcon from "../assets/Icon/StarIcon"; 
+import StarIcon from "../assets/Icon/StarIcon";
 import { useHabitProvider } from "../data/habitData";
-import { useRoadmapProvider } from "../data/roadmapData"; 
-import { useAuth } from "../data/AuthProvider"; 
+import { useRoadmapProvider } from "../data/roadmapData";
+import { useAuth } from "../data/AuthProvider";
 
 const RoadmapDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { habit, setHabit, roadmapProgress } = useHabitProvider(); 
-  const { roadmaps, rateRoadmap } = useRoadmapProvider(); 
-  const { currentUser } = useAuth(); 
+  const { habit, addHabitsBatch, deleteHabitsByRoadmap, roadmapProgress } = useHabitProvider();
+  const { roadmaps, rateRoadmap } = useRoadmapProvider();
+  
+  // 1. Get isGuest
+  const { currentUser, isGuest } = useAuth();
 
   const [selectedDay, setSelectedDay] = useState(null);
-  const [hoverRating, setHoverRating] = useState(0); 
+  const [hoverRating, setHoverRating] = useState(0);
 
   const initialData = location.state?.roadmapItem;
   const roadmapData = roadmaps.find(r => r.id === initialData?.id) || initialData;
 
-  if (!roadmapData) return <div style={{padding:20}}>Roadmap not found. <button onClick={()=>navigate(-1)}>Back</button></div>;
+  if (!roadmapData) return <div style={{ padding: 20 }}>Roadmap not found. <button onClick={() => navigate(-1)}>Back</button></div>;
 
   const isJoined = habit.some((h) => h.roadmapId === roadmapData.id);
-  const currentCompletedDay = roadmapProgress?.[roadmapData.id] || 0; 
-  
+  const currentCompletedDay = roadmapProgress?.[roadmapData.id] || 0;
+
   const userId = currentUser?.uid || currentUser?.email || "guest";
   const userRating = roadmapData.ratings ? roadmapData.ratings[userId] : 0;
 
   // --- HANDLERS ---
-  const handleJoin = () => {
+  const handleJoin = async () => {
     if (!roadmapData.days || roadmapData.days.length === 0) return alert("This roadmap is empty!");
-    
+
     const allHabits = [];
     roadmapData.days.forEach(day => {
       day.habits.forEach(h => {
@@ -47,33 +49,34 @@ const RoadmapDetail = () => {
           daySet: ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"],
           waktuMulai: new Date().toISOString().split('T')[0],
           pengingat: "09:00",
-          completedTimeSlots: [],
-          dayNumber: day.dayNumber, 
+          completion: {},
+          dayNumber: day.dayNumber,
           dayFocus: day.focus
         });
       });
     });
 
-    const unique = Array.from(new Map(allHabits.map(item => [item.title, item])).values());
-    setHabit([...habit, ...unique]);
-    navigate("/habit", { state: { activeRoadmapId: roadmapData.id }});
+    await addHabitsBatch(allHabits);
+    navigate("/habit", { state: { activeRoadmapId: roadmapData.id } });
   };
 
-  const handleLeave = () => {
+  const handleLeave = async () => {
     if (window.confirm("Are you sure? This will remove all habits and progress for this roadmap.")) {
-      const updatedHabits = habit.filter((h) => h.roadmapId !== roadmapData.id);
-      setHabit(updatedHabits);
+      await deleteHabitsByRoadmap(roadmapData.id);
       navigate("/roadmap");
     }
   };
 
   const handleContinue = () => {
-    navigate("/habit", { state: { activeRoadmapId: roadmapData.id }});
+    navigate("/habit", { state: { activeRoadmapId: roadmapData.id } });
   };
 
   const onRate = (score) => {
-      if(roadmapData.type !== 'community') return alert("Official roadmaps cannot be rated.");
-      rateRoadmap(roadmapData.id, userId, score);
+    // 2. Block Guest Rating
+    if (isGuest) return alert("Guest users cannot rate roadmaps. Please sign in.");
+    
+    if (roadmapData.type !== 'community') return alert("Official roadmaps cannot be rated.");
+    rateRoadmap(roadmapData.id, userId, score);
   };
 
   return (
@@ -85,71 +88,70 @@ const RoadmapDetail = () => {
 
         {/* HEADER */}
         <div className={Styles.header}>
-          <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:'10px'}}>
-             <div>
-                <span className={Styles.categoryBadge}>{roadmapData.category}</span>
-                <h1 className={Styles.title}>{roadmapData.title}</h1>
-             </div>
-             
-             <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end'}}>
-                 {/* Rating UI */}
-                 <div style={{display:'flex', gap:'5px', cursor: roadmapData.type === 'community' ? 'pointer' : 'default'}}>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <div 
-                            key={star}
-                            onMouseEnter={() => setHoverRating(star)}
-                            onMouseLeave={() => setHoverRating(0)}
-                            onClick={() => onRate(star)}
-                            style={{
-                                color: (hoverRating || userRating) >= star ? '#FFD700' : '#e0e0e0',
-                                transition: 'color 0.2s',
-                                transform: hoverRating >= star ? 'scale(1.1)' : 'scale(1)'
-                            }}
-                        >
-                            <StarIcon width="1.8rem" height="1.8rem" />
-                        </div>
-                    ))}
-                 </div>
-                 <span style={{fontSize:'0.8rem', color:'gray', marginTop:'5px'}}>
-                    {userRating ? `You rated: ${userRating}/5` : "Rate this roadmap"} 
-                    {' • '} 
-                    <strong style={{color:'var(--font-color)'}}>{roadmapData.rating || 0} Avg</strong>
-                 </span>
-             </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
+            <div>
+              <span className={Styles.categoryBadge}>{roadmapData.category}</span>
+              <h1 className={Styles.title}>{roadmapData.title}</h1>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              {/* Rating UI */}
+              <div style={{ display: 'flex', gap: '5px', cursor: (roadmapData.type === 'community' && !isGuest) ? 'pointer' : 'default' }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <div
+                    key={star}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    onClick={() => onRate(star)}
+                    style={{
+                      color: (hoverRating || userRating) >= star ? '#FFD700' : '#e0e0e0',
+                      transition: 'color 0.2s',
+                      transform: hoverRating >= star ? 'scale(1.1)' : 'scale(1)'
+                    }}
+                  >
+                    <StarIcon width="1.8rem" height="1.8rem" />
+                  </div>
+                ))}
+              </div>
+              <span style={{ fontSize: '0.8rem', color: 'gray', marginTop: '5px' }}>
+                {userRating ? `You rated: ${userRating}/5` : (isGuest ? "Sign in to rate" : "Rate this roadmap")}
+                {' • '}
+                <strong style={{ color: 'var(--font-color)' }}>{roadmapData.rating || 0} Avg</strong>
+              </span>
+            </div>
           </div>
 
-          {/* --- NEW: AUTHOR AVATAR SECTION --- */}
           <div className={Styles.metaRow} style={{ marginTop: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                {roadmapData.authorPhotoURL ? (
-                    <img 
-                        src={roadmapData.authorPhotoURL} 
-                        alt="author" 
-                        style={{
-                            width: '32px', 
-                            height: '32px', 
-                            borderRadius: '50%', 
-                            objectFit: 'cover',
-                            border: '1px solid var(--border-color)'
-                        }} 
-                    />
-                ) : (
-                    <div style={{
-                        width: '32px', 
-                        height: '32px', 
-                        borderRadius: '50%', 
-                        backgroundColor: '#6c5ce7', 
-                        color: 'white',
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        fontWeight: 'bold',
-                        fontSize: '0.9rem'
-                    }}>
-                        {roadmapData.author ? roadmapData.author.charAt(0).toUpperCase() : 'H'}
-                    </div>
-                )}
-                <span>By {roadmapData.author || (roadmapData.type === 'official' ? 'Hexis Team' : 'Community')}</span>
+              {roadmapData.authorPhotoURL ? (
+                <img
+                  src={roadmapData.authorPhotoURL}
+                  alt="author"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '1px solid var(--border-color)'
+                  }}
+                />
+              ) : (
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#6c5ce7',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  fontSize: '0.9rem'
+                }}>
+                  {roadmapData.author ? roadmapData.author.charAt(0).toUpperCase() : 'H'}
+                </div>
+              )}
+              <span>By {roadmapData.author || (roadmapData.type === 'official' ? 'Hexis Team' : 'Community')}</span>
             </div>
           </div>
         </div>
@@ -181,20 +183,20 @@ const RoadmapDetail = () => {
               roadmapData.days.map((day, index) => {
                 const isCompleted = day.dayNumber <= currentCompletedDay;
                 return (
-                    <div
+                  <div
                     key={index}
                     className={Styles.dayCard}
                     onClick={() => setSelectedDay(day)}
-                    style={isCompleted ? {borderLeft: '4px solid #4caf50'} : {}}
-                    >
+                    style={isCompleted ? { borderLeft: '4px solid #4caf50' } : {}}
+                  >
                     <div className={Styles.dayInfo}>
-                        <h4 style={isCompleted ? {color:'#4caf50'} : {}}>
-                            {isCompleted ? "✓ " : ""}Day {day.dayNumber}: {day.focus}
-                        </h4>
-                        <p>{day.habits.length} habits included</p>
+                      <h4 style={isCompleted ? { color: '#4caf50' } : {}}>
+                        {isCompleted ? "✓ " : ""}Day {day.dayNumber}: {day.focus}
+                      </h4>
+                      <p>{day.habits.length} habits included</p>
                     </div>
                     <span className={Styles.arrowIcon}>→</span>
-                    </div>
+                  </div>
                 );
               })
             ) : (
@@ -206,28 +208,28 @@ const RoadmapDetail = () => {
         {/* FOOTER ACTIONS */}
         <div className={Styles.footer}>
           {isJoined ? (
-            <div style={{display:'flex', gap:'10px', width:'100%'}}>
-                <button
-                    className={Styles.joinBtn}
-                    style={{backgroundColor: 'transparent', color: '#ff4d4d', border: '1px solid #ff4d4d', flex: 1}}
-                    onClick={handleLeave}
-                >
-                    Leave
-                </button>
-                <button
-                    className={Styles.joinBtn}
-                    style={{flex: 2}}
-                    onClick={handleContinue}
-                >
-                    Continue Journey
-                </button>
+            <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+              <button
+                className={Styles.joinBtn}
+                style={{ backgroundColor: 'transparent', color: '#ff4d4d', border: '1px solid #ff4d4d', flex: 1 }}
+                onClick={handleLeave}
+              >
+                Leave
+              </button>
+              <button
+                className={Styles.joinBtn}
+                style={{ flex: 2 }}
+                onClick={handleContinue}
+              >
+                Continue Journey
+              </button>
             </div>
           ) : (
             <button
-                className={Styles.joinBtn}
-                onClick={handleJoin}
+              className={Styles.joinBtn}
+              onClick={handleJoin}
             >
-                Start Roadmap
+              Start Roadmap
             </button>
           )}
         </div>
@@ -250,7 +252,7 @@ const RoadmapDetail = () => {
               {selectedDay.habits.map((h, i) => (
                 <div key={i} className={Styles.modalHabitItem}>
                   <div className={Styles.modalIcon}>
-                      {selectedDay.dayNumber <= currentCompletedDay ? "✅" : "⬜"}
+                    {selectedDay.dayNumber <= currentCompletedDay ? "✅" : "⬜"}
                   </div>
                   <div>
                     <div style={{ fontWeight: 'bold' }}>{h.title}</div>

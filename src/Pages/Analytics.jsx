@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import Styles from "../assets/Styles/analytics.module.css";
 import NavbarStyle from "../assets/Styles/navbar.module.css";
 import BurgerIcon from "../assets/Icon/SideBar/BurgerIcon";
@@ -9,7 +10,44 @@ import { useAuth } from "../data/AuthProvider";
 const Analytics = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { habit, userStreak, habitHistory } = useHabitProvider(); 
-  const { currentUser } = useAuth(); 
+  // 1. Get isGuest
+  const { currentUser, isGuest } = useAuth(); 
+  const navigate = useNavigate();
+
+  // --- 2. GUEST LOCK SCREEN ---
+  if (isGuest) {
+      return (
+        <div className={Styles.wrapper}>
+            <SideBar isOpen={isOpen} onClose={() => setIsOpen(false)} />
+            <div className={NavbarStyle.header}>
+                <button onClick={() => setIsOpen(true)} className={NavbarStyle.menuBtn}>
+                <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
+                </button>
+            </div>
+            <div className={Styles.container} style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'80vh', textAlign:'center'}}>
+                <h2 style={{fontSize:'2rem', marginBottom:'10px'}}>Analytics Locked 🔒</h2>
+                <p style={{color:'var(--secondary-font-color)', maxWidth:'300px', marginBottom:'30px'}}>
+                    Guest users cannot access analytics. 
+                    Create an account to track your consistency, streaks, and detailed performance history.
+                </p>
+                <button 
+                    onClick={() => navigate('/settings')}
+                    style={{
+                        padding: '12px 24px',
+                        backgroundColor: 'var(--primary-color)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Connect Account
+                </button>
+            </div>
+        </div>
+      );
+  }
 
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, data: null, alignClass: Styles.tooltipCenter });
   const daysToShow = 365;
@@ -31,8 +69,8 @@ const Analytics = () => {
   // --- 2. HISTORICAL ANALYSIS (Crunching the numbers) ---
   const historyStats = useMemo(() => {
       const activeDates = Object.keys(habitHistory)
-          .filter(date => habitHistory[date] > 0) // Only count days with actual activity
-          .sort(); // Sort chronologically "2024-01-01", "2024-01-02"
+          .filter(date => habitHistory[date] > 0) 
+          .sort(); 
 
       // A. Total Completions (All time)
       const totalDone = activeDates.reduce((acc, date) => acc + habitHistory[date], 0);
@@ -178,10 +216,6 @@ const Analytics = () => {
         <button onClick={() => setIsOpen(true)} className={NavbarStyle.menuBtn}>
           <BurgerIcon color="var(--font-color)" width="2rem" height="2rem" />
         </button>
-        <div style={{textAlign: 'right'}}>
-            <span style={{fontSize: '0.8rem', color: 'var(--secondary-font-color)', display: 'block'}}>Welcome back,</span>
-            <span style={{fontWeight: 'bold', fontSize: '1rem'}}>{firstName} 👋</span>
-        </div>
       </div>
 
       <div className={Styles.container}>

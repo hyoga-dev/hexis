@@ -1,0 +1,46 @@
+/* src/assets/Styles/habitPageHeader.module.css */
+p {
+  margin: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 50px;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+  }
+}
+
+.streak {
+  display: flex;
+  align-items: center;
+}
+
+.streak span {
+  font-size: 1.5rem;
+}
+
+.menuBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+}
+
+@media (min-width: 768px) {
+  .menuBtn {
+    display: none;
+  }
+}

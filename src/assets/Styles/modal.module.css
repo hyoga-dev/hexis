@@ -1,0 +1,81 @@
+/* src/assets/Styles/modal.module.css */
+.popUp {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  width: 100vw;
+  height: 100vh;
+}
+
+.popUpBackground {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.popUpCard {
+  padding: 24px;
+  z-index: 11;
+  background-color: var(--surface-color);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  width: 85%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  position: relative;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--secondary-font-color);
+  cursor: pointer;
+}
+
+.modalOverlay {
+  z-index: 9999;
+}
+
+.modalCard {
+  z-index: 10000;
+}
+
+.popUpTitle {
+  font-size: 1.3rem;
+  text-align: center;
+  margin: 10px 0 15px 0;
+  width: 100%;
+}
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+  font-size: 1rem;
+  transition: background-color 0.2s, color 0.2s;
+  text-align: center;
+}
+
+.btnPrimary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btnFullWidth {
+  width: 100%;
+}

@@ -253,6 +253,28 @@
   font-weight: bold;
 }
 
+/* --- Modal Wrapper --- */
+.modalOverlay {
+  z-index: 200;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.addHabitModalContent {
+  width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface-color);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
 /* Mobile */
 @media (max-width: 768px) {
   .container {
