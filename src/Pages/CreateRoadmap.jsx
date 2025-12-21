@@ -9,6 +9,7 @@ import AddHabit from "./AddHabit";
 
 import DeleteIcon from "../assets/Icon/DeleteIcon";
 import CopyIcon from "../assets/Icon/CopyIcon";
+import LeftArrow from "../assets/Icon/LeftArrow"; // <--- Import Arrow Icon
 
 export default function CreateRoadmap() {
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function CreateRoadmap() {
         addRoadmap,
         updateRoadmap,
         deleteRoadmap,
-        categories // <--- 1. Get the dynamic list from the database
+        categories 
     } = useRoadmapProvider();
 
     // Get isGuest status
@@ -41,7 +42,7 @@ export default function CreateRoadmap() {
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        category: "", // Will be set when categories load or editData loads
+        category: "",
         privacy: "public",
     });
 
@@ -51,7 +52,6 @@ export default function CreateRoadmap() {
 
     // --- INITIALIZE DATA ---
     useEffect(() => {
-        // If we are editing, load the existing data
         if (editData) {
             setFormData({
                 title: editData.title || "",
@@ -68,7 +68,6 @@ export default function CreateRoadmap() {
                 })));
             }
         } else {
-            // If creating new, ensure category defaults to the first available one
             if (categories.length > 0 && !formData.category) {
                 setFormData(prev => ({ ...prev, category: categories[0] }));
             }
@@ -80,6 +79,9 @@ export default function CreateRoadmap() {
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [habitToEdit, setHabitToEdit] = useState(null);
     const [editingIndex, setEditingIndex] = useState(null);
+    
+    // --- NEW STATE FOR MOBILE ---
+    const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -88,7 +90,9 @@ export default function CreateRoadmap() {
     const addDay = () => {
         const newDayNum = days.length + 1;
         setDays([...days, { id: Date.now(), dayNumber: newDayNum, description: "", habits: [] }]);
+        // Automatically switch to the new day
         setActiveDayIndex(days.length);
+        setIsMobilePanelOpen(true);
     };
 
     const deleteDay = (e, indexToDelete) => {
@@ -272,6 +276,7 @@ export default function CreateRoadmap() {
 
     return (
         <div className={Styles.pageWrapper}>
+            {/* LEFT PANEL: SETTINGS & DAY LIST */}
             <div className={Styles.leftPanel}>
                 <div className={Styles.leftContent}>
                     <div className={Styles.header} style={{ marginBottom: 15 }}>
@@ -295,20 +300,12 @@ export default function CreateRoadmap() {
                     />
 
                     {mode !== 'personal' && (
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px', marginBottom: '5px' }}>
-                            <label className={Styles.formLabel} style={{ flex: 1 }}>Category</label>
-                            <label className={Styles.formLabel} style={{ flex: 1 }}>Privacy</label>
-                        </div>
-                    )}
-
-                    {mode !== 'personal' && (
                         <div className={Styles.selectGroup}>
-                            {/* 2. DYNAMIC DROPDOWN (No "Other" option) */}
                             <select
                                 name="category"
                                 className={Styles.selectInput}
                                 value={formData.category}
-                                onChange={handleInputChange} // Just use standard input change
+                                onChange={handleInputChange}
                             >
                                 {categories.map(cat => (
                                     <option key={cat} value={cat}>{cat}</option>
@@ -339,7 +336,10 @@ export default function CreateRoadmap() {
                             <div
                                 key={day.id}
                                 className={`${Styles.dayItem} ${activeDayIndex === index ? Styles.active : ''}`}
-                                onClick={() => setActiveDayIndex(index)}
+                                onClick={() => {
+                                    setActiveDayIndex(index);
+                                    setIsMobilePanelOpen(true); // <--- OPEN PANEL ON MOBILE
+                                }}
                             >
                                 <div className={Styles.dayInfo}>
                                     <span className={Styles.dayTitle}>Day {day.dayNumber}</span>
@@ -360,7 +360,21 @@ export default function CreateRoadmap() {
                 </div>
             </div>
 
-            <div className={Styles.rightPanel}>
+            {/* RIGHT PANEL: EDITOR */}
+            {/* Added conditional class 'mobileOpen' */}
+            <div className={`${Styles.rightPanel} ${isMobilePanelOpen ? Styles.mobileOpen : ''}`}>
+                
+                {/* NEW MOBILE BACK BUTTON */}
+                <div className={Styles.mobileHeader}>
+                    <button 
+                        className={Styles.mobileBackBtn} 
+                        onClick={() => setIsMobilePanelOpen(false)}
+                    >
+                        <LeftArrow width="1.2rem" height="1.2rem" color="var(--font-color)" />
+                        <span>Back to Overview</span>
+                    </button>
+                </div>
+
                 <div className={Styles.editorHeader}>
                     <h2 className={Styles.dayHeading}>Day {activeDay.dayNumber} Content</h2>
                     <textarea
