@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../assets/Styles/global.css";
 import Styles from "../assets/Styles/login.module.css";
 import Logo from "../assets/Icon/HexisLogoBottom";
 import AltLogin from "./Components/AltLogin";
 import FormBox from "./Components/FormBox";
 import { useAuthLogic } from "../data/userAuth";
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
+import { auth } from "../firebase.js";
 
 const PasswordCriteria = ({ password = "" }) => {
   const criteria = [
@@ -30,8 +32,9 @@ const PasswordCriteria = ({ password = "" }) => {
 };
 
 export default function Register() {
-  const { formData, handleChange, handleSubmit: originalHandleSubmit } = useAuthLogic(true);
+  const { formData, handleChange } = useAuthLogic(true);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const navigate = useNavigate();
 
   const handleBlur = (e) => {
     // Check if the new focused element is NOT a child of the current target (the wrapper div).
@@ -40,7 +43,7 @@ export default function Register() {
     }
   };
 
-  const handleRegistration = (e) => {
+  const handleRegistration = async (e) => {
     e.preventDefault();
 
     const password = formData.password || "";
@@ -62,7 +65,30 @@ export default function Register() {
       return;
     }
 
-    originalHandleSubmit(e);
+    try {
+      // 1. Create User
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, password);
+      const user = userCredential.user;
+
+      // 2. Generate Name (from email) & Avatar (DiceBear)
+      const nameFromEmail = formData.email.split('@')[0];
+      const randomSeed = Math.random().toString(36).substring(7) + Date.now();
+      const newAvatar = `https://api.dicebear.com/9.x/avataaars/svg?seed=${randomSeed}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+
+      // 3. Update Profile
+      await updateProfile(user, {
+        displayName: nameFromEmail,
+        photoURL: newAvatar
+      });
+
+      // 4. Send Verification & Redirect
+      await sendEmailVerification(user);
+      alert("Registration successful! A verification link has been sent to your email.");
+      navigate("/login");
+    } catch (error) {
+      console.error("Registration Error:", error);
+      alert(error.message);
+    }
   };
 
   return (
