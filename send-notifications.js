@@ -44,8 +44,9 @@ async function sendReminders() {
   // Note: String comparison works for time ("00:15" < "00:25")
   const habitsRef = db.collectionGroup("habits");
   const snapshot = await habitsRef
-    .where("reminderTime", ">=", timeStringPast)
-    .where("reminderTime", "<=", timeStringNow)
+    // NEW (Correct)
+    .where("pengingat", ">=", timeStringPast)
+    .where("pengingat", "<=", timeStringNow)
     .get();
 
   if (snapshot.empty) {
