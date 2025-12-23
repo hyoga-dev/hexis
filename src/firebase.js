@@ -66,4 +66,4 @@ export const requestAndSaveToken = async (userId) => {
   } catch (error) {
     console.error("Error getting notification token:", error);
   }
-};belum
+}
