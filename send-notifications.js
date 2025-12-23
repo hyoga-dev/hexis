@@ -1,7 +1,9 @@
+// send-notifications.js
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 
+// 1. Initialize Firebase Admin using Environment Variable
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 const app = initializeApp({
@@ -14,9 +16,7 @@ const messaging = getMessaging(app);
 async function sendReminders() {
   const now = new Date();
 
-  // FORCE separator to be '.' or ':' based on how you saved it in DB
-  // Indonesian locale often uses '.' (22.51), but HTML inputs usually save ':' (22:51)
-  // Let's generate BOTH to be safe.
+  // 2. Generate Time String (e.g., "23:00")
   const options = {
     timeZone: "Asia/Jakarta",
     hour: "2-digit",
@@ -25,7 +25,8 @@ async function sendReminders() {
   };
   const timeString = now.toLocaleTimeString("id-ID", options);
 
-  // Normalizing: Replace dot with colon just in case your DB uses "22:51"
+  // Handle both "23.00" (Indonesian locale) and "23:00" (Standard ISO)
+  // This ensures we catch the reminder regardless of how it was saved.
   const timeWithColon = timeString.replace(".", ":");
   const timeWithDot = timeString.replace(":", ".");
 
@@ -33,17 +34,17 @@ async function sendReminders() {
     `Checking reminders for time: ${timeWithColon} OR ${timeWithDot}`
   );
 
-  // USE COLLECTION GROUP to search all "habits" collections inside any user
+  // 3. Search for habits using Collection Group Query
+  // Note: This requires the "Collection Group Index" on 'habits' for field 'reminderTime'
   const habitsRef = db.collectionGroup("habits");
 
-  // Check for both time formats to be safe
-  const snapshotColon = await habitsRef
-    .where("reminderTime", "==", timeWithColon)
-    .get();
-  const snapshotDot = await habitsRef
-    .where("reminderTime", "==", timeWithDot)
-    .get();
+  // Run two queries in parallel for both time formats
+  const [snapshotColon, snapshotDot] = await Promise.all([
+    habitsRef.where("reminderTime", "==", timeWithColon).get(),
+    habitsRef.where("reminderTime", "==", timeWithDot).get(),
+  ]);
 
+  // Combine results
   const allDocs = [...snapshotColon.docs, ...snapshotDot.docs];
 
   if (allDocs.length === 0) {
@@ -51,48 +52,87 @@ async function sendReminders() {
     return;
   }
 
-  const messages = [];
+  // 4. Group Habits by User Token (To prevent spamming the user)
+  const habitsByToken = {};
 
   for (const doc of allDocs) {
     const data = doc.data();
-
-    // IMPORTANT: If fcmToken is not in the habit, we must fetch it from the parent User
     let token = data.fcmToken;
 
+    // If token is missing in the habit, fetch it from the parent User document
     if (!token) {
-      // Logic: Go up to the parent "users" document
-      const userDoc = await doc.ref.parent.parent.get();
-      if (userDoc.exists) {
-        token = userDoc.data().fcmToken;
+      try {
+        const userDoc = await doc.ref.parent.parent.get();
+        if (userDoc.exists) {
+          token = userDoc.data().fcmToken;
+        }
+      } catch (err) {
+        console.error(`Could not fetch parent user for habit ${doc.id}`);
       }
     }
 
     if (token) {
-      messages.push({
-        token: token,
-        notification: {
-          title: `Reminder: ${data.title || data.habitName || "Habit"}`,
-          body: "Time to complete your habit!",
-        },
-        // Adding webpush config specifically for PWA
-        webpush: {
-          fcmOptions: {
-            link: "https://hexis-ca21c.web.app/", // Change this to your actual URL
-          },
-        },
-      });
-    } else {
-      console.log(`Habit ${doc.id} has no token.`);
+      if (!habitsByToken[token]) {
+        habitsByToken[token] = [];
+      }
+      // Add this habit's title to the user's list
+      habitsByToken[token].push(
+        data.title || data.habitName || "Unnamed Habit"
+      );
     }
   }
 
+  const messages = [];
+
+  // 5. Create ONE summary message per user
+  for (const [token, titles] of Object.entries(habitsByToken)) {
+    let bodyText = "";
+
+    // Logic to format the list nicely
+    if (titles.length === 1) {
+      bodyText = `Time to complete: ${titles[0]}`;
+    } else if (titles.length === 2) {
+      bodyText = `Time to complete: ${titles[0]} and ${titles[1]}`;
+    } else if (titles.length === 3) {
+      bodyText = `Time to complete: ${titles[0]}, ${titles[1]}, and ${titles[2]}`;
+    } else {
+      bodyText = `Time to complete: ${titles[0]}, ${titles[1]} and ${
+        titles.length - 2
+      } others.`;
+    }
+
+    messages.push({
+      token: token,
+      notification: {
+        title: "Hexis Reminder",
+        body: bodyText,
+      },
+      // PWA Specific Config: Clicking notification opens the app
+      webpush: {
+        fcmOptions: {
+          link: "https://hexis-ca21c.web.app",
+        },
+      },
+    });
+  }
+
+  // 6. Send the Batch
   if (messages.length > 0) {
+    console.log(`Sending ${messages.length} notifications...`);
     const response = await messaging.sendEach(messages);
     console.log(
       `Success: ${response.successCount}, Failed: ${response.failureCount}`
     );
+
+    if (response.failureCount > 0) {
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          console.error(`Error sending to device ${idx}:`, resp.error);
+        }
+      });
+    }
   } else {
-    console.log("Found habits, but no valid tokens to send to.");
+    console.log("Found habits, but no valid tokens were found.");
   }
 }
 
