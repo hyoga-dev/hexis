@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { auth } from '../firebase';
+import { auth, requestAndSaveToken } from '../firebase'; // Ensure requestAndSaveToken is exported from firebase.js
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 const AuthContext = createContext();
@@ -20,8 +20,6 @@ export function AuthProvider({ children }) {
   }
 
   function loginAsGuest() {
-    // This function is technically redundant now since it's the default,
-    // but we keep it for compatibility.
     if (currentUser) signOut(auth);
     setIsGuest(true);
   }
@@ -32,6 +30,11 @@ export function AuthProvider({ children }) {
         // 1. User Logged In
         setCurrentUser(user);
         setIsGuest(false);
+
+        // 🚀 NEW: Automatically request permission & save token
+        // This puts the 'fcmToken' into your Firestore User Document
+        requestAndSaveToken(user.uid); 
+
       } else {
         // 2. User Logged Out / Not Found -> Force Guest Mode
         setCurrentUser(null);
