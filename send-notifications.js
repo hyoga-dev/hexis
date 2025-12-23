@@ -16,7 +16,6 @@ async function sendReminders() {
   const now = new Date();
 
   // 1. Calculate the Time Window (Current Time vs 15 Minutes Ago)
-  // We use "Asia/Jakarta" to match your user base
   const options = {
     timeZone: "Asia/Jakarta",
     hour: "2-digit",
@@ -32,21 +31,17 @@ async function sendReminders() {
     .toLocaleTimeString("id-ID", options)
     .replace(".", ":");
 
-  // Today's date string for tracking (e.g., "2025-12-24")
-  // We use this to ensure we don't spam the user every minute
   const todayString = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Jakarta",
   });
 
   console.log(`Checking Window: ${timeStringPast} to ${timeStringNow}`);
 
-  // 2. Query: Find habits within this time window
-  // Note: String comparison works for time ("00:15" < "00:25")
+  // 2. Query: Find habits within this time window using "pengingat"
   const habitsRef = db.collectionGroup("habits");
   const snapshot = await habitsRef
-    // NEW (Correct)
-    .where("pengingat", ">=", timeStringPast)
-    .where("pengingat", "<=", timeStringNow)
+    .where("pengingat", ">=", timeStringPast) // CHANGED HERE
+    .where("pengingat", "<=", timeStringNow) // CHANGED HERE
     .get();
 
   if (snapshot.empty) {
@@ -55,7 +50,7 @@ async function sendReminders() {
   }
 
   const habitsByToken = {};
-  const batch = db.batch(); // We will use this to update "lastRemindedDate"
+  const batch = db.batch();
   let updatesCount = 0;
 
   for (const doc of snapshot.docs) {
@@ -63,7 +58,6 @@ async function sendReminders() {
 
     // 3. SPAM CHECK: Did we already remind them today?
     if (data.lastRemindedDate === todayString) {
-      // Skip this habit, we already sent it
       continue;
     }
 
@@ -80,9 +74,11 @@ async function sendReminders() {
 
     if (token) {
       if (!habitsByToken[token]) habitsByToken[token] = [];
-      habitsByToken[token].push(data.title || "Unnamed Habit");
+      habitsByToken[token].push(
+        data.title || data.habitName || "Unnamed Habit"
+      );
 
-      // 4. Mark as "Sent" in Database so we don't send it again in the next cron job
+      // 4. Mark as "Sent" in Database
       batch.update(doc.ref, { lastRemindedDate: todayString });
       updatesCount++;
     }
@@ -109,7 +105,7 @@ async function sendReminders() {
   if (messages.length > 0) {
     console.log(`Sending ${messages.length} notifications...`);
     await messaging.sendEach(messages);
-    await batch.commit(); // Save the "lastRemindedDate" changes to DB
+    await batch.commit();
     console.log(`Successfully updated ${updatesCount} habits as reminded.`);
   } else {
     console.log("Habits found, but all were already reminded today.");
