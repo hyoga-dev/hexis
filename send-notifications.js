@@ -13,25 +13,36 @@ const messaging = getMessaging(app);
 
 async function sendReminders() {
   const now = new Date();
-  
+
   // FORCE separator to be '.' or ':' based on how you saved it in DB
   // Indonesian locale often uses '.' (22.51), but HTML inputs usually save ':' (22:51)
   // Let's generate BOTH to be safe.
-  const options = { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", hour12: false };
-  const timeString = now.toLocaleTimeString("id-ID", options); 
-  
-  // Normalizing: Replace dot with colon just in case your DB uses "22:51"
-  const timeWithColon = timeString.replace('.', ':');
-  const timeWithDot = timeString.replace(':', '.');
+  const options = {
+    timeZone: "Asia/Jakarta",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  };
+  const timeString = now.toLocaleTimeString("id-ID", options);
 
-  console.log(`Checking reminders for time: ${timeWithColon} OR ${timeWithDot}`);
+  // Normalizing: Replace dot with colon just in case your DB uses "22:51"
+  const timeWithColon = timeString.replace(".", ":");
+  const timeWithDot = timeString.replace(":", ".");
+
+  console.log(
+    `Checking reminders for time: ${timeWithColon} OR ${timeWithDot}`
+  );
 
   // USE COLLECTION GROUP to search all "habits" collections inside any user
   const habitsRef = db.collectionGroup("habits");
-  
+
   // Check for both time formats to be safe
-  const snapshotColon = await habitsRef.where("reminderTime", "==", timeWithColon).get();
-  const snapshotDot = await habitsRef.where("reminderTime", "==", timeWithDot).get();
+  const snapshotColon = await habitsRef
+    .where("reminderTime", "==", timeWithColon)
+    .get();
+  const snapshotDot = await habitsRef
+    .where("reminderTime", "==", timeWithDot)
+    .get();
 
   const allDocs = [...snapshotColon.docs, ...snapshotDot.docs];
 
@@ -41,16 +52,16 @@ async function sendReminders() {
   }
 
   const messages = [];
-  
+
   for (const doc of allDocs) {
     const data = doc.data();
-    
+
     // IMPORTANT: If fcmToken is not in the habit, we must fetch it from the parent User
     let token = data.fcmToken;
 
     if (!token) {
       // Logic: Go up to the parent "users" document
-      const userDoc = await doc.ref.parent.parent.get(); 
+      const userDoc = await doc.ref.parent.parent.get();
       if (userDoc.exists) {
         token = userDoc.data().fcmToken;
       }
@@ -66,18 +77,20 @@ async function sendReminders() {
         // Adding webpush config specifically for PWA
         webpush: {
           fcmOptions: {
-            link: "https://your-app-url.com" // Change this to your actual URL
-          }
-        }
+            link: "https://hexis-ca21c.web.app/", // Change this to your actual URL
+          },
+        },
       });
     } else {
-        console.log(`Habit ${doc.id} has no token.`);
+      console.log(`Habit ${doc.id} has no token.`);
     }
   }
 
   if (messages.length > 0) {
     const response = await messaging.sendEach(messages);
-    console.log(`Success: ${response.successCount}, Failed: ${response.failureCount}`);
+    console.log(
+      `Success: ${response.successCount}, Failed: ${response.failureCount}`
+    );
   } else {
     console.log("Found habits, but no valid tokens to send to.");
   }
