@@ -9,7 +9,8 @@ import {
     setDoc,
     deleteDoc,
     updateDoc,
-    onSnapshot // <--- IMPORT THIS
+    onSnapshot, // <--- IMPORT THIS
+    runTransaction
 } from "firebase/firestore";
 
 const habitContext = createContext();
@@ -51,7 +52,7 @@ export function HabitProvider({ children }) {
         }
         else if (currentUser) {
             setLoading(true);
-            
+
             // 1. Listen to User Profile (Streak, History, Progress)
             const userDocRef = doc(db, "users", currentUser.uid);
             unsubscribeUser = onSnapshot(userDocRef, (docSnap) => {
@@ -96,6 +97,31 @@ export function HabitProvider({ children }) {
             if (unsubscribeUser) unsubscribeUser();
         };
     }, [currentUser, isGuest]);
+
+    // --- EFFECT: Reminders (Check every minute) ---
+    useEffect(() => {
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+
+        const interval = setInterval(() => {
+            const now = new Date();
+            // Format time as "HH:MM" (e.g., "14:30")
+            const currentTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+            habit.forEach(h => {
+                if (h.waktu && h.waktu.includes(currentTime)) {
+                    if (Notification.permission === "granted") {
+                        new Notification(`Time for ${h.title}!`, {
+                            body: "Don't forget to complete your habit.",
+                        });
+                    }
+                }
+            });
+        }, 60000); // Check every 60 seconds
+
+        return () => clearInterval(interval);
+    }, [habit]);
 
     // --- CRUD OPERATIONS (Simplified) ---
     // Note: We removed the manual 'setHabit' calls because the onSnapshot listener 
@@ -171,43 +197,58 @@ export function HabitProvider({ children }) {
     const logActivity = useCallback(async (amount = 1) => {
         if (!currentUser && !isGuest) return;
 
-        // Calculate locally to ensure responsiveness, but write to DB to trigger listener
         const today = new Date().toLocaleDateString("en-CA");
-        const newDailyTotal = Math.max(0, (habitHistory[today] || 0) + amount);
-        const newHistory = { ...habitHistory, [today]: newDailyTotal };
 
-        let newStreak = { ...userStreak };
-        if (newDailyTotal > 0) {
-            if (userStreak.lastActiveDate !== today) {
+        // Helper to calculate streak logic (reused for Guest and Auth)
+        const calculateNewState = (currentHistory, currentStreak) => {
+            const newDailyTotal = Math.max(0, (currentHistory[today] || 0) + amount);
+            const newHistory = { ...currentHistory, [today]: newDailyTotal };
+            let newStreak = { ...currentStreak };
+
+            if (newDailyTotal > 0) {
+                if (currentStreak.lastActiveDate !== today) {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayString = yesterday.toLocaleDateString("en-CA");
+
+                    if (currentStreak.lastActiveDate === yesterdayString) {
+                        newStreak = { count: currentStreak.count + 1, lastActiveDate: today };
+                    } else {
+                        newStreak = { count: 1, lastActiveDate: today };
+                    }
+                }
+            } else if (newDailyTotal === 0 && currentStreak.lastActiveDate === today) {
                 const yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
                 const yesterdayString = yesterday.toLocaleDateString("en-CA");
-
-                if (userStreak.lastActiveDate === yesterdayString) {
-                    newStreak = { count: userStreak.count + 1, lastActiveDate: today };
-                } else {
-                    newStreak = { count: 1, lastActiveDate: today };
-                }
+                const newCount = Math.max(0, currentStreak.count - 1);
+                newStreak = { count: newCount, lastActiveDate: newCount > 0 ? yesterdayString : null };
             }
-        } else if (newDailyTotal === 0 && userStreak.lastActiveDate === today) {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayString = yesterday.toLocaleDateString("en-CA");
-            const newCount = Math.max(0, userStreak.count - 1);
-            newStreak = { count: newCount, lastActiveDate: newCount > 0 ? yesterdayString : null };
-        }
-        
+            return { newHistory, newStreak };
+        };
+
         if (isGuest) {
+            const { newHistory, newStreak } = calculateNewState(habitHistory, userStreak);
             setHabitHistory(newHistory);
             setUserStreak(newStreak);
             setLocalHistory(newHistory);
             setLocalStreak(newStreak);
         } else if (currentUser) {
             const userDocRef = doc(db, "users", currentUser.uid);
-            updateDoc(userDocRef, {
-                habitHistory: newHistory,
-                streak: newStreak
-            });
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const sfDoc = await transaction.get(userDocRef);
+                    if (!sfDoc.exists()) return;
+                    const data = sfDoc.data();
+                    const { newHistory, newStreak } = calculateNewState(
+                        data.habitHistory || {},
+                        data.streak || { count: 0, lastActiveDate: null }
+                    );
+                    transaction.update(userDocRef, { habitHistory: newHistory, streak: newStreak });
+                });
+            } catch (e) {
+                console.error("Streak transaction failed: ", e);
+            }
         }
     }, [currentUser, isGuest, habitHistory, userStreak]);
 
@@ -218,10 +259,10 @@ export function HabitProvider({ children }) {
         if (dayHabits.length === 0) return;
 
         const allComplete = dayHabits.every(h => {
-             const targetPerSlot = h.goals.target || 1;
-             const currentTotal = h.goals.count || 0;
-             const multiplier = (h.waktu && h.waktu.length > 0) ? h.waktu.length : 1;
-             return currentTotal >= (targetPerSlot * multiplier);
+            const targetPerSlot = h.goals.target || 1;
+            const currentTotal = h.goals.count || 0;
+            const multiplier = (h.waktu && h.waktu.length > 0) ? h.waktu.length : 1;
+            return currentTotal >= (targetPerSlot * multiplier);
         });
 
         if (allComplete) {
@@ -233,7 +274,7 @@ export function HabitProvider({ children }) {
                 let newProgressValue;
                 if (currentDay >= maxDay) {
                     alert("🎉 Roadmap Completed! Resetting to Day 1.");
-                    newProgressValue = 0; 
+                    newProgressValue = 0;
                 } else {
                     newProgressValue = currentDay;
                 }
@@ -364,7 +405,7 @@ export function HabitProvider({ children }) {
         addHabit,
         updateHabit,
         deleteHabit,
-        deleteHabits, 
+        deleteHabits,
         addHabitsBatch,
         deleteHabitsByRoadmap,
         userStreak,
