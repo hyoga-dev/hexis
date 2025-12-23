@@ -3,7 +3,6 @@ import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 
-// 1. Initialize Firebase Admin using Environment Variable
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 const app = initializeApp({
@@ -16,90 +15,85 @@ const messaging = getMessaging(app);
 async function sendReminders() {
   const now = new Date();
 
-  // 2. Generate Time String (e.g., "23:00")
+  // 1. Calculate the Time Window (Current Time vs 15 Minutes Ago)
+  // We use "Asia/Jakarta" to match your user base
   const options = {
     timeZone: "Asia/Jakarta",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   };
-  const timeString = now.toLocaleTimeString("id-ID", options);
+  const timeStringNow = now
+    .toLocaleTimeString("id-ID", options)
+    .replace(".", ":");
 
-  // Handle both "23.00" (Indonesian locale) and "23:00" (Standard ISO)
-  // This ensures we catch the reminder regardless of how it was saved.
-  const timeWithColon = timeString.replace(".", ":");
-  const timeWithDot = timeString.replace(":", ".");
+  const pastDate = new Date(now.getTime() - 15 * 60000); // 15 mins ago
+  const timeStringPast = pastDate
+    .toLocaleTimeString("id-ID", options)
+    .replace(".", ":");
 
-  console.log(
-    `Checking reminders for time: ${timeWithColon} OR ${timeWithDot}`
-  );
+  // Today's date string for tracking (e.g., "2025-12-24")
+  // We use this to ensure we don't spam the user every minute
+  const todayString = new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Jakarta",
+  });
 
-  // 3. Search for habits using Collection Group Query
-  // Note: This requires the "Collection Group Index" on 'habits' for field 'reminderTime'
+  console.log(`Checking Window: ${timeStringPast} to ${timeStringNow}`);
+
+  // 2. Query: Find habits within this time window
+  // Note: String comparison works for time ("00:15" < "00:25")
   const habitsRef = db.collectionGroup("habits");
+  const snapshot = await habitsRef
+    .where("reminderTime", ">=", timeStringPast)
+    .where("reminderTime", "<=", timeStringNow)
+    .get();
 
-  // Run two queries in parallel for both time formats
-  const [snapshotColon, snapshotDot] = await Promise.all([
-    habitsRef.where("reminderTime", "==", timeWithColon).get(),
-    habitsRef.where("reminderTime", "==", timeWithDot).get(),
-  ]);
-
-  // Combine results
-  const allDocs = [...snapshotColon.docs, ...snapshotDot.docs];
-
-  if (allDocs.length === 0) {
-    console.log("No reminders found for this time.");
+  if (snapshot.empty) {
+    console.log("No reminders found in this time window.");
     return;
   }
 
-  // 4. Group Habits by User Token (To prevent spamming the user)
   const habitsByToken = {};
+  const batch = db.batch(); // We will use this to update "lastRemindedDate"
+  let updatesCount = 0;
 
-  for (const doc of allDocs) {
+  for (const doc of snapshot.docs) {
     const data = doc.data();
-    let token = data.fcmToken;
 
-    // If token is missing in the habit, fetch it from the parent User document
+    // 3. SPAM CHECK: Did we already remind them today?
+    if (data.lastRemindedDate === todayString) {
+      // Skip this habit, we already sent it
+      continue;
+    }
+
+    let token = data.fcmToken;
+    // Fetch token from parent User if missing
     if (!token) {
       try {
         const userDoc = await doc.ref.parent.parent.get();
-        if (userDoc.exists) {
-          token = userDoc.data().fcmToken;
-        }
+        if (userDoc.exists) token = userDoc.data().fcmToken;
       } catch (err) {
-        console.error(`Could not fetch parent user for habit ${doc.id}`);
+        console.error(err);
       }
     }
 
     if (token) {
-      if (!habitsByToken[token]) {
-        habitsByToken[token] = [];
-      }
-      // Add this habit's title to the user's list
-      habitsByToken[token].push(
-        data.title || data.habitName || "Unnamed Habit"
-      );
+      if (!habitsByToken[token]) habitsByToken[token] = [];
+      habitsByToken[token].push(data.title || "Unnamed Habit");
+
+      // 4. Mark as "Sent" in Database so we don't send it again in the next cron job
+      batch.update(doc.ref, { lastRemindedDate: todayString });
+      updatesCount++;
     }
   }
 
+  // 5. Send Notifications (Grouped)
   const messages = [];
-
-  // 5. Create ONE summary message per user
   for (const [token, titles] of Object.entries(habitsByToken)) {
-    let bodyText = "";
-
-    // Logic to format the list nicely
-    if (titles.length === 1) {
-      bodyText = `Time to complete: ${titles[0]}`;
-    } else if (titles.length === 2) {
-      bodyText = `Time to complete: ${titles[0]} and ${titles[1]}`;
-    } else if (titles.length === 3) {
-      bodyText = `Time to complete: ${titles[0]}, ${titles[1]}, and ${titles[2]}`;
-    } else {
-      bodyText = `Time to complete: ${titles[0]}, ${titles[1]} and ${
-        titles.length - 2
-      } others.`;
-    }
+    const bodyText =
+      titles.length === 1
+        ? `Time to complete: ${titles[0]}`
+        : `Time to complete: ${titles.length} habits including ${titles[0]}`;
 
     messages.push({
       token: token,
@@ -107,32 +101,17 @@ async function sendReminders() {
         title: "Hexis Reminder",
         body: bodyText,
       },
-      // PWA Specific Config: Clicking notification opens the app
-      webpush: {
-        fcmOptions: {
-          link: "https://hexis-ca21c.web.app",
-        },
-      },
+      webpush: { fcmOptions: { link: "https://hexis-ca21c.web.app" } },
     });
   }
 
-  // 6. Send the Batch
   if (messages.length > 0) {
     console.log(`Sending ${messages.length} notifications...`);
-    const response = await messaging.sendEach(messages);
-    console.log(
-      `Success: ${response.successCount}, Failed: ${response.failureCount}`
-    );
-
-    if (response.failureCount > 0) {
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          console.error(`Error sending to device ${idx}:`, resp.error);
-        }
-      });
-    }
+    await messaging.sendEach(messages);
+    await batch.commit(); // Save the "lastRemindedDate" changes to DB
+    console.log(`Successfully updated ${updatesCount} habits as reminded.`);
   } else {
-    console.log("Found habits, but no valid tokens were found.");
+    console.log("Habits found, but all were already reminded today.");
   }
 }
 
