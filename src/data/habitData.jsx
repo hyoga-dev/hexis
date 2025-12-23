@@ -97,32 +97,6 @@ export function HabitProvider({ children }) {
             if (unsubscribeUser) unsubscribeUser();
         };
     }, [currentUser, isGuest]);
-
-    // --- EFFECT: Reminders (Check every minute) ---
-    useEffect(() => {
-        if ("Notification" in window && Notification.permission === "default") {
-            Notification.requestPermission();
-        }
-
-        const interval = setInterval(() => {
-            const now = new Date();
-            // Format time as "HH:MM" (e.g., "14:30")
-            const currentTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-
-            habit.forEach(h => {
-                if (h.waktu && h.waktu.includes(currentTime)) {
-                    if (Notification.permission === "granted") {
-                        new Notification(`Time for ${h.title}!`, {
-                            body: "Don't forget to complete your habit.",
-                        });
-                    }
-                }
-            });
-        }, 60000); // Check every 60 seconds
-
-        return () => clearInterval(interval);
-    }, [habit]);
-
     // --- CRUD OPERATIONS (Simplified) ---
     // Note: We removed the manual 'setHabit' calls because the onSnapshot listener 
     // above will detect these changes instantly (even offline) and update the UI.
